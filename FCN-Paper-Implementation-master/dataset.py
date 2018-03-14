@@ -9,7 +9,7 @@ import torch
 import matplotlib.pyplot as plt
 import matplotlib.image as myimg
 
-class ADE20KDataSet(Dataset):
+class mykaggle_loader(Dataset):
 
   def __init__(self, root, file, segfile,classfile, size, max_sample=-1, train=True):
     """
@@ -113,7 +113,7 @@ class ADE20KDataSet(Dataset):
     # load image and label
     try:
       img = imread(path_img, mode='RGB')
-      seg = 0
+      seg = np.zeros(img.shape)
       for path_segm_temp in path_seg.split(","):
         if (path_segm_temp is not ""):
           seg_t = imread(path_segm_temp, mode='RGB')
@@ -132,10 +132,7 @@ class ADE20KDataSet(Dataset):
         img, seg = self._scale_and_crop(img, seg, self.size, self.train)
         if random.choice([-1, 1]) > 0:
           img, seg = self._flip(img, seg)
-      #plt.imshow(img)
-      #plt.show()
-      #plt.imshow(seg)
-      #plt.show()
+
       # image to float
       img = img.astype(np.float32) / 255.
       img = img.transpose((2, 0, 1))
@@ -145,22 +142,16 @@ class ADE20KDataSet(Dataset):
       seg = np.round(seg[:, :, 0] / 10.) * 256 + seg[:, :, 1]
       # seg[i, j] = 0 for unlabeled pixels.
       seg = seg.astype(np.int)
-
-      #print("")
-      #for i in range(seg.shape[0]):
-      #  for j in range(seg.shape[1]):
-      #    seg[i, j] = self.class_dict[seg[i, j]]
+      #print(seg[:,:]>0)
+      seg[seg[:,:]>0] = 1
 
       # to torch tensor
-      #print(img)
-      #print(seg)
+
       image = torch.from_numpy(img)
       segmentation = torch.from_numpy(seg)
-      #print(image)
-      #print(segmentation)
 
     except Exception as e:
-      print("working")
+      #print("working")
       print('Failed loading image/segmentation [{}]: {}'.format(path_img, e))
       # dummy data
       image = torch.zeros(3, self.size, self.size)
@@ -181,11 +172,23 @@ class ADE20KDataSet(Dataset):
 
 
 def main():
-  ade20k = ADE20KDataSet('kaggle_train_data', 'kaggle_train_data/train_kaggle1.txt','kaggle_train_data/train_kaggle1_segm.txt','kaggle_train_data/train_kaggle1_class.txt', 128)
+  ade20k = mykaggle_loader('kaggle_train_data', 'kaggle_train_data/train_kaggle1.txt','kaggle_train_data/train_kaggle1_segm.txt','kaggle_train_data/train_kaggle1_class.txt', 128)
+  index = 1
+  count = 0
+  img,seg,_ = ade20k.__getitem__(1)
+  #print(img)
+  #print(seg)
+  # for img,seg,_ in ade20k:
+  #     count +=1
+  #     print(count)
+  #     print(img.numpy().shape)
+  #     print(seg.numpy().shape)
+  image, segmentation, img_basename = ade20k.__getitem__(index)
+  plt.imshow(seg.numpy())
+  plt.colorbar()
+  plt.show()
 
-  image, segmentation, img_basename = ade20k.__getitem__(1)
-  #print(image)
-  #print(segmentation)
+
 
 if __name__ == '__main__':
   main()

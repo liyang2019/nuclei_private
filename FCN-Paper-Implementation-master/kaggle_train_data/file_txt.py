@@ -26,7 +26,7 @@ count = 1
 filekey = open("train_kaggle1.txt","w")
 filekey2 = open("train_kaggle1_class.txt","w")
 filekey3 = open("train_kaggle1_segm.txt","w")
-for i in os.listdir(file_dir2)[0:20]:
+for i in os.listdir(file_dir2)[1:5]:
     file_dir3 = os.path.join(file_dir2,i,"Images")
     file_dir4 = os.listdir(file_dir3)
     im = Image.open(os.path.join(file_dir3,file_dir4[0]))

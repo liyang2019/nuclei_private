@@ -21,7 +21,7 @@ class FCN8s(nn.Module):
     Spatial information of different layers' feature maps cannot be align exactly because of cropping, which is bad
     '''
     features[0].padding = (100, 100)
-
+    #print(vgg)
     for f in features:
         if 'MaxPool' in f.__class__.__name__:
             f.ceil_mode = True
@@ -45,9 +45,11 @@ class FCN8s(nn.Module):
     fc7 = nn.Conv2d(4096, 4096, kernel_size=1)
     fc7.weight.data.copy_(classifier[3].weight.data.view(4096, 4096, 1, 1))
     fc7.bias.data.copy_(classifier[3].bias.data)
+
     score_fr = nn.Conv2d(4096, num_classes, kernel_size=1)
     score_fr.weight.data.zero_()
     score_fr.bias.data.zero_()
+
     self.score_fr = nn.Sequential(
         fc6, nn.ReLU(inplace=True), nn.Dropout(), fc7, nn.ReLU(inplace=True), nn.Dropout(), score_fr
     )
@@ -78,13 +80,16 @@ class FCN8s(nn.Module):
     return upscore8[:, :, 31: (31 + x_size[2]), 31: (31 + x_size[3])].contiguous()
 
 
+
+
 def main():
   fcn8s = FCN8s(2, pretrained=True)
-  x = torch.autograd.Variable(torch.zeros((1, 3, 128, 128)))
+  x = torch.autograd.Variable(torch.zeros((2,3, 128, 128)))
   y = fcn8s(x).data.numpy()
-  y = y.squeeze().transpose((2, 3, 1))
+  y = y[1,:,:,:].transpose((1, 2, 0))
   y = y[:, :, 1] > 0
   plt.imshow(y)
+  plt.show()
   print(fcn8s(x))
 
 
