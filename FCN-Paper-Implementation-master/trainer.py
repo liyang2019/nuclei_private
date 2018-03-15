@@ -3,12 +3,13 @@ import torch
 from dataset import mykaggle_loader
 from torch.utils.data import DataLoader
 from fcn8s import FCN8s
+from fcn32s import FCN32s
 import torch.nn.functional as F
 from torch.autograd import Variable
-
-
+import matplotlib.pyplot as plt
+import numpy as np
 class Trainer:
-  def __init__(self, cuda, model, train_loader, val_loader, loss, n_epochs, n_save, learning_rate):
+  def __init__(self, cuda, model, train_loader, val_loader, loss, n_epochs, n_save, learning_rate,is_validation):
     """
     Initialization for Trainer of FCN model for image segmentation.
     :param cuda: True is cuda available.
@@ -19,6 +20,7 @@ class Trainer:
     :param n_epochs: The max number for epochs.
     :param n_save; Save every n_save iterations.
     :param learning_rate: The learning rate.
+    :param is_validation: If using validation
     """
     self.cuda = cuda
     self.model = model
@@ -29,6 +31,7 @@ class Trainer:
     self.n_save = n_save
     self.optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     self.n_iter = 0
+    self.is_validation = is_validation
 
   def train_epoch(self):
     for img, seg, _ in self.train_loader:
@@ -51,6 +54,15 @@ class Trainer:
       self.optimizer.step()
 
       print(self.n_iter, float(loss.data))
+
+    # validation
+    if (self.is_validation):
+      for img,seg,_ in self.val_loader:
+        img, seg = Variable(img), Variable(seg)
+        output_val = self.model(img)
+        loss_val = self.loss(output_val,seg)
+        print(self.n_iter,float(loss_val.data))
+
 
   def train(self):
     for epoch in range(self.n_epochs):
@@ -87,10 +99,11 @@ def main():
   num_classes = 2
   pretrained = True
   image_size = 128
-  batch_size = 4
-  n_epochs = 20
+  batch_size = 1
+  n_epochs = 30
   n_save = 10
-  learning_rate = 1e-2
+  learning_rate = 1e-3
+  is_validation = False
 
   fcn = FCN8s(num_classes=num_classes, pretrained=pretrained)
   fcn = fcn.cuda() if cuda else fcn
@@ -105,8 +118,28 @@ def main():
   train_loader = DataLoader(train_set, batch_size, shuffle=True, drop_last=True)
   val_loader = DataLoader(val_set, len(val_set))
 
-  trainer = Trainer(cuda, fcn, train_loader, val_loader,loss, n_epochs, n_save, learning_rate)
+  trainer = Trainer(cuda, fcn, train_loader, val_loader,loss, n_epochs, n_save, learning_rate,is_validation)
   trainer.train()
+  for img,seg,_ in train_loader:
+    res = trainer.model(Variable(img))
+    #print(res)
+    res = res.data.numpy()
+    #print(res.shape)
+    res = np.squeeze(res[0,:,:,:])
+    res1 = np.squeeze(res[0,:,:])
+    res2 = np.squeeze(res[1,:,:])
+    #print(res1.shape)
+    #print(res2.shape)
+    plt.imshow(res1)
+    plt.show()
+    plt.imshow(res2)
+    plt.show()
+
+    seg = seg.numpy()
+    seg = seg[0,:,:]
+    #print(seg)
+    plt.imshow(seg)
+    plt.show()
 
 
 if __name__ == '__main__':

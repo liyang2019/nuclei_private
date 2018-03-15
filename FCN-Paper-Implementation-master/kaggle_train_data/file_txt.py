@@ -26,14 +26,14 @@ count = 1
 filekey = open("train_kaggle1.txt","w")
 filekey2 = open("train_kaggle1_class.txt","w")
 filekey3 = open("train_kaggle1_segm.txt","w")
-for i in os.listdir(file_dir2)[1:5]:
+for i in os.listdir(file_dir2)[0:1]:
     file_dir3 = os.path.join(file_dir2,i,"Images")
     file_dir4 = os.listdir(file_dir3)
     im = Image.open(os.path.join(file_dir3,file_dir4[0]))
     pixels = im.load()
     print(os.path.join(file_dir3,file_dir4[0]))
     filekey.write(os.path.join(file_dir3,file_dir4[0])+"\n")
-    filekey2.write("100\n")
+    filekey2.write("1\n")
     file_dir5 = os.listdir(os.path.join(file_dir2,i,"masks"))
     for ii in file_dir5:
         filekey3.write(os.path.join(file_dir2,i,"masks",ii)+",")
