@@ -54,7 +54,6 @@ class Trainer:
             # forward
             # print(seg)
             loss = self.loss(output, seg)
-            loss /= len(img)
 
             # backward
             loss.backward()
@@ -136,9 +135,6 @@ def main():
     learning_rate = 1e-3
     is_validation = False
 
-    model = FCN32s(num_classes=num_classes, pretrained=pretrained)
-    model = model.cuda() if cuda else model
-    loss = torch.nn.CrossEntropyLoss()
     train_set = kagglebowl18_dataset('kaggle_train_data',
                                      'image_train.txt',
                                      'segmentation_train.txt',
@@ -150,6 +146,9 @@ def main():
                                    'class_train.txt',
                                    image_size)
 
+    model = FCN32s(num_classes=num_classes, pretrained=pretrained)
+    model = model.cuda() if cuda else model
+    loss = torch.nn.CrossEntropyLoss()
     train_loader = DataLoader(train_set, batch_size, shuffle=True, drop_last=True)
     val_loader = DataLoader(val_set, len(val_set))
     # optimizer = optim.SGD(model.parameters(), lr=learning_rate)
