@@ -6,9 +6,9 @@ from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import numpy as np
-import itertools
+import torch.nn.functional as F
 
-from fcn32s import FCN32s
+from model.fcn32s import FCN32s
 
 
 class Trainer:
@@ -52,7 +52,6 @@ class Trainer:
             output = self.model(img)
 
             # forward
-            # print(seg)
             loss = self.loss(output, seg)
 
             # backward
@@ -69,6 +68,20 @@ class Trainer:
 
             if ((self.n_iter + 1) % self.n_save) == 0:
                 torch.save(self.model, 'model.pt')
+
+            if ((self.n_iter + 1) % 20) == 0:
+                for img, seg, _ in self.train_loader:
+                    res = self.predict(img)
+                    res = res[0, :, :]
+                    plt.imshow(res.squeeze())
+                    plt.colorbar()
+                    plt.show()
+
+                    seg = seg.numpy()
+                    seg = seg[0, :, :]
+                    plt.imshow(seg)
+                    plt.colorbar()
+                    plt.show()
 
         # validation
         if self.is_validation:
@@ -100,26 +113,26 @@ class Trainer:
 
     # @staticmethod
     # def loss(input, target, size_average=True):
-    #   """
-    #   The cross entropy loss function.
-    #   :param size_average: True if loss averaged over minibatch.
-    #   :param input: The output of the model, (n, c, h, w)
-    #   :param target: The target, (n, h, w)
-    #   :return: The loss.
-    #   """
-    #   n, c, h, w = input.size()
-    #   log_p = F.log_softmax(input, dim=1)
-    #   # log_p: (n*h*w, c)
-    #   log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous()
-    #   log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) > 0]
-    #   log_p = log_p.view(-1, c)
-    #   # target: (n*h*w,)
-    #   mask = target > 0
-    #   target = target[mask]
-    #   loss = F.nll_loss(log_p, target, size_average=False)
-    #   if size_average:
-    #     loss /= mask.data.sum()
-    #   return loss
+    #     """
+    #     The cross entropy loss function.
+    #     :param size_average: True if loss averaged over minibatch.
+    #     :param input: The output of the model, (n, c, h, w)
+    #     :param target: The target, (n, h, w)
+    #     :return: The loss.
+    #     """
+    #     n, c, h, w = input.size()
+    #     log_p = F.log_softmax(input, dim=1)
+    #     # log_p: (n*h*w, c)
+    #     log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous()
+    #     log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) > 0]
+    #     log_p = log_p.view(-1, c)
+    #     # target: (n*h*w,)
+    #     mask = target > 0
+    #     target = target[mask]
+    #     loss = F.nll_loss(log_p, target, size_average=False)
+    #     if size_average:
+    #         loss /= mask.data.sum()
+    #     return loss
 
 
 def main():
@@ -129,10 +142,10 @@ def main():
     pretrained = True
     image_size = 224
     batch_size = 1
-    n_epochs = 10000
+    n_epochs = 1000
     n_save = 100
-    n_print = 10
-    learning_rate = 1e-3
+    n_print = 1
+    learning_rate = 1e-4
     is_validation = False
 
     train_set = kagglebowl18_dataset('kaggle_train_data',
@@ -152,8 +165,9 @@ def main():
     train_loader = DataLoader(train_set, batch_size, shuffle=True, drop_last=True)
     val_loader = DataLoader(val_set, len(val_set))
     # optimizer = optim.SGD(model.parameters(), lr=learning_rate)
-    optimizer = optim.Adam(itertools.chain(
-        model.upscore.parameters(), model.score_fr.parameters()), lr=learning_rate)
+    # optimizer = optim.Adam(itertools.chain(
+    #     model.upscore.parameters(), model.score_fr.parameters()), lr=learning_rate)
+    optimizer = optim.Adam(model.upscore.parameters(), lr=learning_rate)
 
     trainer = Trainer(cuda=cuda,
                       model=model,
@@ -169,7 +183,6 @@ def main():
     trainer.train()
     for img, seg, _ in train_loader:
         res = trainer.predict(img)
-        print(res.shape)
         plt.imshow(res.squeeze())
         plt.show()
 
