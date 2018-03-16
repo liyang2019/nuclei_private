@@ -13,7 +13,7 @@ from fcn32s import FCN32s
 
 class Trainer:
     def __init__(self, cuda, model, train_loader, val_loader, loss, optimizer,
-                 n_epochs, n_save, learning_rate, is_validation):
+                 n_epochs, n_save, n_print, learning_rate, is_validation):
         """
         Initialization for Trainer of FCN model for image segmentation.
         :param cuda: True is cuda available.
@@ -24,6 +24,7 @@ class Trainer:
         :param optimizer: The optimizer.
         :param n_epochs: The max number for epochs.
         :param n_save; Save every n_save iterations.
+        :param n_print: Print every n_print iterations.
         :param learning_rate: The learning rate.
         :param is_validation: If using validation
         """
@@ -34,6 +35,7 @@ class Trainer:
         self.loss = loss
         self.n_epochs = n_epochs
         self.n_save = n_save
+        self.n_print = n_print
         self.optimizer = optimizer
         self.n_iter = 0
         self.is_validation = is_validation
@@ -57,11 +59,14 @@ class Trainer:
             # backward
             loss.backward()
             self.optimizer.step()
-            if ((self.n_iter + 1) % self.n_save) == 0:
+            if ((self.n_iter + 1) % self.n_print) == 0:
                 toc = time.time()
                 print("step {} | loss {} | lr {} | time {} "
                       .format(self.n_iter, float(loss.data), self.learning_rate, toc - tic))
                 tic = time.time()
+
+            if ((self.n_iter + 1) % self.n_save) == 0:
+                torch.save(self.model, 'model.pt')
 
         # validation
         if self.is_validation:
@@ -73,7 +78,7 @@ class Trainer:
 
     def train(self):
         for epoch in range(self.n_epochs):
-            print('epoch', epoch)
+            # print('epoch', epoch)
             self.train_epoch()
 
     def predict(self, img):
@@ -121,9 +126,10 @@ def main():
     num_classes = 2
     pretrained = True
     image_size = 224
-    batch_size = 1
+    batch_size = 10
     n_epochs = 100
-    n_save = 1
+    n_save = 10
+    n_print = 5
     learning_rate = 1e-3
     is_validation = False
 
@@ -155,6 +161,7 @@ def main():
                       optimizer=optimizer,
                       n_epochs=n_epochs,
                       n_save=n_save,
+                      n_print=n_print,
                       learning_rate=learning_rate,
                       is_validation=is_validation)
     trainer.train()
