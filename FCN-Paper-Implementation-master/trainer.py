@@ -128,10 +128,10 @@ def main():
     num_classes = 2
     pretrained = True
     image_size = 224
-    batch_size = 5
-    n_epochs = 100
-    n_save = 10
-    n_print = 5
+    batch_size = 1
+    n_epochs = 10000
+    n_save = 100
+    n_print = 10
     learning_rate = 1e-3
     is_validation = False
 
