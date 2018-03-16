@@ -63,6 +63,9 @@ class Trainer:
                 toc = time.time()
                 print("step {} | loss {} | lr {} | time {} "
                       .format(self.n_iter, float(loss.data), self.learning_rate, toc - tic))
+                with open('log.txt', 'a') as log:
+                    print("step {} | loss {} | lr {} | time {} "
+                          .format(self.n_iter, float(loss.data), self.learning_rate, toc - tic), file=log)
                 tic = time.time()
 
             if ((self.n_iter + 1) % self.n_save) == 0:
