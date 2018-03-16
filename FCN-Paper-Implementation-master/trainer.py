@@ -129,7 +129,7 @@ def main():
     num_classes = 2
     pretrained = True
     image_size = 224
-    batch_size = 10
+    batch_size = 5
     n_epochs = 100
     n_save = 10
     n_print = 5

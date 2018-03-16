@@ -104,7 +104,7 @@ class kagglebowl18_dataset(Dataset):
         :param index: The index of the image.
         :return: The image, segmentation, and the image base name.
         """
-        index %= 10  # one image can generate 10 crops.
+        index %= 1  # one image can generate 10 crops.
         name_img = self.list_sample[index]
         name_seg = self.list_sample_segm[index]
         path_img = os.path.join(self.root, name_img)
@@ -159,7 +159,8 @@ class kagglebowl18_dataset(Dataset):
     Get the length of the dataset.
     :return: The length of the dataset.
     """
-        return len(self.list_sample)
+        # return len(self.list_sample)
+        return 10
 
 
 def main():
