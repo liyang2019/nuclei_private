@@ -21,11 +21,11 @@ import math
 # print(a, b)
 
 data_dir = "stage1_train"
-count = 1
+count = 670
 with open("image_train.txt", "w") as image_train, \
         open("class_train.txt", "w") as class_train, \
         open("segmentation_train.txt", "w") as segmentation_train:
-    for dir in sorted(os.listdir(data_dir))[0: 2]:
+    for dir in sorted(os.listdir(data_dir))[0: count + 1]:
         if dir == '.DS_Store':
             continue
         image_dirs = os.path.join(data_dir, dir, "images")

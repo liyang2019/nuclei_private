@@ -24,7 +24,7 @@ if __name__ == '__main__':
                         default='output')
     parser.add_argument('--model', help='model to train on', action='store', dest='model', default='unet')
     parser.add_argument('--learning_rate', help='starting learning rate', action='store', type=float,
-                        dest='learning_rate', default=0.01)
+                        dest='learning_rate', default=0.001)
     parser.add_argument('--optimizer', help='adam or sgd optimizer', action='store', dest='optimizer', default='sgd')
     parser.add_argument('--random_seed', help='seed for random initialization', action='store', type=int, dest='seed',
                         default=100)
@@ -38,10 +38,10 @@ if __name__ == '__main__':
         print_every = 1
         save_model_every = 10
         save_pred_every = 1
-        image_size = 224
+        image_size = 256
         pretrained = True
         batch_size = 1
-        n_epochs = 1000
+        n_epochs = 100000
         is_validation = False
     else:
         print_every = 10

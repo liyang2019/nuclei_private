@@ -69,19 +69,19 @@ class Trainer:
             if ((self.n_iter + 1) % self.n_save) == 0:
                 torch.save(self.model, 'model.pt')
 
-            if ((self.n_iter + 1) % 20) == 0:
-                for img, seg, _ in self.train_loader:
-                    res = self.predict(img)
-                    res = res[0, :, :]
-                    plt.imshow(res.squeeze())
-                    plt.colorbar()
-                    plt.show()
-
-                    seg = seg.numpy()
-                    seg = seg[0, :, :]
-                    plt.imshow(seg)
-                    plt.colorbar()
-                    plt.show()
+            # if ((self.n_iter + 1) % 20) == 0:
+            #     for img, seg, _ in self.train_loader:
+            #         res = self.predict(img)
+            #         res = res[0, :, :]
+            #         plt.imshow(res.squeeze())
+            #         plt.colorbar()
+            #         plt.show()
+            #
+            #         seg = seg.numpy()
+            #         seg = seg[0, :, :]
+            #         plt.imshow(seg)
+            #         plt.colorbar()
+            #         plt.show()
 
         # validation
         if self.is_validation:
@@ -181,15 +181,15 @@ def main():
                       learning_rate=learning_rate,
                       is_validation=is_validation)
     trainer.train()
-    for img, seg, _ in train_loader:
-        res = trainer.predict(img)
-        plt.imshow(res.squeeze())
-        plt.show()
-
-        seg = seg.numpy()
-        seg = seg[0, :, :]
-        plt.imshow(seg)
-        plt.show()
+    # for img, seg, _ in train_loader:
+    #     res = trainer.predict(img)
+    #     plt.imshow(res.squeeze())
+    #     plt.show()
+    #
+    #     seg = seg.numpy()
+    #     seg = seg[0, :, :]
+    #     plt.imshow(seg)
+    #     plt.show()
 
 
 if __name__ == '__main__':

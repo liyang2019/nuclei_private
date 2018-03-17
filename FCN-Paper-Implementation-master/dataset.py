@@ -169,17 +169,18 @@ def main():
         file='image_train.txt',
         segfile='segmentation_train.txt',
         classfile='class_train.txt',
-        size=128, max_sample=-1, train=True)
+        size=224, max_sample=-1, train=True)
 
-    # for img, seg, _ in dataset:
-    img, seg, _ = dataset[0]
-    img = np.transpose(img, (1, 2, 0))
-    plt.imshow(img)
-    plt.colorbar()
-    plt.show()
-    plt.imshow(seg)
-    plt.colorbar()
-    plt.show()
+    # # for img, seg, _ in dataset:
+    # img, seg, _ = dataset[0]
+    # img = np.transpose(img, (1, 2, 0))
+    # plt.imshow(img)
+    # plt.colorbar()
+    # plt.show()
+    # plt.imshow(seg)
+    # plt.colorbar()
+    # plt.show()
+    print(dataset.__len__())
 
 
 if __name__ == '__main__':
