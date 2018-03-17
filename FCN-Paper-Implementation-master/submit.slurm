@@ -13,4 +13,4 @@ echo $SLURM_NODELIST
 echo 'submission dir:' $SLURM_SUBMIT_DIR
 cd $SLURM_SUBMIT_DIR
 
-python trainer.py
+python main.py
