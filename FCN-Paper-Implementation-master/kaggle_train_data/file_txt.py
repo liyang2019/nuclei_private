@@ -28,7 +28,7 @@ with open("image_train.txt", "w") as image_train, \
     for dir in sorted(os.listdir(data_dir))[0: 2]:
         if dir == '.DS_Store':
             continue
-        image_dirs = os.path.join(data_dir, dir, "Images")
+        image_dirs = os.path.join(data_dir, dir, "images")
         image_location = os.listdir(image_dirs)
         image = Image.open(os.path.join(image_dirs, image_location[0]))
         image_train.write(os.path.join(image_dirs, image_location[0]) + "\n")
