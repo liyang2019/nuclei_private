@@ -106,6 +106,7 @@ class kagglebowl18_dataset(Dataset):
         """
         # index %= 1  # one image can generate 10 crops.
         name_img = self.list_sample[index]
+        print('img: ', name_img)
         name_seg = self.list_sample_segm[index]
         path_img = os.path.join(self.root, name_img)
         assert os.path.exists(path_img), '[{}] does not exist'.format(path_img)
