@@ -15,7 +15,7 @@ from trainer import Trainer
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
     parser.add_argument('--debug', help='Debug the model', action='store_true', default=True)
-    parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=False)
+    parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=True)
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int,
                         dest='batch_size', default=1)
     parser.add_argument('--num_classes', help='number of classes for prediction', action='store', type=int,
@@ -66,6 +66,7 @@ if __name__ == '__main__':
     print("Running model: " + args.model)
 
     cuda = torch.cuda.is_available() and args.use_gpu
+    print('is cuda available? ', cuda)
     model = model.cuda() if cuda else model
 
     train_set = kagglebowl18_dataset('kaggle_train_data',

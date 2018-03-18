@@ -48,7 +48,7 @@ class Trainer:
             self.optimizer.zero_grad()
             if self.cuda:
                 img, seg = img.cuda(), seg.cuda()
-            img, seg = Variable(img), Variable(seg)
+            img, seg = Variable(img), Variable(seg).type(torch.LongTensor)
             output = self.model(img)
 
             # forward
