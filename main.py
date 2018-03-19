@@ -138,5 +138,5 @@ if __name__ == '__main__':
         #     plt.imshow(seg.squeeze())
         #     # plt.colorbar()
         #     plt.show()
-        submitor = Submitor(model, test_loader, 'submission', cuda)
+        submitor = Submitor(model, test_loader, output_dir='submission', cuda=cuda, threshold=20, saveseg=True)
         submitor.generate_submission_file('20180318')

@@ -94,7 +94,7 @@ class kagglebowl18_dataset(Dataset):
         :return: The image, segmentation, and the image base name.
         """
         img_dir = self.list_sample[index]
-        img_key = img_dir.split('/')[-1]
+        img_key = img_dir.split('/')[-1].strip('.png')
         print('img: ', img_dir)
         path_img = os.path.join(self.root, img_dir)
         img = imageio.imread(path_img)[:, :, :3]  # remove alpha channel
