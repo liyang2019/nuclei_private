@@ -14,6 +14,7 @@ from model.fcn32s import FCN32s
 from model.fcn8s import FCN8s
 from model.unet import UNet
 from trainer import Trainer
+from submitor import Submitor
 
 import matplotlib.pyplot as plt
 
@@ -33,8 +34,8 @@ if __name__ == '__main__':
     parser.add_argument('--optimizer', help='adam or sgd optimizer', action='store', dest='optimizer', default='sgd')
     parser.add_argument('--random_seed', help='seed for random initialization', action='store', type=int, dest='seed',
                         default=100)
-    parser.add_argument('--load_model', help='load model from file', action='store', default=False)
-    parser.add_argument('--predict', help='only predict', action='store', default=False)
+    parser.add_argument('--load_model', help='load model from file', action='store', default=True)
+    parser.add_argument('--predict', help='only predict', action='store', default=True)
     args = parser.parse_args()
 
     if args.seed:
@@ -62,7 +63,7 @@ if __name__ == '__main__':
 
     if args.load_model:
         print("loading model from file")
-        model = torch.load('model.pt')
+        model = torch.load('model_wo_transform.pt')
         print("model loaded")
     else:
         if args.model == 'vgg16fcn8':
@@ -124,16 +125,18 @@ if __name__ == '__main__':
                                        'class_test.txt',
                                        size=image_size, validation=False, testing=True)
         test_loader = DataLoader(val_set, 1)
-        for img, _, img_dir in test_loader:
-            img = img.cuda() if cuda else img
-            seg = model.predict(img)
-            img = np.transpose(img.squeeze(), (1, 2, 0))
-            plt.imshow(img)
-            plt.colorbar()
-            plt.show()
-
-            print(seg.shape)
-            plt.imshow(seg.squeeze())
-            plt.colorbar()
-            plt.show()
-
+        # for img, _, img_dir in test_loader:
+        #     img = img.cuda() if cuda else img
+        #     seg = model.predict(img)
+        #     img = np.transpose(img.squeeze(), (1, 2, 0))
+        #     plt.subplot(1, 2, 1)
+        #     plt.imshow(img)
+        #     # plt.colorbar()
+        #     # plt.show()
+        #
+        #     plt.subplot(1, 2, 2)
+        #     plt.imshow(seg.squeeze())
+        #     # plt.colorbar()
+        #     plt.show()
+        submitor = Submitor(model, test_loader, 'submission', cuda)
+        submitor.generate_submission_file('20180318')

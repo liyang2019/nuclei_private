@@ -65,7 +65,7 @@ class kagglebowl18_dataset(Dataset):
         if scale > 1:
             print('scale: ', scale)
             img = transform.rescale(img, scale, mode='reflect', order=1)  # order 1 is bilinear
-            seg = transform.rescale(seg, scale, mode='reflect', order=0)  # order 0 is nearest neighbor
+            seg = transform.rescale(seg.astype(np.float), scale, mode='reflect', order=0)  # order 0 is nearest neighbor
 
         h_s, w_s = img.shape[0], seg.shape[1]
         if self.validation or self.testing:
@@ -94,6 +94,7 @@ class kagglebowl18_dataset(Dataset):
         :return: The image, segmentation, and the image base name.
         """
         img_dir = self.list_sample[index]
+        img_key = img_dir.split('/')[-1]
         print('img: ', img_dir)
         path_img = os.path.join(self.root, img_dir)
         img = imageio.imread(path_img)[:, :, :3]  # remove alpha channel
@@ -109,7 +110,7 @@ class kagglebowl18_dataset(Dataset):
                 seg |= seg_t > 0
 
         # random scale, crop, flip
-        if self.size > 0:
+        if self.size > 0 and not self.testing:
             img, seg = self._scale_and_crop(img, seg, self.size)
             if random.choice([-1, 1]) > 0:
                 img, seg = self._flip(img, seg)
@@ -121,10 +122,10 @@ class kagglebowl18_dataset(Dataset):
         # to torch tensor
         image = torch.from_numpy(img.copy()).contiguous()
         segmentation = torch.from_numpy(seg.copy())
-        image = self.img_transform(image)
+        # image = self.img_transform(image)
 
         # if testing, segmentation are matrix with all elements -1.
-        return image, segmentation, path_img
+        return image, segmentation, img_key
 
     def __len__(self):
         """
