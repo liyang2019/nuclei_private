@@ -25,11 +25,11 @@ class kagglebowl18_dataset(Dataset):
         self.validation = validation
         self.testing = testing
 
-        # # mean and std using ImageNet mean and std,
-        # # as required by http://pytorch.org/docs/master/torchvision/models.html
-        # self.img_transform = transforms.Compose([
-        #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-        #                          std=[0.229, 0.224, 0.225])])
+        # mean and std using ImageNet mean and std,
+        # as required by http://pytorch.org/docs/master/torchvision/models.html
+        self.img_transform = transforms.Compose([
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])])
 
         file = os.path.join(root, file)
         self.list_sample = [x.strip('\n') for x in open(file, 'r').readlines() if x is not '\n']
@@ -121,7 +121,7 @@ class kagglebowl18_dataset(Dataset):
         # to torch tensor
         image = torch.from_numpy(img.copy()).contiguous()
         segmentation = torch.from_numpy(seg.copy())
-        # image = self.img_transform(image)
+        image = self.img_transform(image)
 
         # if testing, segmentation are matrix with all elements -1.
         return image, segmentation, path_img

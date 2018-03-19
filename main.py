@@ -33,8 +33,8 @@ if __name__ == '__main__':
     parser.add_argument('--optimizer', help='adam or sgd optimizer', action='store', dest='optimizer', default='sgd')
     parser.add_argument('--random_seed', help='seed for random initialization', action='store', type=int, dest='seed',
                         default=100)
-    parser.add_argument('--load_model', help='load model from file', action='store', default=True)
-    parser.add_argument('--predict', help='only predict', action='store', default=True)
+    parser.add_argument('--load_model', help='load model from file', action='store', default=False)
+    parser.add_argument('--predict', help='only predict', action='store', default=False)
     args = parser.parse_args()
 
     if args.seed:
@@ -82,12 +82,12 @@ if __name__ == '__main__':
 
     if not args.predict:
         print("training on train set")
-        train_set = kagglebowl18_dataset('kaggle_train_data',
+        train_set = kagglebowl18_dataset('data',
                                          'image_train.txt',
                                          'segmentation_train.txt',
                                          'class_train.txt',
                                          image_size, validation=False, testing=False)
-        val_set = kagglebowl18_dataset('kaggle_train_data',
+        val_set = kagglebowl18_dataset('data',
                                        'image_train.txt',
                                        'segmentation_train.txt',
                                        'class_train.txt',
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     else:
         print("predicting on test set")
-        val_set = kagglebowl18_dataset('kaggle_train_data',
+        val_set = kagglebowl18_dataset('data',
                                        'image_test.txt',
                                        'segmentation_test.txt',
                                        'class_test.txt',
