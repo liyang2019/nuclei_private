@@ -1,3 +1,8 @@
-FCN-Paper-Implementation-master/kaggle_train_data/stage1_train
-FCN-Paper-Implementation-master/venv
-FCN-Paper-Implementation-master/venv1
+data/stage1_train
+data/stage1_test
+venv
+venv1
+.DS_Store
+.idea
+log.txt
+model.pt
