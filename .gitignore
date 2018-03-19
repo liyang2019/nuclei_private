@@ -1,5 +1,5 @@
-data/stage1_train
 data/stage1_test
+data/stage1_train
 venv
 venv1
 .DS_Store
