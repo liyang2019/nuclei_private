@@ -36,6 +36,9 @@ if __name__ == '__main__':
                         default=100)
     parser.add_argument('--load_model', help='load model from file', action='store_true', default=False)
     parser.add_argument('--predict', help='only predict', action='store_true', default=False)
+    parser.add_argument('--unet_batch_norm', help='to choose whether use batch normalization for unet', action='store_true', default=False)
+    parser.add_argument('--unet_channels', help='the number of unet first conv channels', action='store', default=32)
+
     args = parser.parse_args()
 
     if args.seed:
@@ -48,7 +51,7 @@ if __name__ == '__main__':
         save_pred_every = 1
         image_size = 256
         pretrained = True
-        batch_size = 1
+        batch_size = args.batch_size
         n_epochs = 100000
         is_validation = False
     else:
@@ -57,7 +60,7 @@ if __name__ == '__main__':
         save_pred_every = 2
         image_size = 224
         pretrained = True
-        batch_size = 1
+        batch_size = args.batch_size
         n_epochs = 1000
         is_validation = False
 
@@ -73,7 +76,7 @@ if __name__ == '__main__':
         elif args.model == 'vgg16fcn32':
             model = FCN32s(num_classes=args.num_classes)
         elif args.model == 'unet':
-            model = UNet(3, n_classes=args.num_classes)
+            model = UNet(3, n_classes=args.num_classes, first_conv_channels=args.unet_channels, batch_norm=args.unet_batch_norm)
         else:
             raise Exception('Unknown model')
         print("Running model: " + args.model)
