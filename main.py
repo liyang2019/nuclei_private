@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     if args.load_model:
         print("loading model from file")
-        model = torch.load('model_wo_transform.pt')
+        model = torch.load('model.pt')
         print("model loaded")
     else:
         if args.model == 'vgg16fcn8':
