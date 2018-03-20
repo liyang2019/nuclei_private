@@ -34,8 +34,8 @@ if __name__ == '__main__':
     parser.add_argument('--optimizer', help='adam or sgd optimizer', action='store', dest='optimizer', default='sgd')
     parser.add_argument('--random_seed', help='seed for random initialization', action='store', type=int, dest='seed',
                         default=100)
-    parser.add_argument('--load_model', help='load model from file', action='store', default=True)
-    parser.add_argument('--predict', help='only predict', action='store', default=True)
+    parser.add_argument('--load_model', help='load model from file', action='store_true', default=True)
+    parser.add_argument('--predict', help='only predict', action='store_true', default=True)
     args = parser.parse_args()
 
     if args.seed:
