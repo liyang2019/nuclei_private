@@ -37,6 +37,8 @@ if __name__ == '__main__':
     parser.add_argument('--load_model', help='load model from file', action='store_true', default=False)
     parser.add_argument('--predict', help='only predict', action='store_true', default=False)
     parser.add_argument('--unet_batch_norm', help='to choose whether use batch normalization for unet', action='store_true', default=False)
+    parser.add_argument('--unet_dropout_rate', help='to set the dropout rate for unet',
+                        action='store_true', default=0.5)
     parser.add_argument('--unet_channels', help='the number of unet first conv channels', action='store', default=32)
 
     args = parser.parse_args()
@@ -76,7 +78,7 @@ if __name__ == '__main__':
         elif args.model == 'vgg16fcn32':
             model = FCN32s(num_classes=args.num_classes)
         elif args.model == 'unet':
-            model = UNet(3, n_classes=args.num_classes, first_conv_channels=args.unet_channels, batch_norm=args.unet_batch_norm)
+            model = UNet(3, n_classes=args.num_classes, first_conv_channels=args.unet_channels, batch_norm=args.unet_batch_norm, dropout_rate=args.unet_dropout_rate)
         else:
             raise Exception('Unknown model')
         print("Running model: " + args.model)

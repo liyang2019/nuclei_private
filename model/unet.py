@@ -7,12 +7,13 @@ from model.segmentation_model import Model
 class DoubleConv(nn.Module):
     """(conv => BN => ReLU) * 2"""
 
-    def __init__(self, in_channels, out_channels, batch_norm):
+    def __init__(self, in_channels, out_channels, batch_norm, dropout_rate):
         """
         Initialize a double convolution layer.
         :param in_channels: The number of input channels.
         :param out_channels: The number of output channels.
         :param batch_norm: use batch normalization after each convolution operation.
+        :param dropout_rate: dropout rate after each convolution operation.
         """
         super(DoubleConv, self).__init__()
         if batch_norm:
@@ -20,16 +21,20 @@ class DoubleConv(nn.Module):
                 nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU(inplace=True),
+                nn.Dropout(dropout_rate),
                 nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
                 nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=True),
+                nn.Dropout(dropout_rate)
             )
         else:
             self.conv = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
                 nn.ReLU(inplace=True),
+                nn.Dropout(dropout_rate),
                 nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=True),
+                nn.Dropout(dropout_rate)
             )
 
     def forward(self, x):
@@ -38,9 +43,9 @@ class DoubleConv(nn.Module):
 
 
 class FirstConv(nn.Module):
-    def __init__(self, in_channels, out_channels, batch_norm):
+    def __init__(self, in_channels, out_channels, batch_norm, dropout_rate):
         super(FirstConv, self).__init__()
-        self.conv = DoubleConv(in_channels, out_channels, batch_norm)
+        self.conv = DoubleConv(in_channels, out_channels, batch_norm, dropout_rate)
 
     def forward(self, x):
         x = self.conv(x)
@@ -48,11 +53,11 @@ class FirstConv(nn.Module):
 
 
 class ContractingPathConv(nn.Module):
-    def __init__(self, in_channels, out_channels, batch_norm):
+    def __init__(self, in_channels, out_channels, batch_norm, dropout_rate):
         super(ContractingPathConv, self).__init__()
         self.mpconv = nn.Sequential(
             nn.MaxPool2d(kernel_size=2, stride=2),
-            DoubleConv(in_channels, out_channels, batch_norm)
+            DoubleConv(in_channels, out_channels, batch_norm, dropout_rate)
         )
 
     def forward(self, x):
@@ -61,10 +66,10 @@ class ContractingPathConv(nn.Module):
 
 
 class ExpansivePathConv(nn.Module):
-    def __init__(self, in_channels, out_channels, batch_norm):
+    def __init__(self, in_channels, out_channels, batch_norm, dropout_rate):
         super(ExpansivePathConv, self).__init__()
         self.upscale = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2, output_padding=0)
-        self.conv = DoubleConv(in_channels, out_channels, batch_norm)
+        self.conv = DoubleConv(in_channels, out_channels, batch_norm, dropout_rate)
 
     def forward(self, x1, x2):
         x1 = self.upscale(x1)
@@ -88,17 +93,18 @@ class FinalConv(nn.Module):
 
 
 class UNet(Model):
-    def __init__(self, n_channels, n_classes, first_conv_channels=32, batch_norm=False):
+    def __init__(self, n_channels, n_classes, first_conv_channels=32, batch_norm=False, dropout_rate=0.0):
         super(Model, self).__init__()
-        self.inc = FirstConv(n_channels, first_conv_channels, batch_norm)
-        self.conv1 = ContractingPathConv(first_conv_channels, first_conv_channels * 2, batch_norm)
-        self.conv2 = ContractingPathConv(first_conv_channels * 2, first_conv_channels * 4, batch_norm)
-        self.conv3 = ContractingPathConv(first_conv_channels * 4, first_conv_channels * 8, batch_norm)
-        self.conv4 = ContractingPathConv(first_conv_channels * 8, first_conv_channels * 16, batch_norm)
-        self.up1 = ExpansivePathConv(first_conv_channels * 16, first_conv_channels * 8, batch_norm)
-        self.up2 = ExpansivePathConv(first_conv_channels * 8, first_conv_channels * 4, batch_norm)
-        self.up3 = ExpansivePathConv(first_conv_channels * 4, first_conv_channels * 2, batch_norm)
-        self.up4 = ExpansivePathConv(first_conv_channels * 2, first_conv_channels, batch_norm)
+        print(dropout_rate)
+        self.inc = FirstConv(n_channels, first_conv_channels, batch_norm, dropout_rate)
+        self.conv1 = ContractingPathConv(first_conv_channels, first_conv_channels * 2, batch_norm, dropout_rate)
+        self.conv2 = ContractingPathConv(first_conv_channels * 2, first_conv_channels * 4, batch_norm, dropout_rate)
+        self.conv3 = ContractingPathConv(first_conv_channels * 4, first_conv_channels * 8, batch_norm, dropout_rate)
+        self.conv4 = ContractingPathConv(first_conv_channels * 8, first_conv_channels * 16, batch_norm, dropout_rate)
+        self.up1 = ExpansivePathConv(first_conv_channels * 16, first_conv_channels * 8, batch_norm, dropout_rate)
+        self.up2 = ExpansivePathConv(first_conv_channels * 8, first_conv_channels * 4, batch_norm, dropout_rate)
+        self.up3 = ExpansivePathConv(first_conv_channels * 4, first_conv_channels * 2, batch_norm, dropout_rate)
+        self.up4 = ExpansivePathConv(first_conv_channels * 2, first_conv_channels, batch_norm, dropout_rate)
         self.outc = FinalConv(first_conv_channels, n_classes)
 
     def forward(self, x):
