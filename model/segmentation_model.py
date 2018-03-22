@@ -16,7 +16,7 @@ class Model(nn.Module):
         """
         img = Variable(img)
         seg = self.forward(img)
-        seg = seg.data.numpy()
+        seg = seg.cpu().data.numpy()
         seg = np.transpose(seg, (0, 2, 3, 1))
         seg = np.argmax(seg, axis=-1)
         return seg
