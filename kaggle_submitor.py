@@ -45,7 +45,7 @@ class Submitor:
         seg = seg.squeeze()
         if self.saveseg:
             self.filter_small_size(seg, self.threshold)
-            self.save_image(seg * 255, img_key)
+            self.save_image((seg * 255).astype(np.uint8), img_key)
 
         # Regenerate the labels
         labels, nlabels = ndimage.label(seg)

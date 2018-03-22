@@ -22,7 +22,7 @@ def print_to_log(description, value, f):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
-    parser.add_argument('--debug', help='Debug the model', action='store_true', default=False)
+    parser.add_argument('--debug', help='Debug the model', action='store_false', default=True)
     parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=False)
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int,
                         dest='batch_size', default=1)
@@ -102,7 +102,6 @@ if __name__ == '__main__':
     print_to_log('learning_rate', args.learning_rate, log_file)
     print_to_log('optimizer', args.optimizer, log_file)
     print_to_log('load_model', args.load_model, log_file)
-    print_to_log('predict', args.predict, log_file)
     print_to_log('unet unet_batch_norm', unet_batch_norm, log_file)
     print_to_log('unet_use_dropout', unet_use_dropout, log_file)
     print_to_log('unet_dropout_rate', unet_dropout_rate, log_file)
@@ -175,8 +174,8 @@ if __name__ == '__main__':
         print("predicting on test set")
         test_set = SemanticSegmentationDataset('data',
                                                'image_test.txt',
-                                               'stage1_train_imgs_and_flattenedmasks',
+                                               'stage1_test_imgs',
                                                crop_size=image_size, validation=False, testing=True)
         test_loader = DataLoader(test_set, 1)
-        submitor = Submitor(model, test_loader, output_dir='kaggle_submission', cuda=cuda, threshold=20, saveseg=True)
+        submitor = Submitor(model, test_loader, output_dir='kaggle_submission', cuda=cuda, threshold=50, saveseg=True)
         submitor.generate_submission_file('20180318')

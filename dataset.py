@@ -49,8 +49,7 @@ class SemanticSegmentationDataset(Dataset):
         if scale > 1:
             print('scale: ', scale)
             img = transform.rescale(img, scale, mode='reflect', order=1)  # order 1 is bilinear
-            if not self.testing:
-                seg = transform.rescale(seg.astype(np.float), scale, mode='reflect', order=0)  # order 0 is nearest neighbor
+            seg = transform.rescale(seg.astype(np.float), scale, mode='reflect', order=0)  # order 0 is nearest neighbor
 
         h_s, w_s = img.shape[0], img.shape[1]
         if self.validation or self.testing:
@@ -63,11 +62,8 @@ class SemanticSegmentationDataset(Dataset):
             y1 = random.randint(0, h_s - crop_size)
 
         img_crop = img[y1: y1 + crop_size, x1: x1 + crop_size, :]
-        if not self.testing:
-            seg_crop = seg[y1: y1 + crop_size, x1: x1 + crop_size]
-            return img_crop, seg_crop
-        else:
-            return img_crop, None
+        seg_crop = seg[y1: y1 + crop_size, x1: x1 + crop_size]
+        return img_crop, seg_crop
 
     @staticmethod
     def _flip(img, seg):
@@ -84,7 +80,7 @@ class SemanticSegmentationDataset(Dataset):
         img_key = self.img_keys[index]
         img_path = self.img_paths[index]
         img = imageio.imread(img_path)[:, :, :3]  # remove alpha channel
-        seg = None
+        seg = np.full(img.shape[:2], -1)
         if not self.testing:
             seg_path = self.seg_paths[index]
             seg = imageio.imread(seg_path) > 0
