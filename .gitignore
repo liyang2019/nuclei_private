@@ -6,3 +6,5 @@ venv1
 .idea
 log.txt
 model_saved.pt
+rice_cluster_result
+kaggle_submission
