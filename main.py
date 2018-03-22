@@ -22,7 +22,7 @@ def print_to_log(description, value, f):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
-    parser.add_argument('--debug', help='Debug the model', action='store_false', default=True)
+    parser.add_argument('--not_debug', help='exit from debug mode', action='store_false', default=True)
     parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=False)
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int, dest='batch_size', default=1)
     parser.add_argument('--num_classes', help='number of classes for prediction', action='store', type=int, dest='num_classes', default=2)
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         random.seed(args.seed)
         print_to_log('random_seed', args.seed, log_file)
 
-    if args.debug:
+    if not args.not_debug:
         print_every = 1
         save_model_every = 10
         image_size = 224
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         predict = True
         lr_decay_every = 100
         lr_decay_ratio = 0.5
-        load_model = True
+        load_model = False
 
     else:
         print_every = args.print_every
@@ -94,7 +94,7 @@ if __name__ == '__main__':
         lr_decay_ratio = args.lr_decay_ratio
         load_model = args.load_model
 
-    print_to_log('debug', args.debug, log_file)
+    print_to_log('debug', not args.not_debug, log_file)
     print_to_log('batch size', batch_size, log_file)
     print_to_log('num_classes', args.num_classes, log_file)
     print_to_log('output_dir', args.output_dir, log_file)
@@ -135,7 +135,10 @@ if __name__ == '__main__':
         print("Running model: " + args.model)
 
     cuda = torch.cuda.is_available() and args.use_gpu
-    model = model.cuda() if cuda else model
+    if cuda:
+        model = model.cuda()
+    else:
+        model = model.cpu()
     print_to_log('gpu', cuda, log_file)
 
     if not predict:
