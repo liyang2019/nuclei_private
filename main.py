@@ -22,7 +22,7 @@ def print_to_log(description, value, f):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
-    parser.add_argument('--debug', help='Debug the model', action='store_true', default=True)
+    parser.add_argument('--debug', help='Debug the model', action='store_true', default=False)
     parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=False)
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int,
                         dest='batch_size', default=1)
@@ -149,9 +149,9 @@ if __name__ == '__main__':
         train_loader = DataLoader(train_set, batch_size, shuffle=True, drop_last=True)
         val_loader = DataLoader(val_set, batch_size, drop_last=False)
         if args.optimizer == 'sgd':
-            optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9)
+            optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
         elif args.optimizer == 'adam':
-            optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+            optimizer = optim.Adam(model.parameters(), lr=learning_rate)
         else:
             raise Exception('Unknown optimizer')
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                           n_epochs=n_epochs,
                           n_save=save_model_every,
                           n_print=print_every,
-                          learning_rate=args.learning_rate,
+                          learning_rate=learning_rate,
                           is_validation=is_validation)
         trainer.train()
 
