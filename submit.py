@@ -34,7 +34,7 @@ def submit(job_dir, config):
         print("", file=f)
         print("echo 'My job ran on:'", file=f)
         print("echo $SLURM_NODELIST", file=f)
-        print("echo 'submission dir:' $SLURM_SUBMIT_DIR", file=f)
+        print("echo 'kaggle_submission dir:' $SLURM_SUBMIT_DIR", file=f)
         print("cd $SLURM_SUBMIT_DIR", file=f)
         print("", file=f)
         print("python main.py " +

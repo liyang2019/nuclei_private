@@ -12,7 +12,7 @@ from model.fcn32s import FCN32s
 from model.fcn8s import FCN8s
 from model.unet import UNet
 from trainer import Trainer
-from submitor import Submitor
+from kaggle_submitor import Submitor
 
 
 def print_to_log(description, value, f):
@@ -41,18 +41,18 @@ if __name__ == '__main__':
     parser.add_argument('--unet_batch_norm', help='to choose whether use batch normalization for unet', action='store_true', default=False)
     parser.add_argument('--unet_use_dropout', help='use unet dropout', action='store_true', default=False)
     parser.add_argument('--unet_dropout_rate', help='to set the dropout rate for unet',
-                        action='store_true', default=0.5)
-    parser.add_argument('--unet_channels', help='the number of unet first conv channels', action='store', default=32)
-    parser.add_argument('--print_every', help='print loss every print_every steps', action='store', default=10)
-    parser.add_argument('--save_model_every', help='save model every save_model_every steps', action='store',
+                        action='store_true', type=float, default=0.5)
+    parser.add_argument('--unet_channels', help='the number of unet first conv channels', action='store', type=int, default=32)
+    parser.add_argument('--print_every', help='print loss every print_every steps', action='store', type=int, default=10)
+    parser.add_argument('--save_model_every', help='save model every save_model_every steps', action='store', type=int,
                         default=100)
-    parser.add_argument('--crop_size', help='crop image to this size', action='store', default=224)
+    parser.add_argument('--crop_size', help='crop image to this size', action='store', type=int, default=224)
     parser.add_argument('--pretrained', help='load pretrained model when doing transfer learning', action='store_true',
                         default=True)
-    parser.add_argument('--num_epochs', help='total number of epochs for training', action='store', default=100000)
+    parser.add_argument('--num_epochs', help='total number of epochs for training', action='store', type=int, default=100000)
     parser.add_argument('--is_validation', help='whether or not calculate validation when training',
                         action='store_true', default=False)
-    parser.add_argument('--validation_every', help='calculate validation loss every validation_every step', action='store', default=1)
+    parser.add_argument('--validation_every', help='calculate validation loss every validation_every step', action='store', type=int, default=1)
 
     args = parser.parse_args()
 
@@ -175,5 +175,5 @@ if __name__ == '__main__':
                                                'stage1_train_imgs_and_flattenedmasks',
                                                crop_size=image_size, validation=False, testing=True)
         test_loader = DataLoader(test_set, 1)
-        submitor = Submitor(model, test_loader, output_dir='submission', cuda=cuda, threshold=20, saveseg=True)
+        submitor = Submitor(model, test_loader, output_dir='kaggle_submission', cuda=cuda, threshold=20, saveseg=True)
         submitor.generate_submission_file('20180318')

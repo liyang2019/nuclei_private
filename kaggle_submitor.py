@@ -13,7 +13,7 @@ class Submitor:
         save the result into a run length encoding csv file.
         :param model: A trained model.
         :param test_loader: The test data set loader.
-        :param output_dir: An output directory to save the submission file.
+        :param output_dir: An output directory to save the kaggle_submission file.
         :param cuda: True is cuda available.
         :param threshold: A threshold to filter off the small segmentation instances.
         :param saveseg: True if save predicted segmentation.
@@ -27,7 +27,7 @@ class Submitor:
 
     def generate_submission_file(self, flag):
         """
-        Generate a submission file for all image in a dataloader.
+        Generate a kaggle_submission file for all image in a dataloader.
         """
         count = 0
         all_df = pd.DataFrame()
