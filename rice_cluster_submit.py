@@ -18,6 +18,9 @@ class Config:
 
 
 def submit(job_dir, config):
+    os.system("module purge")
+    os.system("module load GCC  CUDA")
+    # os.system("module load GCC/6.4.0  CUDA/7.5.18")
     os.makedirs(job_dir, exist_ok=True)
     slurm_file_name = os.path.join(job_dir, "a" + str(config.job_id) + ".slurm")
     with open(slurm_file_name, 'a') as f:
