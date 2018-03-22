@@ -114,7 +114,10 @@ class UNet(Model):
         self.outc = FinalConv(first_conv_channels, n_classes)
 
     def forward(self, x):
-        image_size = x.size()[2:]
+        h, w = x.size()[2:]
+        dh = ((h - 1) // 16 + 1) * 16 - h
+        dw = ((w - 1) // 16 + 1) * 16 - w
+        x = F.pad(x, (dw // 2, dw - dw // 2, dh // 2, dh - dh // 2))
         x1 = self.inc(x)
         x2 = self.conv1(x1)
         x3 = self.conv2(x2)
@@ -125,5 +128,5 @@ class UNet(Model):
         x = self.up3(x, x2)
         x = self.up4(x, x1)
         x = self.outc(x)
-        x = F.upsample(x, image_size, mode='bilinear')
+        x = F.upsample(x, (h + dh, w + dw), mode='bilinear')
         return x
