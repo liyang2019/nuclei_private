@@ -46,6 +46,7 @@ def submit(job_dir, config):
         # 100 - -unet_batch_norm - -crop_size
         # 224
         print("srun python main.py " +
+              "--not_debug " +
               "--use_gpu " +
               "--print_every " + str(config.print_every) + " " +
               "--save_model_every " + str(config.save_model_every) + " " +

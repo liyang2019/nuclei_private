@@ -92,7 +92,7 @@ if __name__ == '__main__':
         lr_decay_every = 100
         lr_decay_ratio = 0.5
         load_model = False
-        
+
     print_to_log('debug', not args.not_debug, log_file)
     print_to_log('batch size', batch_size, log_file)
     print_to_log('num_classes', args.num_classes, log_file)
