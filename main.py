@@ -173,10 +173,15 @@ if __name__ == '__main__':
 
     else:
         print("predicting on test set")
-        test_set = SemanticSegmentationDataset('data',
-                                               'image_test.txt',
-                                               'stage1_test_imgs',
-                                               crop_size=image_size, validation=False, testing=True)
-        test_loader = DataLoader(test_set, 1)
-        submitor = Submitor(model, test_loader, output_dir='kaggle_submission', cuda=cuda, threshold=50, saveseg=True)
+        # test_set = SemanticSegmentationDataset('data',
+        #                                        'image_test.txt',
+        #                                        'stage1_test_imgs',
+        #                                        crop_size=image_size, validation=False, testing=True)
+        train_set = SemanticSegmentationDataset('data',
+                                                'image_train.txt',
+                                                'stage1_train_imgs_and_flattenedmasks',
+                                                image_size, validation=False, testing=True)
+        train_loader = DataLoader(train_set, 1)
+        # test_loader = DataLoader(test_set, 1)
+        submitor = Submitor(model, train_loader, output_dir='kaggle_submission', cuda=cuda, threshold=50, saveseg=True)
         submitor.generate_submission_file('20180318')

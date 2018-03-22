@@ -96,7 +96,7 @@ class FinalConv(nn.Module):
 
 
 class UNet(Model):
-    def __init__(self, n_channels, n_classes, first_conv_channels=32, batch_norm=False, dropout_rate=0.0):
+    def __init__(self, n_channels, n_classes, first_conv_channels=32, batch_norm=False, dropout_rate=None):
         super(Model, self).__init__()
         print('unet dropout rate: ', dropout_rate)
         self.inc = FirstConv(n_channels, first_conv_channels, batch_norm, dropout_rate)

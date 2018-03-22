@@ -1,6 +1,8 @@
 import time
 import torch
 from torch.autograd import Variable
+import numpy as np
+
 torch.set_num_threads(16)
 
 

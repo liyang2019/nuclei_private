@@ -59,8 +59,6 @@ class Submitor:
                 rle = self.rle_encoding(seg_instance)
                 s = pd.Series({'ImageId': img_key, 'EncodedPixels': rle})
                 im_df = im_df.append(s, ignore_index=True)
-            else:
-                print('find a small seg instance')
 
         return im_df
 
