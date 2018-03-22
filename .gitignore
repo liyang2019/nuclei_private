@@ -5,4 +5,4 @@ venv1
 .DS_Store
 .idea
 log.txt
-model.pt
+model_saved.pt
