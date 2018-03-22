@@ -22,7 +22,7 @@ def print_to_log(description, value, f):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
-    parser.add_argument('--not_debug', help='exit from debug mode', action='store_false', default=True)
+    parser.add_argument('--not_debug', help='exit from debug mode', action='store_false', dest='debug', default=True)
     parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=False)
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int, dest='batch_size', default=1)
     parser.add_argument('--num_classes', help='number of classes for prediction', action='store', type=int, dest='num_classes', default=2)
@@ -58,24 +58,7 @@ if __name__ == '__main__':
         random.seed(args.seed)
         print_to_log('random_seed', args.seed, log_file)
 
-    if args.not_debug:
-        print_every = args.print_every
-        save_model_every = args.save_model_every
-        image_size = args.crop_size
-        pretrained = args.pretrained
-        batch_size = args.batch_size
-        learning_rate = args.learning_rate
-        n_epochs = args.num_epochs
-        is_validation = args.is_validation
-        validation_every = args.validation_every
-        unet_batch_norm = args.unet_batch_norm
-        unet_use_dropout = args.unet_use_dropout
-        unet_dropout_rate = args.unet_dropout_rate if unet_use_dropout else None
-        predict = args.predict
-        lr_decay_every = args.lr_decay_every
-        lr_decay_ratio = args.lr_decay_ratio
-        load_model = args.load_model
-    else:
+    if args.debug:
         print_every = 1
         save_model_every = 10
         image_size = 224
@@ -92,8 +75,25 @@ if __name__ == '__main__':
         lr_decay_every = 100
         lr_decay_ratio = 0.5
         load_model = False
+    else:
+        print_every = args.print_every
+        save_model_every = args.save_model_every
+        image_size = args.crop_size
+        pretrained = args.pretrained
+        batch_size = args.batch_size
+        learning_rate = args.learning_rate
+        n_epochs = args.num_epochs
+        is_validation = args.is_validation
+        validation_every = args.validation_every
+        unet_batch_norm = args.unet_batch_norm
+        unet_use_dropout = args.unet_use_dropout
+        unet_dropout_rate = args.unet_dropout_rate if unet_use_dropout else None
+        predict = args.predict
+        lr_decay_every = args.lr_decay_every
+        lr_decay_ratio = args.lr_decay_ratio
+        load_model = args.load_model
 
-    print_to_log('debug', not args.not_debug, log_file)
+    print_to_log('debug', args.debug, log_file)
     print_to_log('batch size', batch_size, log_file)
     print_to_log('num_classes', args.num_classes, log_file)
     print_to_log('output_dir', args.output_dir, log_file)
