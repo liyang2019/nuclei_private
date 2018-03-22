@@ -58,25 +58,7 @@ if __name__ == '__main__':
         random.seed(args.seed)
         print_to_log('random_seed', args.seed, log_file)
 
-    if not args.not_debug:
-        print_every = 1
-        save_model_every = 10
-        image_size = 224
-        pretrained = True
-        batch_size = 1
-        learning_rate = 0.001
-        n_epochs = 1000
-        is_validation = False
-        validation_every = 10
-        unet_batch_norm = True
-        unet_use_dropout = False
-        unet_dropout_rate = None
-        predict = True
-        lr_decay_every = 100
-        lr_decay_ratio = 0.5
-        load_model = False
-
-    else:
+    if args.not_debug:
         print_every = args.print_every
         save_model_every = args.save_model_every
         image_size = args.crop_size
@@ -93,7 +75,24 @@ if __name__ == '__main__':
         lr_decay_every = args.lr_decay_every
         lr_decay_ratio = args.lr_decay_ratio
         load_model = args.load_model
-
+    else:
+        print_every = 1
+        save_model_every = 10
+        image_size = 224
+        pretrained = True
+        batch_size = 1
+        learning_rate = 0.001
+        n_epochs = 1000
+        is_validation = False
+        validation_every = 10
+        unet_batch_norm = True
+        unet_use_dropout = False
+        unet_dropout_rate = None
+        predict = True
+        lr_decay_every = 100
+        lr_decay_ratio = 0.5
+        load_model = False
+        
     print_to_log('debug', not args.not_debug, log_file)
     print_to_log('batch size', batch_size, log_file)
     print_to_log('num_classes', args.num_classes, log_file)
