@@ -74,6 +74,8 @@ if __name__ == '__main__':
         predict = True
         lr_decay_every = 100
         lr_decay_ratio = 0.5
+        load_model = True
+
     else:
         print_every = args.print_every
         save_model_every = args.save_model_every
@@ -90,6 +92,7 @@ if __name__ == '__main__':
         predict = args.predict
         lr_decay_every = args.lr_decay_every
         lr_decay_ratio = args.lr_decay_ratio
+        load_model = args.load_model
 
     print_to_log('debug', args.debug, log_file)
     print_to_log('batch size', batch_size, log_file)
@@ -98,7 +101,7 @@ if __name__ == '__main__':
     print_to_log('model', args.model, log_file)
     print_to_log('learning_rate', args.learning_rate, log_file)
     print_to_log('optimizer', args.optimizer, log_file)
-    print_to_log('load_model', args.load_model, log_file)
+    print_to_log('load_model', load_model, log_file)
     print_to_log('unet unet_batch_norm', unet_batch_norm, log_file)
     print_to_log('unet_use_dropout', unet_use_dropout, log_file)
     print_to_log('unet_dropout_rate', unet_dropout_rate, log_file)
@@ -111,7 +114,7 @@ if __name__ == '__main__':
     print_to_log('lr_decay_every', lr_decay_every, log_file)
     print_to_log('lr_decay_ratio', lr_decay_ratio, log_file)
 
-    if args.load_model:
+    if load_model:
         print("loading model from file..")
         model = torch.load('model_saved.pt')
         print("model loaded!")
@@ -173,15 +176,15 @@ if __name__ == '__main__':
 
     else:
         print("predicting on test set")
-        # test_set = SemanticSegmentationDataset('data',
-        #                                        'image_test.txt',
-        #                                        'stage1_test_imgs',
-        #                                        crop_size=image_size, validation=False, testing=True)
-        train_set = SemanticSegmentationDataset('data',
-                                                'image_train.txt',
-                                                'stage1_train_imgs_and_flattenedmasks',
-                                                image_size, validation=False, testing=True)
-        train_loader = DataLoader(train_set, 1)
-        # test_loader = DataLoader(test_set, 1)
-        submitor = Submitor(model, train_loader, output_dir='kaggle_submission', cuda=cuda, threshold=50, saveseg=True)
+        test_set = SemanticSegmentationDataset('data',
+                                               'image_test.txt',
+                                               'stage1_test_imgs',
+                                               crop_size=image_size, validation=False, testing=True)
+        test_loader = DataLoader(test_set, 1)
+        # train_set = SemanticSegmentationDataset('data',
+        #                                         'image_train.txt',
+        #                                         'stage1_train_imgs_and_flattenedmasks',
+        #                                         image_size, validation=False, testing=True)
+        # train_loader = DataLoader(train_set, 1)
+        submitor = Submitor(model, test_loader, output_dir='kaggle_submission', cuda=cuda, threshold=50, saveseg=True)
         submitor.generate_submission_file('20180318')
