@@ -4,7 +4,26 @@ import torch.nn.functional as F
 from model.segmentation_model import Model
 
 
+class SingleConv(nn.Module):
+
+    def __init__(self, in_channels, out_channels, batch_norm, dropout_rate):
+        super(SingleConv, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+        )
+        if batch_norm:
+            self.conv.add_module('BN', nn.BatchNorm2d(out_channels))
+        self.conv.add_module('Relu', nn.ReLU(inplace=True))
+        if dropout_rate:
+            self.conv.add_module('Dropout', nn.Dropout(dropout_rate))
+
+    def forward(self, x):
+        x = self.conv(x)
+        return x
+
+
 class DoubleConv(nn.Module):
+
     """(conv => BN => ReLU) * 2"""
 
     def __init__(self, in_channels, out_channels, batch_norm, dropout_rate):
@@ -16,26 +35,10 @@ class DoubleConv(nn.Module):
         :param dropout_rate: dropout rate after each convolution operation.
         """
         super(DoubleConv, self).__init__()
-        if batch_norm:
-            self.conv = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-                nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True),
-                nn.Dropout(dropout_rate),
-                nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-                nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True),
-                nn.Dropout(dropout_rate)
-            )
-        else:
-            self.conv = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True),
-                nn.Dropout(dropout_rate),
-                nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True),
-                nn.Dropout(dropout_rate)
-            )
+        self.conv = nn.Sequential(
+            SingleConv(in_channels, out_channels, batch_norm, dropout_rate),
+            SingleConv(out_channels, out_channels, batch_norm, dropout_rate)
+        )
 
     def forward(self, x):
         x = self.conv(x)
@@ -95,7 +98,7 @@ class FinalConv(nn.Module):
 class UNet(Model):
     def __init__(self, n_channels, n_classes, first_conv_channels=32, batch_norm=False, dropout_rate=0.0):
         super(Model, self).__init__()
-        print(dropout_rate)
+        print('unet dropout rate: ', dropout_rate)
         self.inc = FirstConv(n_channels, first_conv_channels, batch_norm, dropout_rate)
         self.conv1 = ContractingPathConv(first_conv_channels, first_conv_channels * 2, batch_norm, dropout_rate)
         self.conv2 = ContractingPathConv(first_conv_channels * 2, first_conv_channels * 4, batch_norm, dropout_rate)

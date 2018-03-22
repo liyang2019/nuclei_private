@@ -1,14 +1,7 @@
 import time
-from torch import optim
 import torch
-from dataset import kagglebowl18_dataset
-from torch.utils.data import DataLoader
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
-import numpy as np
-import torch.nn.functional as F
-
-from model.fcn32s import FCN32s
+torch.set_num_threads(16)
 
 
 class Trainer:
@@ -77,7 +70,7 @@ class Trainer:
 
             # save model
             if ((self.n_iter + 1) % self.n_save) == 0:
-                torch.save(self.model, 'model.pt')
+                torch.save(self.model, 'model_saved.pt')
 
     def train(self):
         for epoch in range(self.n_epochs):
@@ -93,6 +86,9 @@ class Trainer:
         count = 0
         for img, seg, _ in self.val_loader:
             img, seg = Variable(img), Variable(seg)
+            if self.cuda:
+                img = img.cuda()
+                seg = seg.cuda()
             output_val = self.model(img)
             loss_val += self.loss(output_val, seg).data
             count += 1
@@ -101,60 +97,7 @@ class Trainer:
 
 
 def main():
-    cuda = torch.cuda.is_available()
-
-    num_classes = 2
-    pretrained = True
-    image_size = 224
-    batch_size = 1
-    n_epochs = 1000
-    n_save = 100
-    n_print = 1
-    learning_rate = 1e-4
-    is_validation = False
-
-    train_set = kagglebowl18_dataset('kaggle_train_data',
-                                     'image_train.txt',
-                                     'segmentation_train.txt',
-                                     'class_train.txt',
-                                     image_size)
-    val_set = kagglebowl18_dataset('kaggle_train_data',
-                                   'image_train.txt',
-                                   'segmentation_train.txt',
-                                   'class_train.txt',
-                                   image_size)
-
-    model = FCN32s(num_classes=num_classes, pretrained=pretrained)
-    model = model.cuda() if cuda else model
-    loss = torch.nn.CrossEntropyLoss()
-    train_loader = DataLoader(train_set, batch_size, shuffle=True, drop_last=True)
-    val_loader = DataLoader(val_set, len(val_set))
-    # optimizer = optim.SGD(model.parameters(), lr=learning_rate)
-    # optimizer = optim.Adam(itertools.chain(
-    #     model.upscore.parameters(), model.score_fr.parameters()), lr=learning_rate)
-    optimizer = optim.Adam(model.upscore.parameters(), lr=learning_rate)
-
-    trainer = Trainer(cuda=cuda,
-                      model=model,
-                      train_loader=train_loader,
-                      val_loader=val_loader,
-                      loss=loss,
-                      optimizer=optimizer,
-                      n_epochs=n_epochs,
-                      n_save=n_save,
-                      n_print=n_print,
-                      learning_rate=learning_rate,
-                      is_validation=is_validation)
-    trainer.train()
-    # for img, seg, _ in train_loader:
-    #     res = trainer.predict(img)
-    #     plt.imshow(res.squeeze())
-    #     plt.show()
-    #
-    #     seg = seg.numpy()
-    #     seg = seg[0, :, :]
-    #     plt.imshow(seg)
-    #     plt.show()
+    pass
 
 
 if __name__ == '__main__':
