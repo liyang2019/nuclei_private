@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--unet_batch_norm', help='to choose whether use batch normalization for unet', action='store_true', default=False)
     parser.add_argument('--unet_use_dropout', help='use unet dropout', action='store_true', default=False)
     parser.add_argument('--unet_dropout_rate', help='to set the dropout rate for unet',
-                        action='store_true', type=float, default=0.5)
+                        action='store', type=float, default=0.5)
     parser.add_argument('--unet_channels', help='the number of unet first conv channels', action='store', type=int, default=32)
     parser.add_argument('--print_every', help='print loss every print_every steps', action='store', type=int, default=10)
     parser.add_argument('--save_model_every', help='save model every save_model_every steps', action='store', type=int,
@@ -78,6 +78,7 @@ if __name__ == '__main__':
         unet_batch_norm = True
         unet_use_dropout = False
         unet_dropout_rate = None
+        predict = True
     else:
         print_every = args.print_every
         save_model_every = args.save_model_every
@@ -91,6 +92,7 @@ if __name__ == '__main__':
         unet_batch_norm = args.unet_batch_norm
         unet_use_dropout = args.unet_use_dropout
         unet_dropout_rate = args.unet_dropout_rate if unet_use_dropout else None
+        predict = args.predict
 
     print_to_log('debug', args.debug, log_file)
     print_to_log('batch size', batch_size, log_file)
@@ -109,6 +111,7 @@ if __name__ == '__main__':
     print_to_log('save_model_every', args.save_model_every, log_file)
     print_to_log('validation_every', validation_every, log_file)
     print_to_log('crop_size', args.crop_size, log_file)
+    print_to_log('predict', predict, log_file)
 
     if args.load_model:
         print("loading model from file..")
@@ -134,7 +137,7 @@ if __name__ == '__main__':
     model = model.cuda() if cuda else model
     print_to_log('gpu', cuda, log_file)
 
-    if not args.predict:
+    if not predict:
         print("training on train set")
         train_set = SemanticSegmentationDataset('data',
                                                 'image_train.txt',

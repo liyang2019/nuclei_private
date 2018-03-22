@@ -45,10 +45,10 @@ def submit(job_dir, config):
         print("srun python main.py " +
               "--use_gpu " +
               "--print_every " + str(config.print_every) + " " +
-              "--save_model_every" + str(config.save_model_every) + " " +
+              "--save_model_every " + str(config.save_model_every) + " " +
               "--unet_batch_norm " +
-              "--crop_size" + str(config.crop_size) + " "
-              )
+              "--crop_size " + str(config.crop_size) + " ",
+              file=f)
 
     os.chmod(slurm_file_name, mode=777)
     os.system("sbatch -D " + job_dir + " " + slurm_file_name)
@@ -68,7 +68,7 @@ def jobid_to_string(job_id):
 
 def parse_dir(config):
     JID = jobid_to_string(config.job_id)
-    return os.path.join("result",
+    return os.path.join("rice_cluster_result",
                         "a" + JID + "_2018-3-21" +
                         "_lr" + str(config.learning_rate) +
                         "_ch" + str(config.unet_channels) +
