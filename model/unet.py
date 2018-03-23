@@ -78,11 +78,8 @@ class ExpansivePathConv(nn.Module):
         x1 = self.upscale(x1)
         diffX = x1.size()[2] - x2.size()[2]
         diffY = x1.size()[3] - x2.size()[3]
-        print('padding: ', diffX, diffY)
-        print(x2.shape)
         x2 = F.pad(x2, (diffY // 2, diffY - diffY // 2,
                         diffX // 2, diffX - diffX // 2))
-        print(x2.shape)
         x = torch.cat([x2, x1], dim=1)
         x = self.conv(x)
         return x
