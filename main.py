@@ -139,6 +139,7 @@ if __name__ == '__main__':
     else:
         model = model.cpu()
     print_to_log('gpu', cuda, log_file)
+    log_file.close()
 
     if not predict:
         print("training on train set")
