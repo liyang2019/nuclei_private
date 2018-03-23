@@ -41,10 +41,15 @@ class Trainer:
         self.lr_decay_ratio = lr_decay_ratio
 
     def train(self):
+        n_iter = 0
+        loss_train_print = 0
+        train_count = 0
+        loss_val_print = 0
+        val_count = 0
         for epoch in range(self.n_epochs):
             tic = time.time()
             for img, seg, _ in self.train_loader:
-                self.n_iter += 1
+                n_iter += 1
                 self.optimizer.zero_grad()
                 if self.cuda:
                     img, seg = img.cuda(), seg.cuda()
@@ -53,6 +58,8 @@ class Trainer:
 
                 # forward
                 loss = self.loss(output, seg)
+                loss_train_print += float(loss.data)
+                train_count += 1
 
                 # backward
                 loss.backward()
@@ -61,26 +68,31 @@ class Trainer:
                 self.optimizer.step()
 
                 # validation
-                loss_val = None
                 if self.is_validation:
                     loss_val = self.validation_loss()
+                    loss_val_print += loss_val
+                    val_count += 1
 
                 # learning rate decay
-                if ((self.n_iter + 1) % self.lr_decay_every) == 0:
+                if ((n_iter + 1) % self.lr_decay_every) == 0:
                     self.learning_rate *= self.lr_decay_ratio
 
                 # print to log
-                if ((self.n_iter + 1) % self.n_print) == 0:
+                if ((n_iter + 1) % self.n_print) == 0:
                     toc = time.time()
                     print("epoch {} | step {} | loss_train {} | loss_val {} | lr {} | time {} "
-                          .format(epoch, self.n_iter, float(loss.data), loss_val, self.learning_rate, toc - tic))
+                          .format(epoch, self.n_iter, loss_train_print / train_count, loss_val_print / val_count, self.learning_rate, toc - tic))
                     with open('log.txt', 'a') as log:
                         print("epoch {} | step {} | loss_train {} | loss_val {} | lr {} | time {} "
-                              .format(epoch, self.n_iter, float(loss.data), loss_val, self.learning_rate, toc - tic), file=log)
+                              .format(epoch, self.n_iter, loss_train_print / train_count, loss_val_print / val_count, self.learning_rate, toc - tic), file=log)
                     tic = time.time()
+                    loss_train_print = 0
+                    train_count = 0
+                    loss_val_print = 0
+                    val_count = 0
 
                 # save model
-                if ((self.n_iter + 1) % self.n_save) == 0:
+                if ((n_iter + 1) % self.n_save) == 0:
                     torch.save(self.model, 'model_saved.pt')
 
     def validation_loss(self):
