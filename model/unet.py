@@ -116,8 +116,8 @@ class UNet(Model):
         dw = ((w - 1) // 16 + 1) * 16 - w
         pl = dw // 2
         pr = dw - pl
-        pt = dw // 2
-        pd = dw - pt
+        pt = dh // 2
+        pd = dh - pt
         x = F.pad(x, (pl, pr, pt, pd))
         x1 = self.inc(x)
         x2 = self.conv1(x1)
