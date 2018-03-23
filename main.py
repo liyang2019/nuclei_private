@@ -46,6 +46,8 @@ if __name__ == '__main__':
     parser.add_argument('--validation_every', help='calculate validation loss every validation_every steps', action='store', type=int, default=1)
     parser.add_argument('--lr_decay_every', help='learning rate decay every lr_decay_every steps', action='store', type=int, default=10000)
     parser.add_argument('--lr_decay_ratio', help='learning rate decay ratio', action='store', type=float, default=0.5)
+    parser.add_argument('--is_auto_adjust_rate', help='if using auto adjust learning rate', action='store_true', default=True)
+    parser.add_argument('--lr_adjust_every', help='number of iterations to check learning rate', action='store', type=int, default=1000)
 
     args = parser.parse_args()
 
@@ -71,10 +73,13 @@ if __name__ == '__main__':
         unet_batch_norm = True
         unet_use_dropout = False
         unet_dropout_rate = None
-        predict = True
+        predict = False
         lr_decay_every = 100
         lr_decay_ratio = 0.5
+        is_auto_adjust_rate = True
+        lr_adjust_every = 1000
         load_model = False
+
     else:
         print_every = args.print_every
         save_model_every = args.save_model_every
@@ -91,6 +96,8 @@ if __name__ == '__main__':
         predict = args.predict
         lr_decay_every = args.lr_decay_every
         lr_decay_ratio = args.lr_decay_ratio
+        is_auto_adjust_rate = args.is_auto_adjust_rate
+        lr_adjust_every = args.lr_adjust_every
         load_model = args.load_model
 
     print_to_log('debug', args.debug, log_file)
@@ -112,6 +119,8 @@ if __name__ == '__main__':
     print_to_log('predict', predict, log_file)
     print_to_log('lr_decay_every', lr_decay_every, log_file)
     print_to_log('lr_decay_ratio', lr_decay_ratio, log_file)
+    print_to_log('is_auto_adjust_rate', is_auto_adjust_rate, log_file)
+    print_to_log('lr_adjust_every', lr_adjust_every, log_file)
 
     if load_model:
         print("loading model from file..")
@@ -174,7 +183,9 @@ if __name__ == '__main__':
                           learning_rate=learning_rate,
                           is_validation=is_validation,
                           lr_decay_every=lr_decay_every,
-                          lr_decay_ratio=lr_decay_ratio)
+                          lr_decay_ratio=lr_decay_ratio,
+                          is_auto_adjust_rate=is_auto_adjust_rate,
+                          lr_adjust_every=lr_adjust_every)
         trainer.train()
 
     else:
