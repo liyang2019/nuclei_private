@@ -81,10 +81,10 @@ class Trainer:
                 if ((n_iter + 1) % self.n_print) == 0:
                     toc = time.time()
                     print("epoch {} | step {} | loss_train {} | loss_val {} | lr {} | time {} "
-                          .format(epoch, self.n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic))
+                          .format(epoch, n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic))
                     with open('log.txt', 'a') as log:
                         print("epoch {} | step {} | loss_train {} | loss_val {} | lr {} | time {} "
-                              .format(epoch, self.n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic), file=log)
+                              .format(epoch, n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic), file=log)
                     tic = time.time()
                     loss_train_print = 0
                     train_count = 0
