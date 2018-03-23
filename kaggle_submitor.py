@@ -44,7 +44,7 @@ class Submitor:
         seg = self.model.predict(img)
         seg = seg.squeeze()
         if self.saveseg:
-            self.filter_small_size(seg, self.threshold)
+            seg = self.filter_small_size(seg, self.threshold)
             self.save_image((seg * 255).astype(np.uint8), img_key)
 
         # Regenerate the labels
@@ -79,6 +79,7 @@ class Submitor:
             # Check if the label size is too small
             if np.product(cell.shape) < threshold:
                 seg = np.where(labels == label_ind + 1, 0, seg)
+        return seg
 
     @staticmethod
     def rle_encoding(x):
