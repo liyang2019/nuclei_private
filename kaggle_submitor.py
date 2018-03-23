@@ -78,6 +78,7 @@ class Submitor:
             cell = seg[label_coords]
             # Check if the label size is too small
             if np.product(cell.shape) < threshold:
+                print('size: ', np.product(cell.shape))
                 seg = np.where(labels == label_ind + 1, 0, seg)
         return seg
 
