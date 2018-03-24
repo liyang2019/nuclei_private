@@ -331,7 +331,7 @@ def run_check_dataset_reader():
             cv2.rectangle(image1,(x0,y0),(x1,y1),(0,255,255),2)
             cv2.rectangle(color_overlay1,(x0,y0),(x1,y1),(0,255,255),2)
             cv2.rectangle(contour_overlay1,(x0,y0),(x1,y1),(0,255,255),2)
-            image_show('instance[i]',np.hstack([instance1, image1,color_overlay1,contour_overlay1]))
+            # image_show('instance[i]',np.hstack([instance1, image1,color_overlay1,contour_overlay1]))
             cv2.waitKey(0)
 
 
