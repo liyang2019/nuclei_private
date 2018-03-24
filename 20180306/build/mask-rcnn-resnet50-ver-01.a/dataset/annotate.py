@@ -57,7 +57,7 @@ def run_make_train_annotation():
         for k in range(num_masks):
             mask_file = mask_files[k]
             mask = cv2.imread(mask_file, cv2.IMREAD_GRAYSCALE)
-            multi_mask[np.where(mask > 128)] = k + 1
+            multi_mask[np.where(mask > 128)] =  + 1
 
         # check
         color_overlay = multi_mask_to_color_overlay(multi_mask, color='summer')
@@ -72,7 +72,7 @@ def run_make_train_annotation():
         cv2.imwrite(data_dir + '/overlays/%s.png' % name, all)
         cv2.imwrite(data_dir + '/images/%s.png' % name, image)
 
-        image_show('all', all)
+        # image_show('all', all)
         cv2.waitKey(1)
 
 
