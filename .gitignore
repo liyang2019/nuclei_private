@@ -12,4 +12,9 @@ kaggle_submission
 20180306/build/mask-rcnn-resnet50-ver-01.a/net/lib
 
 20180306/build/mask-rcnn-resnet50-ver-01.a/__pycache__/common.cpython-36.pyc
+20180306/data20180306/build/mask-rcnn-resnet50-ver-01.a/__pycache__
+20180306/build/mask-rcnn-resnet50-ver-01.a/dataset/__pycache__/
+20180306/build/mask-rcnn-resnet50-ver-01.a/dataset/__pycache__
+20180306/build/mask-rcnn-resnet50-ver-01.a/net/resnet50_mask_rcnn/__pycache__
+20180306/build/mask-rcnn-resnet50-ver-01.a/net/resnet50_mask_rcnn/layer/__pycache__
 20180306/data
