@@ -286,8 +286,7 @@ class ResNet(nn.Module):
                 nn.BatchNorm2d(planes * block.expansion, eps=0.001, momentum=0.01),
             )
 
-        layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers = [block(self.inplanes, planes, stride, downsample)]
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes))
@@ -903,7 +902,7 @@ class RPN(nn.Module):
         # where depth is [x, y, log(w), log(h)]
         rpn_bbox = self.conv_bbox(x)
 
-        # Reshape to [batch, 4, anchors]
+        # Reshape to [batch, 4, anchors]  // TODO why this comment?
         rpn_bbox = rpn_bbox.permute(0, 2, 3, 1)
         rpn_bbox = rpn_bbox.contiguous()
         rpn_bbox = rpn_bbox.view(x.size()[0], -1, 4)
@@ -1674,6 +1673,7 @@ class MaskRCNN(nn.Module):
         # and zero padded.
         proposal_count = self.config.POST_NMS_ROIS_TRAINING if mode == "training" \
             else self.config.POST_NMS_ROIS_INFERENCE
+        # TODO here is the rois? prob not
         rpn_rois = proposal_layer([rpn_class, rpn_bbox],
                                   proposal_count=proposal_count,
                                   nms_threshold=self.config.RPN_NMS_THRESHOLD,
