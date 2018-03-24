@@ -1,20 +1,17 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
-
-from common import *
-from utility.file import *
-from dataset.reader import *
+from dataset.transform import random_crop_transform2
 from net.rate import *
-from net.metric import *
+
+from net.resnet50_mask_rcnn.draw import *
+from net.resnet50_mask_rcnn.model import *
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 
 # -------------------------------------------------------------------------------------
 # WIDTH, HEIGHT = 128,128
 # WIDTH, HEIGHT = 192,192
 WIDTH, HEIGHT = 256, 256
-
-from net.resnet50_mask_rcnn.draw import *
-from net.resnet50_mask_rcnn.model import *
 
 
 # -------------------------------------------------------------------------------------
@@ -76,6 +73,8 @@ def evaluate(net, test_loader):
     for i, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(test_loader, 0):
         with torch.no_grad():
             inputs = Variable(inputs).cuda()
+            if all(b is None for b in truth_boxes):
+                continue
             net(inputs, truth_boxes, truth_labels, truth_instances)
             loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
