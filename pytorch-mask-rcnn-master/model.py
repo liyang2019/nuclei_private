@@ -890,7 +890,7 @@ class RPN(nn.Module):
         # Anchor Score. [batch, anchors per location * 2, height, width].
         rpn_class_logits = self.conv_class(x)
 
-        # Reshape to [batch, 2, anchors]
+        # Reshape to [batch, 2, anchors]  // TODO comment wrong?
         rpn_class_logits = rpn_class_logits.permute(0, 2, 3, 1)
         rpn_class_logits = rpn_class_logits.contiguous()
         rpn_class_logits = rpn_class_logits.view(x.size()[0], -1, 2)
@@ -902,7 +902,7 @@ class RPN(nn.Module):
         # where depth is [x, y, log(w), log(h)]
         rpn_bbox = self.conv_bbox(x)
 
-        # Reshape to [batch, 4, anchors]  // TODO why this comment?
+        # Reshape to [batch, 4, anchors]  // TODO comment wrong?
         rpn_bbox = rpn_bbox.permute(0, 2, 3, 1)
         rpn_bbox = rpn_bbox.contiguous()
         rpn_bbox = rpn_bbox.view(x.size()[0], -1, 4)
@@ -1798,7 +1798,7 @@ class MaskRCNN(nn.Module):
         # Add L2 Regularization
         # Skip gamma and beta weights of batch normalization layers.
         trainables_wo_bn = [param for name, param in self.named_parameters() if
-                            param.requires_grad and not 'bn' in name]
+                            param.requires_grad and 'bn' not in name]
         trainables_only_bn = [param for name, param in self.named_parameters() if param.requires_grad and 'bn' in name]
         optimizer = optim.SGD([
             {'params': trainables_wo_bn, 'weight_decay': self.config.WEIGHT_DECAY},

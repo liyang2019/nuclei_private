@@ -8,3 +8,6 @@ log.txt
 model_saved.pt
 rice_cluster_result
 kaggle_submission
+20180306/results
+20180306/build/mask-rcnn-resnet50-ver-01.a/net/lib
+
