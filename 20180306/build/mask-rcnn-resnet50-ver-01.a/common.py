@@ -1,5 +1,5 @@
 # edit settings here
-ROOT_DIR ='/root/share/project/kaggle/science2018'
+ROOT_DIR ='~/nuclei_private/20180306'
 
 
 
