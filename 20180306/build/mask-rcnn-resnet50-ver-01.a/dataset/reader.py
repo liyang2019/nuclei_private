@@ -315,7 +315,7 @@ def run_check_dataset_reader():
 
         contour_overlay = multi_mask_to_contour_overlay(multi_mask,image,color=[0,0,255])
         color_overlay   =   multi_mask_to_color_overlay(multi_mask)
-        image_show('image',np.hstack([image,color_overlay,contour_overlay]))
+        # image_show('image',np.hstack([image,color_overlay,contour_overlay]))
 
         num_masks  = len(instance)
         for i in range(num_masks):

@@ -11,3 +11,5 @@ kaggle_submission
 20180306/results
 20180306/build/mask-rcnn-resnet50-ver-01.a/net/lib
 
+20180306/build/mask-rcnn-resnet50-ver-01.a/__pycache__/common.cpython-36.pyc
+20180306/data
