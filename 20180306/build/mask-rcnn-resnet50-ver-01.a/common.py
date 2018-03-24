@@ -1,5 +1,5 @@
 # edit settings here
-ROOT_DIR ='~/nuclei_private/20180306'
+ROOT_DIR ='/home/li/nuclei_private/20180306'
 
 
 
