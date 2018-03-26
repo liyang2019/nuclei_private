@@ -175,8 +175,8 @@ def run_train():
     log.write('** dataset setting **\n')
 
     train_dataset = ScienceDataset(
-        'train1_ids_all_670', mode='train',
-        # 'train1_ids_gray2_500', mode='train',
+        # 'train1_ids_all_670', mode='train',
+        'train1_ids_gray2_500', mode='train',
         # 'debug1_ids_gray_only_10', mode='train',
         # 'disk0_ids_dummy_9', mode='train', #12
         # 'train1_ids_purple_only1_101', mode='train', #12
