@@ -98,6 +98,12 @@ def make_layer_c(in_planes, planes, out_planes, num_blocks, stride):
 class FeatureNet(nn.Module):
 
     def __init__(self, cfg, in_channels, out_channels=256):
+        """
+        This is the hardcoded FPN net using resnet50 architecture
+        :param cfg:
+        :param in_channels:
+        :param out_channels:
+        """
         super(FeatureNet, self).__init__()
         self.cfg = cfg
 
