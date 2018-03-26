@@ -264,15 +264,22 @@ def make_one_rpn_target(cfg, mode, input, window, truth_box, truth_label):
             cv2.waitKey(0)
 
     # save
-    label = Variable(torch.from_numpy(label)).cuda()
-    label_assign = Variable(torch.from_numpy(label_assign)).cuda()
-    label_weight = Variable(torch.from_numpy(label_weight)).cuda()
-    target = Variable(torch.from_numpy(target)).cuda()
-    target_weight = Variable(torch.from_numpy(target_weight)).cuda()
+    label = Variable(torch.from_numpy(label))
+    label_assign = Variable(torch.from_numpy(label_assign))
+    label_weight = Variable(torch.from_numpy(label_weight))
+    target = Variable(torch.from_numpy(target))
+    target_weight = Variable(torch.from_numpy(target_weight))
+    if USE_CUDA:
+        label = label.cuda()
+        label_assign = label_assign.cuda()
+        label_weight = label_weight.cuda()
+        target = target.cuda()
+        target_weight = target_weight.cuda()
     return label, label_assign, label_weight, target, target_weight
 
 
 def make_rpn_target(cfg, mode, inputs, window, truth_boxes, truth_labels):
+
     rpn_labels = []
     rpn_label_assigns = []
     rpn_label_weights = []

@@ -109,7 +109,9 @@ def rcnn_nms(cfg, mode, inputs, proposals, logits, deltas):
                         p = p[keep]
                         # keep = gpu_nms(np.hstack((box, p)), nms_overlap_threshold)
                         # TODO changed to torch nms
-                        keep = torch_nms(np.hstack((box, p)), nms_overlap_threshold)
+                        # box = torch.from_numpy(np.hstack((box, p)))
+                        # box = box.cuda() if USE_CUDA else box
+                        # keep = torch_nms(box, nms_overlap_threshold)
                         det = np.zeros((num, 7), np.float32)
                         det[:, 0] = b
                         det[:, 1:5] = np.around(box, 0)

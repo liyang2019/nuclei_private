@@ -19,6 +19,19 @@ def make_bases(base_size, base_apsect_ratios):
     bases = np.array(bases, np.float32)
     return bases
 
+# def make_bases(base_size, base_apsect_ratios):
+#     bases = []
+#     for ratio in base_apsect_ratios:
+#         w = base_size / math.sqrt(ratio)
+#         h = w * ratio
+#         rw = round(w / 2)
+#         rh = round(h / 2)
+#         base = (-rw, -rh, rw, rh, )
+#         bases.append(base)
+#
+#     bases = np.array(bases, np.float32)
+#     return bases
+
 
 def make_windows(f, scale, bases):
     windows = []
@@ -134,8 +147,8 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
                     # keep = gpu_nms(np.hstack((box, p)), nms_overlap_threshold)
                     # TODO which nms???
                     # keep = torch_nms(np.hstack((box, p)), nms_overlap_threshold)
-                    keep = torch_nms(np.hstack((box, p)), nms_overlap_threshold)
-                    
+                    keep = torch_nms(torch.from_numpy(np.hstack((box, p))), nms_overlap_threshold)
+
                     prop = np.zeros((len(keep), 7), np.float32)
                     prop[:, 0] = b
                     prop[:, 1:5] = np.around(box[keep], 0)
@@ -150,7 +163,6 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
     # TODO cuda()??
     proposals = Variable(torch.from_numpy(np.vstack(proposals)))
     return proposals
-
 
 
 # -----------------------------------------------------------------------------

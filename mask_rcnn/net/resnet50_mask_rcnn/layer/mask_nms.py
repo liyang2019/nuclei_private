@@ -118,7 +118,8 @@ def mask_nms(cfg, mode, inputs, proposals, mask_logits):
             for i in range(L):
                 instance_overlap[i, i] = 1
                 for j in range(i + 1, L):
-                    if box_overlap[i, j] < 0.01: continue
+                    if box_overlap[i, j] < 0.01:
+                        continue
 
                     x0 = int(min(box[i, 0], box[j, 0]))
                     y0 = int(min(box[i, 1], box[j, 1]))

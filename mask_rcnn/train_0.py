@@ -2,6 +2,7 @@ import os
 
 from dataset.transform import random_crop_transform2
 from net.rate import *
+from net.resnet50_mask_rcnn.configuration import Configuration
 
 from net.resnet50_mask_rcnn.draw import *
 from net.resnet50_mask_rcnn.model import *
@@ -9,7 +10,7 @@ from net.resnet50_mask_rcnn.model import *
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 
 # -------------------------------------------------------------------------------------
-# WIDTH, HEIGHT = 128,128
+# WIDTH, HEIGHT = 64, 64
 # WIDTH, HEIGHT = 192,192
 WIDTH, HEIGHT = 256, 256
 
@@ -71,25 +72,28 @@ def evaluate(net, test_loader):
     test_loss = np.zeros(6, np.float32)
     test_acc = 0
     for i, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(test_loader, 0):
-        with torch.no_grad():
-            inputs = Variable(inputs).cuda()
-            if all(b is None for b in truth_boxes):
-                continue
-            net(inputs, truth_boxes, truth_labels, truth_instances)
-            loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
-
-        # acc    = dice_loss(masks, labels) #todo
-
         batch_size = len(indices)
-        test_acc += 0  # batch_size*acc[0][0]
-        test_loss += batch_size * np.array((
-            loss.cpu().data.numpy(),
-            net.rpn_cls_loss.cpu().data.numpy(),
-            net.rpn_reg_loss.cpu().data.numpy(),
-            net.rcnn_cls_loss.cpu().data.numpy(),
-            net.rcnn_reg_loss.cpu().data.numpy(),
-            net.mask_cls_loss.cpu().data.numpy(),
-        ))
+        if not all(len(b) == 0 for b in truth_boxes):
+            with torch.no_grad():
+                inputs = Variable(inputs)
+                inputs = inputs.cuda() if USE_CUDA else inputs
+                if all(b is None for b in truth_boxes):
+                    continue
+                net(inputs, truth_boxes, truth_labels, truth_instances)
+                loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+
+            # acc    = dice_loss(masks, labels) #todo
+            test_acc += 0  # batch_size*acc[0][0]
+            test_loss += batch_size * np.array((
+                loss.cpu().data.numpy(),
+                net.rpn_cls_loss.cpu().data.numpy(),
+                net.rpn_reg_loss.cpu().data.numpy(),
+                net.rcnn_cls_loss.cpu().data.numpy(),
+                net.rcnn_reg_loss.cpu().data.numpy(),
+                net.mask_cls_loss.cpu().data.numpy(),
+            ))
+        else:
+            print('empty truth_boxes in evaluate')
         test_num += batch_size
 
     assert (test_num == len(test_loader.sampler))
@@ -125,7 +129,8 @@ def run_train():
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskRcnnNet(cfg).cuda()
+    net = MaskRcnnNet(cfg)
+    net = net.cuda() if USE_CUDA else net
 
     if initial_checkpoint is not None:
         log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
@@ -138,23 +143,22 @@ def run_train():
         net.load_pretrain(pretrain_file, skip)
 
     log.write('%s\n\n' % (type(net)))
-    log.write('%s\n' % (net.version))
+    log.write('%s\n' % net.version)
     log.write('\n')
 
     # optimiser ----------------------------------
     iter_accum = 1
-    batch_size = 16
+    batch_size = 1
 
     num_iters = 1000 * 1000
     iter_smooth = 20
     iter_log = 50
     iter_valid = 100
-    iter_save = [0, num_iters - 1] \
-                + list(range(0, num_iters, 500))  # 1*1000
+    iter_save = [0, num_iters - 1] + list(range(0, num_iters, 500))  # 1*1000
 
     LR = None  # LR = StepLR([ (0, 0.01),  (200, 0.001),  (300, -1)])
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, net.parameters()),
-                          lr=0.01 / iter_accum, momentum=0.9, weight_decay=0.0001)
+                          lr=0.001 / iter_accum, momentum=0.9, weight_decay=0.0001)
 
     start_iter = 0
     start_epoch = 0.
@@ -171,7 +175,8 @@ def run_train():
     log.write('** dataset setting **\n')
 
     train_dataset = ScienceDataset(
-        'train1_ids_gray2_500', mode='train',
+        'train1_ids_all_670', mode='train',
+        # 'train1_ids_gray2_500', mode='train',
         # 'debug1_ids_gray_only_10', mode='train',
         # 'disk0_ids_dummy_9', mode='train', #12
         # 'train1_ids_purple_only1_101', mode='train', #12
@@ -205,14 +210,14 @@ def run_train():
         collate_fn=train_collate)
 
     log.write('\tWIDTH, HEIGHT = %d, %d\n' % (WIDTH, HEIGHT))
-    log.write('\ttrain_dataset.split = %s\n' % (train_dataset.split))
-    log.write('\tvalid_dataset.split = %s\n' % (valid_dataset.split))
+    log.write('\ttrain_dataset.split = %s\n' % train_dataset.split)
+    log.write('\tvalid_dataset.split = %s\n' % valid_dataset.split)
     log.write('\tlen(train_dataset)  = %d\n' % (len(train_dataset)))
     log.write('\tlen(valid_dataset)  = %d\n' % (len(valid_dataset)))
     log.write('\tlen(train_loader)   = %d\n' % (len(train_loader)))
     log.write('\tlen(valid_loader)   = %d\n' % (len(valid_loader)))
-    log.write('\tbatch_size  = %d\n' % (batch_size))
-    log.write('\titer_accum  = %d\n' % (iter_accum))
+    log.write('\tbatch_size  = %d\n' % batch_size)
+    log.write('\titer_accum  = %d\n' % iter_accum)
     log.write('\tbatch_size*iter_accum  = %d\n' % (batch_size * iter_accum))
     log.write('\n')
 
@@ -244,8 +249,8 @@ def run_train():
                     contour = mask_to_inner_contour(mask)
                     contour_overlay[contour] = [0, 255, 0]
 
-                image_show('contour_overlay', contour_overlay)
-                image_show('box_overlay', box_overlay)
+                # image_show('contour_overlay', contour_overlay)
+                # image_show('box_overlay', box_overlay)
                 cv2.waitKey(0)
     # <debug>========================================================================================
 
@@ -281,7 +286,8 @@ def run_train():
         net.set_mode('train')
         optimizer.zero_grad()
         for inputs, truth_boxes, truth_labels, truth_instances, metas, indices in train_loader:
-            if all(len(b) == 0 for b in truth_boxes): continue
+            if all(len(b) == 0 for b in truth_boxes):
+                continue
 
             batch_size = len(indices)
             i = j / iter_accum + start_iter
@@ -320,12 +326,15 @@ def run_train():
             # learning rate schduler -------------
             if LR is not None:
                 lr = LR.get_rate(i)
-                if lr < 0: break
+                if lr < 0:
+                    break
                 adjust_learning_rate(optimizer, lr / iter_accum)
             rate = get_learning_rate(optimizer) * iter_accum
 
             # one iteration update  -------------
-            inputs = Variable(inputs).cuda()
+            inputs = Variable(inputs)
+            inputs = inputs.cuda() if USE_CUDA else inputs
+
             net(inputs, truth_boxes, truth_labels, truth_instances)
             loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
@@ -446,9 +455,9 @@ def run_train():
                     # image_show('rpn_proposal',all3,1)
                     # image_show('truth_box',all4,1)
                     # image_show('rpn_precision',all5,1)
-                    image_show('rpn_precision', all5, 1)
-                    image_show('rcnn_precision', all6, 1)
-                    image_show('mask_precision', all7, 1)
+                    # image_show('rpn_precision', all5, 1)
+                    # image_show('rcnn_precision', all6, 1)
+                    # image_show('mask_precision', all7, 1)
 
                     # summary = np.vstack([
                     #     all5,
@@ -476,7 +485,7 @@ def run_train():
     pass  # -- end of all iterations --
 
     if 1:  # save last
-        torch.save(net.state_dict(), out_dir + '/checkpoint/%d_model.pth' % (i))
+        torch.save(net.state_dict(), out_dir + '/checkpoint/%d_model.pth' % i)
         torch.save({
             'optimizer': optimizer.state_dict(),
             'iter': i,

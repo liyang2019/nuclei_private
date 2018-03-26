@@ -49,7 +49,7 @@ class Logger(object):
         if mode is None: mode = 'w'
         self.file = open(file, mode)
 
-    def write(self, message, is_terminal=1, is_file=1):
+    def write(self, message: object, is_terminal: object = 1, is_file: object = 1) -> object:
         if '\r' in message: is_file = 0
 
         if is_terminal == 1:
