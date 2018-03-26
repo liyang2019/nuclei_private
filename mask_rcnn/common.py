@@ -106,8 +106,10 @@ if 1:
         NUM_CUDA_DEVICES = 1
 
     print('\t\ttorch.cuda.device_count()      =', torch.cuda.device_count())
-    # print('\t\ttorch.cuda.current_device()    =', torch.cuda.current_device())
+    if USE_CUDA:
+        print('\t\ttorch.cuda.current_device()    =', torch.cuda.current_device())
 
+    
 print('')
 
 # ---------------------------------------------------------------------------------

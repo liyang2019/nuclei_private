@@ -130,9 +130,8 @@ def rcnn_nms(cfg, mode, inputs, proposals, logits, deltas):
 
         detections.append(detection)
 
-    # detections = Variable(torch.from_numpy(np.vstack(detections))).cuda()
-    # TODO not using cuda!!
     detections = Variable(torch.from_numpy(np.vstack(detections)))
+    detections = detections.cuda() if USE_CUDA else detections
     return detections
 
 
