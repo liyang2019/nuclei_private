@@ -148,7 +148,7 @@ def run_train():
 
     # optimiser ----------------------------------
     iter_accum = 1
-    batch_size = 1
+    batch_size = 5
 
     num_iters = 1000 * 1000
     iter_smooth = 20
