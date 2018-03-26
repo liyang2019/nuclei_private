@@ -216,13 +216,9 @@ class CropRoi(nn.Module):
         num_proposals = len(proposals)
 
         # this is  complicated. we need to decide for a given roi, which of the p0,p1, ..p3 layers to pool from
-        print('num proposals', num_proposals)
-        print('proposals ', proposals.is_cuda)
         boxes = proposals.detach().data[:, 1:5]
         sizes = boxes[:, 2:] - boxes[:, :2]
         sizes = torch.sqrt(sizes[:, 0] * sizes[:, 1])
-        print('sizes ', sizes.is_cuda)
-        print('self.sizes ', self.sizes.is_cuda)
         distances = torch.abs(sizes.view(num_proposals, 1).expand(num_proposals, 4) - self.sizes)
         min_distances, min_index = distances.min(1)
 
@@ -399,19 +395,16 @@ class MaskRcnnNet(nn.Module):
         self.rpn_window = make_rpn_windows(cfg, features)
         self.rpn_proposals = rpn_nms(cfg, mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
 
-        print('mode: ', mode)
         if mode in ['train', 'valid']:
             self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
                 make_rpn_target(cfg, mode, inputs, self.rpn_window, truth_boxes, truth_labels)
 
-            print('self.rpn_proposals just before make_rcnn_target', self.rpn_proposals.size(), self.rpn_proposals.is_cuda)
             self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
                 make_rcnn_target(cfg, mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
 
         # rcnn proposals ------------------------------------------------
         self.rcnn_proposals = self.rpn_proposals
         if len(self.rpn_proposals) > 0:
-            print('self.rpn_proposals just before crop', self.rpn_proposals.size(), self.rpn_proposals.is_cuda)
             rcnn_crops = self.rcnn_crop(features, self.rpn_proposals)
             self.rcnn_logits, self.rcnn_deltas = self.data_parallel(self.rcnn_head, rcnn_crops)
             self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)

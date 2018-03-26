@@ -378,7 +378,8 @@ def run_train():
             j = j + 1
 
             # <debug> ===================================================================
-            if 1:
+            if 0:
+                print('doing debug test')
                 # if i%10==0:
 
                 net.set_mode('test')
