@@ -45,12 +45,13 @@ from scipy import ndimage
 
 import matplotlib
 
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 # matplotlib.use('Qt4Agg')
 # matplotlib.use('Qt5Agg')
 
 # edit settings here
-ROOT_DIR = '/home/li/nuclei_private/'
+# ROOT_DIR = '/home/li/nuclei_private/'
+ROOT_DIR = '/Users/li/2018_Data_Science_Bowl/nuclei_private'
 
 DATA_DIR = ROOT_DIR + '/data/data'  # '/media/root/5453d6d1-e517-4659-a3a8-d0a878ba4b60/data/kaggle/science2018/data' #
 RESULTS_DIR = ROOT_DIR + '/results'
@@ -59,6 +60,10 @@ RESULTS_DIR = ROOT_DIR + '/results'
 
 PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
 IDENTIFIER = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"  # to suppress the creation of __pycache__ folder
+
+USE_CUDA = torch.cuda.is_available()
 
 
 # ---------------------------------------------------------------------------------
@@ -100,7 +105,7 @@ if 1:
         NUM_CUDA_DEVICES = 1
 
     print('\t\ttorch.cuda.device_count()      =', torch.cuda.device_count())
-    print('\t\ttorch.cuda.current_device()    =', torch.cuda.current_device())
+    # print('\t\ttorch.cuda.current_device()    =', torch.cuda.current_device())
 
 print('')
 

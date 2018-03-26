@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import DataLoader
 from torch import optim
 
-from dataset import SemanticSegmentationDataset
+from kaggle_dataset import SemanticSegmentationDataset
 from model.fcn16s import FCN16VGG
 from model.fcn32s import FCN32s
 from model.fcn8s import FCN8s

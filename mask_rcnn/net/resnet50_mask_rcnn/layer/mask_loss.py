@@ -22,7 +22,8 @@ def mask_loss(logits, labels, instances):
     dim = logits_flat.size(2)
 
     # one hot encode
-    select = Variable(torch.zeros((batch_size, num_classes))).cuda()
+    select = Variable(torch.zeros((batch_size, num_classes)))
+    select = select.cuda() if USE_CUDA else select
     select.scatter_(1, labels.view(-1, 1), 1)
     select[:, 0] = 0
     select = select.view(batch_size, num_classes, 1).expand((batch_size, num_classes, dim)).contiguous().byte()

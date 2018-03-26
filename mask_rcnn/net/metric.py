@@ -321,7 +321,7 @@ def run_check_compute_precision_for_box():
             if result[i] == INVALID:
                 draw_dotted_rect(image, (x0, y0), (x1, y1), (255, 255, 255), 1)
 
-        image_show("image_box", image, 1)
+        # image_show("image_box", image, 1)
         cv2.waitKey(0)
 
 

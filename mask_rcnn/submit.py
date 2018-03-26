@@ -1,8 +1,10 @@
-import os, sys
+from train_0 import *
+from net.resnet50_mask_rcnn.configuration import Configuration
+from utility.file import *
+from dataset.transform import *
+from dataset.reader import *
 
 sys.path.append(os.path.dirname(__file__))
-
-from train_0 import *
 
 ALL_TEST_IMAGE_ID = [
     '0114f484a16c152baa2d82fdd43740880a762c93f436c8988ac461c5c9dbe7d5',
@@ -92,6 +94,7 @@ def revert(net, images):
     # ----
 
     batch_size = len(images)
+    image = None
     for b in range(batch_size):
         image = images[b]
         height, width = image.shape[:2]
@@ -135,9 +138,7 @@ def submit_collate(batch):
 # --------------------------------------------------------------
 def run_submit():
     out_dir = RESULTS_DIR + '/mask-rcnn-50-gray500-02'
-    initial_checkpoint = \
-        RESULTS_DIR + '/mask-rcnn-50-gray500-02/checkpoint/00016500_model.pth'
-    ##
+    initial_checkpoint = RESULTS_DIR + '/mask-rcnn-50-gray500-02/checkpoint/00016500_model.pth'
 
     # setup  ---------------------------
     os.makedirs(out_dir + '/submit/overlays', exist_ok=True)
@@ -157,7 +158,8 @@ def run_submit():
 
     # net ------------------------------
     cfg = Configuration()
-    net = MaskRcnnNet(cfg).cuda()
+    # net = MaskRcnnNet(cfg).cuda()
+    net = MaskRcnnNet(cfg)
 
     if initial_checkpoint is not None:
         log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
@@ -173,7 +175,8 @@ def run_submit():
         # 'train1_ids_gray_only1_500', mode='test',
         # 'valid1_ids_gray_only1_43', mode='test',
         # 'debug1_ids_gray_only_10', mode='test',
-        'test1_ids_gray_only_53', mode='test',
+        # 'test1_ids_gray_only_53', mode='test',
+        'test1_ids_all_65', mode='test',
         transform=submit_augment)
     test_loader = DataLoader(
         test_dataset,
@@ -184,8 +187,8 @@ def run_submit():
         pin_memory=True,
         collate_fn=submit_collate)
 
-    log.write('\ttest_dataset.split = %s\n' % (test_dataset.split))
-    log.write('\tlen(test_dataset)  = %d\n' % (len(test_dataset)))
+    log.write('\ttest_dataset.split = %s\n' % test_dataset.split)
+    log.write(f'\tlen(test_dataset)  = {len(test_dataset):d}\n')
     log.write('\n')
 
     # start evaluation here! ##############################################
@@ -201,7 +204,7 @@ def run_submit():
 
         net.set_mode('test')
         with torch.no_grad():
-            inputs = Variable(inputs).cuda()
+            inputs = Variable(inputs).cuda() if torch.cuda.is_available() else Variable(inputs)
             net(inputs)
             revert(net, images)  # unpad, undo test-time augment etc ....
 
@@ -289,18 +292,17 @@ def shrink_by_one(multi_mask):
 
 
 def run_npy_to_sumbit_csv():
-    image_dir = '/root/share/project/kaggle/science2018/data/image/stage1_test/images'
+    image_dir = DATA_DIR + '/image/stage1_test/images'
 
-    submit_dir = \
-        '/root/share/project/kaggle/science2018/results/mask-rcnn-50-gray500-02/submit'
+    submit_dir = RESULTS_DIR + '/mask-rcnn-50-gray500-02/submit'
 
     npy_dir = submit_dir + '/npys'
-    csv_file = submit_dir + '/submission-gray53-only.csv'
+    csv_file = submit_dir + '/submission-al65-only.csv'
 
     # start -----------------------------
     all_num = 0
-    cvs_ImageId = [];
-    cvs_EncodedPixels = [];
+    cvs_ImageId = []
+    cvs_EncodedPixels = []
 
     npy_files = glob.glob(npy_dir + '/*.npy')
     for npy_file in npy_files:

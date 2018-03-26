@@ -1,12 +1,9 @@
 from common import *
-from net.lib.box.overlap.cython_box_overlap import cython_box_overlap
+from net.lib.box.overlap.cython_overlap.cython_box_overlap import cython_box_overlap
 from net.lib.box.nms.torch_nms import torch_nms
-from net.lib.box.nms.gpu_nms import gpu_nms
-from net.lib.box.nms.cython_nms import cython_nms
-
-
-# from model.lib.box.nms.py_nms import py_nms
-#
+# from net.lib.box.nms.gpu_nms import gpu_nms
+from net.lib.box.nms.cython_nms.cython_nms import cython_nms
+from net.lib.box.nms.py_nms import py_nms
 
 
 # torch #####################################################################
@@ -92,10 +89,10 @@ def torch_box_overlap(boxes, gt_boxes):
     box_areas = (boxes[:, 2] - boxes[:, 0] + 1) * (boxes[:, 3] - boxes[:, 1] + 1)
     gt_areas = (gt_boxes[:, 2] - gt_boxes[:, 0] + 1) * (gt_boxes[:, 3] - gt_boxes[:, 1] + 1)
 
-    intersect_ws = (torch.min(boxes[:, 2:3], gt_boxes[:, 2:3].t()) - torch.max(boxes[:, 0:1],
-                                                                               gt_boxes[:, 0:1].t()) + 1).clamp(min=0)
-    intersect_hs = (torch.min(boxes[:, 3:4], gt_boxes[:, 3:4].t()) - torch.max(boxes[:, 1:2],
-                                                                               gt_boxes[:, 1:2].t()) + 1).clamp(min=0)
+    intersect_ws = (torch.min(boxes[:, 2:3], gt_boxes[:, 2:3].t()) -
+                    torch.max(boxes[:, 0:1], gt_boxes[:, 0:1].t()) + 1).clamp(min=0)
+    intersect_hs = (torch.min(boxes[:, 3:4], gt_boxes[:, 3:4].t()) -
+                    torch.max(boxes[:, 1:2], gt_boxes[:, 1:2].t()) + 1).clamp(min=0)
     intersect_areas = intersect_ws * intersect_hs
     union_areas = box_areas.view(-1, 1) + gt_areas.view(1, -1) - intersect_areas
     overlaps = intersect_areas / union_areas
@@ -270,7 +267,7 @@ def is_big_box(box, max_size):
     h = (y1 - y0) + 1
     aspect = max(w, h) / min(w, h)
     area = w * h
-    return (w > max_size or h > max_size)
+    return w > max_size or h > max_size
 
 
 # check  ##############################################################################
@@ -278,7 +275,7 @@ def is_big_box(box, max_size):
 def run_check_nms():
     # test nms:
     H, W = 480, 640
-    num_objects = 4
+    num_objects = 10
     rois = []
     for n in range(num_objects):
         w = np.random.randint(64, 256)
@@ -307,25 +304,33 @@ def run_check_nms():
     rois = np.array(rois).astype(np.float32)
 
     if 1:
-        keep = gpu_nms(rois, 0.5)
-        print('gpu_nms    :', keep)
-        keep = cython_nms(rois, 0.5)
-        print('cython_nms :', keep)
-
-        # gpu     [52, 39, 48, 43, 47, 21, 9, 6, 32, 8, 16, 36, 28, 29, 53, 41]
-        # py      [52, 39, 48, 43, 47, 21, 9, 6, 32, 8, 16, 36, 28, 29, 53, 41]
-        # cython  [52, 39, 48, 43, 47, 21, 9, 6, 32, 8, 16, 36, 28, 29, 53, 41]
+        tic = time.time()
+        keep = py_nms(rois, 0.5)
+        toc = time.time()
+        print('py_nms     :', np.array(keep))
+        print('time used: ', toc - tic)
 
     if 1:
-        rois = torch.from_numpy(rois).cuda()
+        # keep = gpu_nms(rois, 0.5)
+        # print('gpu_nms    :', keep)
+        tic = time.time()
+        keep = cython_nms(rois, 0.5)
+        toc = time.time()
+        print('cython_nms :', np.array(keep))
+        print('time used: ', toc - tic)
+
+    if 1:
+        rois = torch.from_numpy(rois)
+        rois = rois.cuda() if torch.cuda.is_available() else rois
+        tic = time.time()
         keep = torch_nms(rois, 0.5)
+        toc = time.time()
 
         keep = keep.cpu().numpy()
         print('torch_nms  :', keep)
-        # torch [52 39 48 43 47 21  9  6 32  8 16 36 28 29 53 41]
+        print('time used: ', toc - tic)
 
 
-# # main #################################################################
 if __name__ == '__main__':
     print('%s: calling main function ... ' % os.path.basename(__file__))
 

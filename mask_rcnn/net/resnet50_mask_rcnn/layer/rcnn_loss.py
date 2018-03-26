@@ -59,7 +59,8 @@ def rcnn_loss(logits, deltas, labels, targets, deltas_sigma=1.0):
     num_pos = len(labels.nonzero())
     if num_pos > 0:
         # one hot encode
-        select = Variable(torch.zeros((batch_size, num_classes))).cuda()
+        select = Variable(torch.zeros((batch_size, num_classes)))
+        select = select.cuda() if USE_CUDA else select
         select.scatter_(1, labels.view(-1, 1), 1)
         select[:, 0] = 0
         select = select.view(batch_size, num_classes, 1).expand((batch_size, num_classes, 4)).contiguous().byte()
@@ -71,7 +72,8 @@ def rcnn_loss(logits, deltas, labels, targets, deltas_sigma=1.0):
         rcnn_reg_loss = F.smooth_l1_loss(deltas * deltas_sigma2, targets * deltas_sigma2,
                                          size_average=False) / deltas_sigma2 / num_pos
     else:
-        rcnn_reg_loss = Variable(torch.cuda.FloatTensor(1).zero_()).sum()
+        rcnn_reg_loss = Variable(torch.FloatTensor(1).zero_()).sum()
+        rcnn_reg_loss = rcnn_reg_loss.cuda() if USE_CUDA else rcnn_reg_loss
 
     return rcnn_cls_loss, rcnn_reg_loss
 

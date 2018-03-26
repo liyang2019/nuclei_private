@@ -50,9 +50,13 @@ def crop_instance(instance, box, size, threshold=0.5):
 
 # cpu version
 def make_one_mask_target(cfg, mode, input, proposal, truth_box, truth_label, truth_instance):
-    sampled_proposal = Variable(torch.FloatTensor(0, 7)).cuda()
-    sampled_label = Variable(torch.LongTensor(0, 1)).cuda()
-    sampled_instance = Variable(torch.FloatTensor(0, 1, 1)).cuda()
+    sampled_proposal = Variable(torch.FloatTensor(0, 7))
+    sampled_label = Variable(torch.LongTensor(0, 1))
+    sampled_instance = Variable(torch.FloatTensor(0, 1, 1))
+    if USE_CUDA:
+        sampled_proposal = sampled_proposal.cuda()
+        sampled_label = sampled_label.cuda()
+        sampled_instance = sampled_instance.cuda()
 
     if len(truth_box) == 0 or len(proposal) == 0:
         return sampled_proposal, sampled_label, sampled_instance
@@ -113,9 +117,13 @@ def make_one_mask_target(cfg, mode, input, proposal, truth_box, truth_label, tru
     sampled_instance = np.vstack(sampled_instance)
 
     # save
-    sampled_proposal = Variable(torch.from_numpy(sampled_proposal)).cuda()
-    sampled_label = Variable(torch.from_numpy(sampled_label)).long().cuda()
-    sampled_instance = Variable(torch.from_numpy(sampled_instance)).cuda()
+    sampled_proposal = Variable(torch.from_numpy(sampled_proposal))
+    sampled_label = Variable(torch.from_numpy(sampled_label)).long()
+    sampled_instance = Variable(torch.from_numpy(sampled_instance))
+    if USE_CUDA:
+        sampled_proposal = sampled_proposal.cuda()
+        sampled_label = sampled_label.cuda()
+        sampled_instance = sampled_instance.cuda()
     return sampled_proposal, sampled_label, sampled_assign, sampled_instance
 
 

@@ -33,7 +33,7 @@ def train_augment(image, multi_mask, meta, index):
     image, multi_mask = random_horizontal_flip_transform2(image, multi_mask, 0.5)
     image, multi_mask = random_vertical_flip_transform2(image, multi_mask, 0.5)
     image, multi_mask = random_rotate90_transform2(image, multi_mask, 0.5)
-    ##image,  multi_mask = fix_crop_transform2(image, multi_mask, -1,-1,WIDTH, HEIGHT)
+    # image,  multi_mask = fix_crop_transform2(image, multi_mask, -1,-1,WIDTH, HEIGHT)
 
     # ---------------------------------------
     input = torch.from_numpy(image.transpose((2, 0, 1))).float().div(255)
@@ -65,7 +65,7 @@ def train_collate(batch):
     return [inputs, boxes, labels, instances, metas, indices]
 
 
-### training ##############################################################
+# training ##############################################################
 def evaluate(net, test_loader):
     test_num = 0
     test_loss = np.zeros(6, np.float32)
@@ -100,15 +100,14 @@ def evaluate(net, test_loader):
 
 # --------------------------------------------------------------
 def run_train():
-    out_dir = RESULTS_DIR + '/mask-rcnn-50-gray500-02'
+    out_dir = RESULTS_DIR
     # initial_checkpoint = RESULTS_DIR + '/mask-rcnn-50-gray500-02/checkpoint/00014500_model.pth'
     initial_checkpoint = None
 
-    pretrain_file = \
-        None  # RESULTS_DIR + '/mask-single-shot-dummy-1a/checkpoint/00028000_model.pth'
+    pretrain_file = None  # RESULTS_DIR + '/mask-single-shot-dummy-1a/checkpoint/00028000_model.pth'
     skip = ['crop', 'mask']
 
-    ## setup  -----------------
+    # setup  -----------------
     os.makedirs(out_dir + '/checkpoint', exist_ok=True)
     os.makedirs(out_dir + '/train', exist_ok=True)
     os.makedirs(out_dir + '/backup', exist_ok=True)
@@ -123,7 +122,7 @@ def run_train():
     log.write('\tout_dir      = %s\n' % out_dir)
     log.write('\n')
 
-    ## net ----------------------
+    # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
     net = MaskRcnnNet(cfg).cuda()
@@ -142,7 +141,7 @@ def run_train():
     log.write('%s\n' % (net.version))
     log.write('\n')
 
-    ## optimiser ----------------------------------
+    # optimiser ----------------------------------
     iter_accum = 1
     batch_size = 16
 
@@ -168,7 +167,7 @@ def run_train():
         optimizer.load_state_dict(checkpoint['optimizer'])
         adjust_learning_rate(optimizer, rate)
 
-    ## dataset ----------------------------------------
+    # dataset ----------------------------------------
     log.write('** dataset setting **\n')
 
     train_dataset = ScienceDataset(
@@ -250,7 +249,7 @@ def run_train():
                 cv2.waitKey(0)
     # <debug>========================================================================================
 
-    ## start training here! ##############################################
+    # start training here! ##############################################
     log.write('** start training here! **\n')
     log.write(' optimizer=%s\n' % str(optimizer))
     log.write(' momentum=%f\n' % optimizer.param_groups[0]['momentum'])
@@ -425,7 +424,7 @@ def run_train():
                     # box = proposal[:,1:5]
                     # mask = masks[b]
 
-                    ## draw --------------------------------------------------------------------------
+                    # draw --------------------------------------------------------------------------
                     # contour_overlay = multi_mask_to_contour_overlay(truth_mask, image, [255,255,0] )
                     # color_overlay   = multi_mask_to_color_overlay(mask)
 

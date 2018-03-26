@@ -131,8 +131,11 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
                 if len(keep) > 0:
                     box = box[keep]
                     p = p[keep]
-                    keep = gpu_nms(np.hstack((box, p)), nms_overlap_threshold)
-
+                    # keep = gpu_nms(np.hstack((box, p)), nms_overlap_threshold)
+                    # TODO which nms???
+                    # keep = torch_nms(np.hstack((box, p)), nms_overlap_threshold)
+                    keep = torch_nms(np.hstack((box, p)), nms_overlap_threshold)
+                    
                     prop = np.zeros((len(keep), 7), np.float32)
                     prop[:, 0] = b
                     prop[:, 1:5] = np.around(box[keep], 0)
@@ -143,8 +146,11 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
         proposal = np.vstack(proposal)
         proposals.append(proposal)
 
-    proposals = Variable(torch.from_numpy(np.vstack(proposals))).cuda()
+    # proposals = Variable(torch.from_numpy(np.vstack(proposals))).cuda()
+    # TODO cuda()??
+    proposals = Variable(torch.from_numpy(np.vstack(proposals)))
     return proposals
+
 
 
 # -----------------------------------------------------------------------------

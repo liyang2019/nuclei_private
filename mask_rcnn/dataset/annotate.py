@@ -13,7 +13,7 @@ def run_make_test_annotation():
     for i in range(num_ids):
         folder = ids[i].split('/')[0]
         name = ids[i].split('/')[1]
-        image_file = DATA_DIR + '/__download__/%s/%s/images/%s.png' % (folder, name, name)
+        image_file = DATA_DIR + '/%s/%s/images/%s.png' % (folder, name, name)
 
         # image
         image = cv2.imread(image_file, cv2.IMREAD_COLOR)
@@ -40,7 +40,8 @@ def run_make_train_annotation():
 
         name = id.split('/')[-1]
         folder = id.split('/')[0]
-        image_files = glob.glob(DATA_DIR + '/__download__/%s/%s/images/*.png' % (folder, name))
+        print(DATA_DIR)
+        image_files = glob.glob(DATA_DIR + '/%s/%s/images/*.png' % (folder, name))
         assert (len(image_files) == 1)
         image_file = image_files[0]
         print(id)
@@ -51,13 +52,13 @@ def run_make_train_annotation():
         H, W, C = image.shape
         multi_mask = np.zeros((H, W), np.int32)
 
-        mask_files = glob.glob(DATA_DIR + '/__download__/%s/%s/masks/*.png' % (folder, name))
+        mask_files = glob.glob(DATA_DIR + '/%s/%s/masks/*.png' % (folder, name))
         mask_files.sort()
         num_masks = len(mask_files)
         for k in range(num_masks):
             mask_file = mask_files[k]
             mask = cv2.imread(mask_file, cv2.IMREAD_GRAYSCALE)
-            multi_mask[np.where(mask > 128)] =  + 1
+            multi_mask[np.where(mask > 128)] = + 1
 
         # check
         color_overlay = multi_mask_to_color_overlay(multi_mask, color='summer')
@@ -72,7 +73,7 @@ def run_make_train_annotation():
         cv2.imwrite(data_dir + '/overlays/%s.png' % name, all)
         cv2.imwrite(data_dir + '/images/%s.png' % name, image)
 
-        # image_show('all', all)
+        image_show('all', all)
         cv2.waitKey(1)
 
 
@@ -80,6 +81,7 @@ def run_make_train_annotation():
 if __name__ == '__main__':
     print('%s: calling main function ... ' % os.path.basename(__file__))
 
-    run_make_train_annotation()
+    # run_make_train_annotation()
+    run_make_test_annotation()
 
     print('sucess!')
