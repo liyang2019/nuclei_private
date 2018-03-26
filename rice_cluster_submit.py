@@ -38,7 +38,7 @@ def submit(job_dir, config):
         print("echo 'My job ran on:'", file=f)
         print("echo $SLURM_NODELIST", file=f)
         print("echo 'submission dir:' $SLURM_SUBMIT_DIR", file=f)
-        print("modules: ", file=f)
+        print("echo modules: ", file=f)
         print("module list", file=f)
         print("cd $SLURM_SUBMIT_DIR", file=f)
         print("", file=f)
