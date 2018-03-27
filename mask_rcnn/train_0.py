@@ -73,27 +73,26 @@ def evaluate(net, test_loader):
     test_acc = 0
     for i, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(test_loader, 0):
         batch_size = len(indices)
-        if not all(len(b) == 0 for b in truth_boxes):
-            with torch.no_grad():
-                inputs = Variable(inputs)
-                inputs = inputs.cuda() if USE_CUDA else inputs
-                if all(b is None for b in truth_boxes):
-                    continue
-                net(inputs, truth_boxes, truth_labels, truth_instances)
-                loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+        with torch.no_grad():
+            inputs = Variable(inputs)
+            inputs = inputs.cuda() if USE_CUDA else inputs
+            if all(b is None for b in truth_boxes):
+                print('all None in evaluate')
+                print(truth_boxes)
+                continue
+            net(inputs, truth_boxes, truth_labels, truth_instances)
+            loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
-            # acc    = dice_loss(masks, labels) #todo
-            test_acc += 0  # batch_size*acc[0][0]
-            test_loss += batch_size * np.array((
-                loss.cpu().data.numpy(),
-                net.rpn_cls_loss.cpu().data.numpy(),
-                net.rpn_reg_loss.cpu().data.numpy(),
-                net.rcnn_cls_loss.cpu().data.numpy(),
-                net.rcnn_reg_loss.cpu().data.numpy(),
-                net.mask_cls_loss.cpu().data.numpy(),
-            ))
-        else:
-            print('empty truth_boxes in evaluate')
+        # acc    = dice_loss(masks, labels) #todo
+        test_acc += 0  # batch_size*acc[0][0]
+        test_loss += batch_size * np.array((
+            loss.cpu().data.numpy(),
+            net.rpn_cls_loss.cpu().data.numpy(),
+            net.rpn_reg_loss.cpu().data.numpy(),
+            net.rcnn_cls_loss.cpu().data.numpy(),
+            net.rcnn_reg_loss.cpu().data.numpy(),
+            net.mask_cls_loss.cpu().data.numpy(),
+        ))
         test_num += batch_size
 
     assert (test_num == len(test_loader.sampler))
@@ -148,7 +147,7 @@ def run_train():
 
     # optimiser ----------------------------------
     iter_accum = 1
-    batch_size = 5
+    batch_size = 1
 
     num_iters = 1000 * 1000
     iter_smooth = 20
