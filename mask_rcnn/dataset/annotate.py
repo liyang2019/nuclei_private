@@ -19,7 +19,7 @@ def run_make_test_annotation():
         image = cv2.imread(image_file, cv2.IMREAD_COLOR)
 
         # save and show -------------------------------------------
-        image_show('image', image)
+        # image_show('image', image)
 
         cv2.imwrite(DATA_DIR + '/image/%s/images/%s.png' % (folder, name), image)
         cv2.waitKey(1)
@@ -74,7 +74,7 @@ def run_make_train_annotation():
         cv2.imwrite(data_dir + '/overlays/%s.png' % name, all)
         cv2.imwrite(data_dir + '/images/%s.png' % name, image)
 
-        image_show('all', all)
+        # image_show('all', all)
         cv2.waitKey(1)
 
 
