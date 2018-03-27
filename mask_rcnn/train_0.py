@@ -76,7 +76,7 @@ def evaluate(net, test_loader):
         with torch.no_grad():
             inputs = Variable(inputs)
             inputs = inputs.cuda() if USE_CUDA else inputs
-            if all(b is None for b in truth_boxes):
+            if all(len(b) == 0 for b in truth_boxes):
                 print('all None in evaluate')
                 print(truth_boxes)
                 continue
