@@ -50,6 +50,20 @@ def valid_augment(image, multi_mask, meta, index):
     input = torch.from_numpy(image.transpose((2, 0, 1))).float().div(255)
     box, label, instance = multi_mask_to_annotation(multi_mask)
 
+    print('image in valid augment ', image.shape)
+    print('multi_mask in valid augment ', multi_mask.shape)
+    print('meta in valid augment ', meta)
+    print('index in valid augment ', index)
+
+    print('input in valid augment ', input.shape)
+    print('box in valid augment ', box.shape)
+    print('label in valid augment ', label.shape)
+    print('instance in valid augment ', instance.shape)
+    print('meta in valid augment ', meta)
+    print('index in valid augment ', index)
+
+
+
     return input, box, label, instance, meta, index
 
 
