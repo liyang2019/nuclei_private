@@ -158,8 +158,8 @@ def run_submit():
 
     # net ------------------------------
     cfg = Configuration()
-    # net = MaskRcnnNet(cfg).cuda()
     net = MaskRcnnNet(cfg)
+    net = net.cuda() if USE_CUDA else net
 
     if initial_checkpoint is not None:
         log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
