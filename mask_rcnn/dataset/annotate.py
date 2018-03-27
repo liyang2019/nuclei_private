@@ -58,7 +58,8 @@ def run_make_train_annotation():
         for k in range(num_masks):
             mask_file = mask_files[k]
             mask = cv2.imread(mask_file, cv2.IMREAD_GRAYSCALE)
-            multi_mask[np.where(mask > 128)] = + 1
+            multi_mask[np.where(mask > 128)] = k
+            # multi_mask[np.where(mask > 128)] = + 1 # TODO changed here !!
 
         # check
         color_overlay = multi_mask_to_color_overlay(multi_mask, color='summer')
@@ -81,7 +82,7 @@ def run_make_train_annotation():
 if __name__ == '__main__':
     print('%s: calling main function ... ' % os.path.basename(__file__))
 
-    # run_make_train_annotation()
-    run_make_test_annotation()
+    run_make_train_annotation()
+    # run_make_test_annotation()
 
     print('sucess!')

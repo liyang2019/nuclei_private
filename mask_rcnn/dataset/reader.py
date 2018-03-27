@@ -40,13 +40,9 @@ class ScienceDataset(Dataset):
         id = self.ids[index]
         name = id.split('/')[-1]
         folder = id.split('/')[0]
-        print('name ', name)
-        print('folder', folder)
         image = cv2.imread(DATA_DIR + '/image/%s/images/%s.png' % (folder, name), cv2.IMREAD_COLOR)
-        print('image', image.shape)
         if self.mode in ['train']:
             multi_mask = np.load(DATA_DIR + '/image/%s/multi_masks/%s.npy' % (folder, name)).astype(np.int32)
-            print('multi_mask', multi_mask.shape)
             meta = '<not_used>'
 
             if self.transform is not None:
@@ -80,7 +76,8 @@ def multi_mask_to_color_overlay(multi_mask, image=None, color=None):
     if type(color) in [str] or color is None:
         # https://matplotlib.org/xkcd/examples/color/colormaps_reference.html
 
-        if color is None: color = 'summer'  # 'cool' #'brg'
+        if color is None:
+            color = 'summer'  # 'cool' #'brg'
         color = plt.get_cmap(color)(np.arange(0, 1, 1 / num_masks))
         color = np.array(color[:, :3]) * 255
         color = np.fliplr(color)
@@ -173,12 +170,15 @@ def multi_mask_to_annotation(multi_mask):
             l = 1  # <todo> support multiclass later ... ?
             if is_small_box_at_boundary((x0, y0, x1, y1), W, H, MIN_SIZE):
                 l = IGNORE_BOUNDARY
+                # is_filtered = True
                 continue  # completely ignore!
             elif is_small_box((x0, y0, x1, y1), MIN_SIZE):
                 l = IGNORE_SMALL
+                # is_filtered = True
                 continue
             elif is_big_box((x0, y0, x1, y1), MAX_SIZE):
                 l = IGNORE_BIG
+                # is_filtered = True
                 continue
 
             # add --------------------

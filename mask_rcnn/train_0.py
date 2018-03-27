@@ -13,7 +13,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 # WIDTH, HEIGHT = 64, 64
 # WIDTH, HEIGHT = 192,192
 WIDTH, HEIGHT = 256, 256
-
+# WIDTH, HEIGHT = 32, 32
 
 # -------------------------------------------------------------------------------------
 
@@ -50,20 +50,6 @@ def valid_augment(image, multi_mask, meta, index):
     input = torch.from_numpy(image.transpose((2, 0, 1))).float().div(255)
     box, label, instance = multi_mask_to_annotation(multi_mask)
 
-    print('image in valid augment ', image.shape)
-    print('multi_mask in valid augment ', multi_mask.shape)
-    print('meta in valid augment ', meta)
-    print('index in valid augment ', index)
-
-    print('input in valid augment ', input.shape)
-    print('box in valid augment ', box.shape)
-    print('label in valid augment ', label.shape)
-    print('instance in valid augment ', instance.shape)
-    print('meta in valid augment ', meta)
-    print('index in valid augment ', index)
-
-
-
     return input, box, label, instance, meta, index
 
 
@@ -87,12 +73,12 @@ def evaluate(net, test_loader):
     test_acc = 0
     for i, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(test_loader, 0):
         batch_size = len(indices)
+        test_num += batch_size
         with torch.no_grad():
             inputs = Variable(inputs)
             inputs = inputs.cuda() if USE_CUDA else inputs
             if all(len(b) == 0 for b in truth_boxes):
-                print('all None in evaluate')
-                print(truth_boxes)
+                print('all None in evaluateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
                 continue
             net(inputs, truth_boxes, truth_labels, truth_instances)
             loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
@@ -107,7 +93,6 @@ def evaluate(net, test_loader):
             net.rcnn_reg_loss.cpu().data.numpy(),
             net.mask_cls_loss.cpu().data.numpy(),
         ))
-        test_num += batch_size
 
     assert (test_num == len(test_loader.sampler))
     test_acc = test_acc / test_num
@@ -161,7 +146,7 @@ def run_train():
 
     # optimiser ----------------------------------
     iter_accum = 1
-    batch_size = 8
+    batch_size = 1
 
     num_iters = 1000 * 1000
     iter_smooth = 20

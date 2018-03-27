@@ -101,12 +101,10 @@ def relabel_multi_mask(multi_mask):
     data = multi_mask
     data = data[:, :, np.newaxis]
     unique_color = set(tuple(v) for m in data for v in m)
-    # print(len(unique_color))
 
     H, W = data.shape[:2]
     multi_mask = np.zeros((H, W), np.int32)
     for color in unique_color:
-        # print(color)
         if color == (0,):
             continue
 
@@ -155,7 +153,9 @@ def random_shift_scale_rotate_transform2(image, mask,
                                    borderMode=borderMode, borderValue=(
             0, 0, 0,))  # cv2.BORDER_CONSTANT, borderValue = (0, 0, 0))  #cv2.BORDER_REFLECT_101
         mask = mask.astype(np.int32)
-        mask = relabel_multi_mask(mask)
+        # print('before relabel_multi_mask, ', np.unique(mask))
+        # mask = relabel_multi_mask(mask)  # TODO I changed to not relabel
+        # print('after relabel_multi_mask', np.unique(mask))
 
     return image, mask
 

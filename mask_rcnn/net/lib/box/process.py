@@ -246,6 +246,12 @@ def is_small_box_at_boundary(box, W, H, min_size):
     x0, y0, x1, y1 = box
     w = (x1 - x0) + 1
     h = (y1 - y0) + 1
+    # print('is_small_box_at_boundary##############################')
+    # print('box ', box)
+    # print('W', W, 'H', H)
+    # print('min_size', min_size)
+    # print('return ', ((x0 == 0 or x1 == W - 1) and (w < min_size)) or \
+    #       ((y0 == 0 or y1 == H - 1) and (h < min_size)))
     aspect = max(w, h) / min(w, h)
     area = w * h
     return ((x0 == 0 or x1 == W - 1) and (w < min_size)) or \
@@ -258,6 +264,10 @@ def is_small_box(box, min_size):
     h = (y1 - y0) + 1
     aspect = max(w, h) / min(w, h)
     area = w * h
+    # print('is_small_box##############################')
+    # print('box ', box)
+    # print('min_size', min_size)
+    # print('return ', (w < min_size or h < min_size))
     return w < min_size or h < min_size
 
 
@@ -267,6 +277,10 @@ def is_big_box(box, max_size):
     h = (y1 - y0) + 1
     aspect = max(w, h) / min(w, h)
     area = w * h
+    # print('is_big_box##############################')
+    # print('box ', box)
+    # print('min_size', max_size)
+    # print('return ', (w > max_size or h > max_size))
     return w > max_size or h > max_size
 
 
