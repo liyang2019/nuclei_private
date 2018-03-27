@@ -147,7 +147,7 @@ def run_train():
 
     # optimiser ----------------------------------
     iter_accum = 1
-    batch_size = 1
+    batch_size = 8
 
     num_iters = 1000 * 1000
     iter_smooth = 20
@@ -365,7 +365,7 @@ def run_train():
                 sum = 0
 
             print(
-                '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %s  %d,%d,%s' % ( \
+                '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %s  %d,%d,%s \n' % ( \
                     rate, i / 1000, epoch, num_products / 1000000,
                     valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
                     # valid_acc,
@@ -377,8 +377,8 @@ def run_train():
             j = j + 1
 
             # <debug> ===================================================================
-            if 0:
-                print('doing debug test')
+            if 1:
+                # print('doing debug test')
                 # if i%10==0:
 
                 net.set_mode('test')
