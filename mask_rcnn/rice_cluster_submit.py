@@ -12,6 +12,7 @@ class Config:
         self.input_height = 256
         self.train_split = 'train1_ids_gray2_500'
         self.val_split = 'valid1_ids_gray2_43'
+        self.batch_size = 1
 
     def __str__(self):
         rep = 'a' + jobid_to_string(self.job_id) + \
@@ -19,6 +20,7 @@ class Config:
               '_lr' + str(self.learning_rate) + \
               '_W' + str(self.input_width) + \
               '_H' + str(self.input_height) + \
+              '_bc' + str(self.batch_size) + \
               '_' + self.train_split + \
               '_' + self.val_split
         return rep
@@ -52,6 +54,7 @@ def submit(job_dir, config):
               "--input_height " + str(config.input_height) + " ",
               "--train_split" + config.train_split + " ",
               "--val_split" + config.val_split + " ",
+              "--batch_size" + str(config.batch_size) + " ",
               file=f)
 
     os.chmod(slurm_file_name, mode=777)
