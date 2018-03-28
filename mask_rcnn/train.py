@@ -62,7 +62,6 @@ class Trainer:
             self.log.write('\tpretrain_file = %s\n' % self.pretrain_file)
             self.net.load_pretrain(self.pretrain_file, skip)
 
-        self.log.write('%s\n\n' % (type(self.net)))
         self.log.write('%s\n' % self.net.version)
         self.log.write('\n')
 
