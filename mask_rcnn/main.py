@@ -49,7 +49,6 @@ if __name__ == '__main__':
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='valid1_ids_gray2_43')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
-    parser.add_argument('--is_validation', help='do validation when training', action='store_true', default=False)
 
     args = parser.parse_args()
 

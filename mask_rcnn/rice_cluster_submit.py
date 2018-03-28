@@ -55,6 +55,7 @@ def submit(job_dir, config):
               "--train_split" + config.train_split + " ",
               "--val_split" + config.val_split + " ",
               "--batch_size" + str(config.batch_size) + " ",
+              "--is_validation",
               file=f)
 
     os.chmod(slurm_file_name, mode=777)
