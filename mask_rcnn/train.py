@@ -149,8 +149,8 @@ class Trainer:
 
                 batch_size = len(indices)
                 i = j / self.iter_accum + start_iter
-                epoch = (i - start_iter) * batch_size * self.iter_accum / len(self.images_per_epoch) + start_epoch
-                num_products = epoch * len(self.images_per_epoch)
+                epoch = (i - start_iter) * batch_size * self.iter_accum / self.images_per_epoch + start_epoch
+                num_products = epoch * self.images_per_epoch
 
                 if i % self.iter_valid == 0:
                     self.net.set_mode('valid')
