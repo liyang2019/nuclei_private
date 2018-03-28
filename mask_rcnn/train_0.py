@@ -1,6 +1,6 @@
 import os
 
-from dataset.transform import random_crop_transform2
+from dataset.transform import *
 from net.rate import *
 from net.resnet50_mask_rcnn.configuration import Configuration
 

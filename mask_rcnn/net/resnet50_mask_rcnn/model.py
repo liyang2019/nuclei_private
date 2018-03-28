@@ -387,63 +387,63 @@ class MaskRcnnNet(nn.Module):
         mode = self.mode
         batch_size = len(inputs)
 
-        print('mode', mode)
-        print('truth_boxes', truth_boxes)
-        print('truth_labels', truth_labels)
-        print('truth_instances', truth_instances)
+        # print('mode', mode)
+        # print('truth_boxes', truth_boxes)
+        # print('truth_labels', truth_labels)
+        # print('truth_instances', truth_instances)
 
         # features
-        print('inputs: ', inputs)
-        print('feature_net: ', self.feature_net)
+        # print('inputs: ', inputs)
+        # print('feature_net: ', self.feature_net)
         features = self.data_parallel(self.feature_net, inputs)
         print('features: ', features)
 
         # rpn proposals -------------------------------------------
-        print('rpn_head', self.rpn_head)
+        # print('rpn_head', self.rpn_head)
         self.rpn_logits_flat, self.rpn_deltas_flat = self.data_parallel(self.rpn_head, features)
-        print('self.rpn_logits_flat', self.rpn_logits_flat)
-        print('self.rpn_deltas_flat', self.rpn_deltas_flat)
+        # print('self.rpn_logits_flat', self.rpn_logits_flat)
+        # print('self.rpn_deltas_flat', self.rpn_deltas_flat)
         self.rpn_window = make_rpn_windows(cfg, features)
-        print('self.rpn_window', self.rpn_window)
+        # print('self.rpn_window', self.rpn_window)
         self.rpn_proposals = rpn_nms(cfg, mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
-        print('self.rpn_proposals', self.rpn_proposals)
+        # print('self.rpn_proposals', self.rpn_proposals)
 
         if mode in ['train', 'valid']:
             self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
                 make_rpn_target(cfg, mode, inputs, self.rpn_window, truth_boxes, truth_labels)
 
-            print('self.rpn_labels', self.rpn_labels)
-            print('self.rpn_label_assigns', self.rpn_label_assigns)
-            print('self.rpn_label_weights', self.rpn_label_weights)
-            print('self.rpn_targets', self.rpn_targets)
-            print('self.rpn_target_weights', self.rpn_target_weights)
+            # print('self.rpn_labels', self.rpn_labels)
+            # print('self.rpn_label_assigns', self.rpn_label_assigns)
+            # print('self.rpn_label_weights', self.rpn_label_weights)
+            # print('self.rpn_targets', self.rpn_targets)
+            # print('self.rpn_target_weights', self.rpn_target_weights)
 
             self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
                 make_rcnn_target(cfg, mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
 
-            print('self.rpn_proposals', self.rpn_proposals)
-            print('self.rcnn_labels', self.rcnn_labels)
-            print('self.rcnn_assigns', self.rcnn_assigns)
-            print('self.rcnn_targets', self.rcnn_targets)
+            # print('self.rpn_proposals', self.rpn_proposals)
+            # print('self.rcnn_labels', self.rcnn_labels)
+            # print('self.rcnn_assigns', self.rcnn_assigns)
+            # print('self.rcnn_targets', self.rcnn_targets)
 
         # rcnn proposals ------------------------------------------------
         self.rcnn_proposals = self.rpn_proposals
         if len(self.rpn_proposals) > 0:
             rcnn_crops = self.rcnn_crop(features, self.rpn_proposals)
-            print('rcnn_crops', rcnn_crops)
-            print('self.rcnn_head', self.rcnn_head)
+            # print('rcnn_crops', rcnn_crops)
+            # print('self.rcnn_head', self.rcnn_head)
             self.rcnn_logits, self.rcnn_deltas = self.data_parallel(self.rcnn_head, rcnn_crops)
-            print('self.rcnn_logits', self.rcnn_logits)
-            print('self.rcnn_deltas', self.rcnn_deltas)
+            # print('self.rcnn_logits', self.rcnn_logits)
+            # print('self.rcnn_deltas', self.rcnn_deltas)
             self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
-            print('self.rcnn_proposals', self.rcnn_proposals)
+            # print('self.rcnn_proposals', self.rcnn_proposals)
 
         if mode in ['train', 'valid']:
             self.rcnn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
                 make_mask_target(cfg, mode, inputs, self.rcnn_proposals, truth_boxes, truth_labels, truth_instances)
-            print('self.rcnn_proposals', self.rcnn_proposals)
-            print('self.mask_labels', self.mask_labels)
-            print('self.mask_instances', self.mask_instances)
+            # print('self.rcnn_proposals', self.rcnn_proposals)
+            # print('self.mask_labels', self.mask_labels)
+            # print('self.mask_instances', self.mask_instances)
 
         # segmentation  -------------------------------------------
         self.detections = self.rcnn_proposals
@@ -451,12 +451,12 @@ class MaskRcnnNet(nn.Module):
 
         if len(self.detections) > 0:
             mask_crops = self.mask_crop(features, self.detections)
-            print('mask_crops', mask_crops)
-            print('self.mask_head', self.mask_head)
+            # print('mask_crops', mask_crops)
+            # print('self.mask_head', self.mask_head)
             self.mask_logits = self.data_parallel(self.mask_head, mask_crops)
-            print('self.mask_logits', self.mask_logits)
+            # print('self.mask_logits', self.mask_logits)
             self.masks = mask_nms(cfg, mode, inputs, self.detections, self.mask_logits)  # <todo> better nms for mask
-            print('self.masks', self.masks)
+            # print('self.masks', self.masks)
 
     def loss(self, inputs, truth_boxes, truth_labels, truth_instances):
         cfg = self.cfg

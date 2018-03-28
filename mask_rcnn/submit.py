@@ -1,4 +1,4 @@
-from train_0 import *
+from train import *
 from net.resnet50_mask_rcnn.configuration import Configuration
 from utility.file import *
 from dataset.transform import *
