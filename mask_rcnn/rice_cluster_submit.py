@@ -48,6 +48,11 @@ def submit(job_dir, config):
         print("module list", file=f)
         print("cd $SLURM_SUBMIT_DIR", file=f)
         print("", file=f)
+        print("cd.. /../net/lib/")
+        print("./build_lib.sh")
+        print("cd - ")
+        print("")
+
         print("srun python main.py " +
               "--learning_rate " + str(config.learning_rate) + " ",
               "--input_width " + str(config.input_width) + " ",
@@ -85,7 +90,7 @@ def main():
     cfg.train_split = 'train1_ids_gray2_500'
     submit(os.path.join("rice_cluster_result", str(cfg)), cfg)
 
-    cfg.train_split = 'train1_ids_purple_only1_101'
+    cfg.train_split = 'purple_108'
     submit(os.path.join("rice_cluster_result", str(cfg)), cfg)
 
     print("number of jobs: ", cfg.job_id)
