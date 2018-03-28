@@ -7,10 +7,10 @@ from torch.utils.data import DataLoader
 from torch import optim
 
 from kaggle_dataset import SemanticSegmentationDataset
-from model.fcn16s import FCN16VGG
-from model.fcn32s import FCN32s
-from model.fcn8s import FCN8s
-from model.unet import UNet
+from models.fcn16s import FCN16VGG
+from models.fcn32s import FCN32s
+from models.fcn8s import FCN8s
+from models.unet import UNet
 from trainer import Trainer
 from kaggle_submitor import Submitor
 
@@ -23,24 +23,24 @@ def print_to_log(description, value, f):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
     parser.add_argument('--not_debug', help='exit from debug mode', action='store_false', dest='debug', default=True)
-    parser.add_argument('--use_gpu', help='Debug the model', action='store_true', default=False)
+    parser.add_argument('--use_gpu', help='Debug the models', action='store_true', default=False)
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int, dest='batch_size', default=1)
     parser.add_argument('--num_classes', help='number of classes for prediction', action='store', type=int, dest='num_classes', default=2)
     parser.add_argument('--output_dir', help='path to saving outputs', action='store', dest='output_dir', default='./')
-    parser.add_argument('--model', help='model to train on', action='store', dest='model', default='unet')
+    parser.add_argument('--models', help='models to train on', action='store', dest='models', default='unet')
     parser.add_argument('--learning_rate', help='starting learning rate', action='store', type=float, dest='learning_rate', default=0.001)
     parser.add_argument('--optimizer', help='adam or sgd optimizer', action='store', dest='optimizer', default='sgd')
     parser.add_argument('--random_seed', help='seed for random initialization', action='store', type=int, dest='seed', default=100)
-    parser.add_argument('--load_model', help='load model from file', action='store_true', default=False)
+    parser.add_argument('--load_model', help='load models from file', action='store_true', default=False)
     parser.add_argument('--predict', help='only predict', action='store_true', default=False)
     parser.add_argument('--unet_batch_norm', help='to choose whether use batch normalization for unet', action='store_true', default=False)
     parser.add_argument('--unet_use_dropout', help='use unet dropout', action='store_true', default=False)
     parser.add_argument('--unet_dropout_rate', help='to set the dropout rate for unet', action='store', type=float, default=0.5)
     parser.add_argument('--unet_channels', help='the number of unet first conv channels', action='store', type=int, default=32)
     parser.add_argument('--print_every', help='print loss every print_every steps', action='store', type=int, default=10)
-    parser.add_argument('--save_model_every', help='save model every save_model_every steps', action='store', type=int, default=100)
+    parser.add_argument('--save_model_every', help='save models every save_model_every steps', action='store', type=int, default=100)
     parser.add_argument('--crop_size', help='crop image to this size', action='store', type=int, default=224)
-    parser.add_argument('--pretrained', help='load pretrained model when doing transfer learning', action='store_true', default=True)
+    parser.add_argument('--pretrained', help='load pretrained models when doing transfer learning', action='store_true', default=True)
     parser.add_argument('--num_epochs', help='total number of epochs for training', action='store', type=int, default=100000)
     parser.add_argument('--is_validation', help='whether or not calculate validation when training', action='store_true', default=False)
     parser.add_argument('--validation_every', help='calculate validation loss every validation_every steps', action='store', type=int, default=1)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     print_to_log('batch size', batch_size, log_file)
     print_to_log('num_classes', args.num_classes, log_file)
     print_to_log('output_dir', args.output_dir, log_file)
-    print_to_log('model', args.model, log_file)
+    print_to_log('models', args.model, log_file)
     print_to_log('learning_rate', args.learning_rate, log_file)
     print_to_log('optimizer', args.optimizer, log_file)
     print_to_log('load_model', load_model, log_file)
@@ -123,9 +123,9 @@ if __name__ == '__main__':
     print_to_log('lr_adjust_every', lr_adjust_every, log_file)
 
     if load_model:
-        print("loading model from file..")
+        print("loading models from file..")
         model = torch.load('model_saved.pt')
-        print("model loaded!")
+        print("models loaded!")
     else:
         if args.model == 'vgg16fcn8':
             model = FCN8s(num_classes=args.num_classes)
@@ -139,8 +139,8 @@ if __name__ == '__main__':
         elif args.model == 'unet':
             model = UNet(3, n_classes=args.num_classes, first_conv_channels=args.unet_channels, batch_norm=unet_batch_norm, dropout_rate=unet_dropout_rate)
         else:
-            raise Exception('Unknown model')
-        print("Running model: " + args.model)
+            raise Exception('Unknown models')
+        print("Running models: " + args.model)
 
     cuda = torch.cuda.is_available() and args.use_gpu
     if cuda:

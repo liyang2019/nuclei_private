@@ -26,7 +26,7 @@ class Config(object):
     # experiment is running.
     NAME = None  # Override in sub-classes
 
-    # Path to pretrained imagenet model
+    # Path to pretrained imagenet models
     IMAGENET_MODEL_PATH = os.path.join(os.getcwd(), "resnet50_imagenet.pth")
 
     # NUMBER OF GPUs to use. For CPU use 0

@@ -857,7 +857,7 @@ def detection_layer(config, rois, mrcnn_class, mrcnn_bbox, image_meta):
 ############################################################
 
 class RPN(nn.Module):
-    """Builds the model of Region Proposal Network.
+    """Builds the models of Region Proposal Network.
 
     anchors_per_location: number of anchors per pixel in the feature map
     anchor_stride: Controls the density of anchors. Typically 1 (anchors for
@@ -1325,7 +1325,7 @@ class Dataset(torch.utils.data.Dataset):
             bounding box deltas, and masks.
 
             dataset: The Dataset object to pick data from
-            config: The model config object
+            config: The models config object
             shuffle: If True, shuffles the samples before every epoch
             augment: If True, applies image augmentation to images (currently only
                      horizontal flips are supported)
@@ -1414,7 +1414,7 @@ class Dataset(torch.utils.data.Dataset):
 ############################################################
 
 class MaskRCNN(nn.Module):
-    """Encapsulates the Mask RCNN model functionality.
+    """Encapsulates the Mask RCNN models functionality.
     """
 
     def __init__(self, config, model_dir):
@@ -1482,7 +1482,7 @@ class MaskRCNN(nn.Module):
         self.apply(set_bn_fix)
 
     def initialize_weights(self):
-        """Initialize model weights.
+        """Initialize models weights.
         """
 
         for m in self.modules():
@@ -1499,7 +1499,7 @@ class MaskRCNN(nn.Module):
                 m.bias.data.zero_()
 
     def set_trainable(self, layer_regex, model=None, indent=0, verbose=1):
-        """Sets model layers as trainable if their names match
+        """Sets models layers as trainable if their names match
         the given regular expression.
         """
 
@@ -1510,7 +1510,7 @@ class MaskRCNN(nn.Module):
                 param[1].requires_grad = False
 
     def set_log_dir(self, model_path=None):
-        """Sets the model log directory and epoch counter.
+        """Sets the models log directory and epoch counter.
 
         model_path: If None, or a format different from what this code uses
             then set a new log directory and start epochs from 0. Otherwise,
@@ -1518,14 +1518,14 @@ class MaskRCNN(nn.Module):
             name.
         """
 
-        # Set date and epoch counter as if starting a new model
+        # Set date and epoch counter as if starting a new models
         self.epoch = 0
         now = datetime.datetime.now()
 
-        # If we have a model path with date and epochs use them
+        # If we have a models path with date and epochs use them
         if model_path:
             # Continue from we left of. Get epoch and date from the file name
-            # A sample model path might look like:
+            # A sample models path might look like:
             # /path/to/logs/coco20171029T2315/mask_rcnn_coco_0001.h5
             regex = r".*/\w+(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/mask\_rcnn\_\w+(\d{4})\.pth"
             m = re.match(regex, model_path)
@@ -1545,13 +1545,13 @@ class MaskRCNN(nn.Module):
             "*epoch*", "{:04d}")
 
     def find_last(self):
-        """Finds the last checkpoint file of the last trained model in the
-        model directory.
+        """Finds the last checkpoint file of the last trained models in the
+        models directory.
         Returns:
             log_dir: The directory where events and weights are saved
             checkpoint_path: the path to the last checkpoint file
         """
-        # Get directory names. Each directory corresponds to a model
+        # Get directory names. Each directory corresponds to a models
         dir_names = next(os.walk(self.model_dir))[1]
         key = self.config.NAME.lower()
         dir_names = filter(lambda f: f.startswith(key), dir_names)
@@ -1631,7 +1631,7 @@ class MaskRCNN(nn.Module):
             })
         return results
 
-    def predict(self, input, mode):
+    def forward(self, input, mode):
         molded_images = input[0]
         image_metas = input[1]
 
@@ -1752,7 +1752,7 @@ class MaskRCNN(nn.Module):
                     target_mask, mrcnn_mask]
 
     def train_model(self, train_dataset, val_dataset, learning_rate, epochs, layers):
-        """Train the model.
+        """Train the models.
         train_dataset, val_dataset: Training and validation Dataset objects.
         learning_rate: The learning rate to train with
         epochs: Number of training epochs. Note that previous training epochs
@@ -1819,7 +1819,7 @@ class MaskRCNN(nn.Module):
             self.val_loss_history.append(val_loss)
             visualize.plot_loss(self.loss_history, self.val_loss_history, save=True, log_dir=self.log_dir)
 
-            # Save model
+            # Save models
             torch.save(self.state_dict(), self.checkpoint_path.format(epoch))
 
         self.epoch = epochs
@@ -1976,7 +1976,7 @@ class MaskRCNN(nn.Module):
         image_metas = []
         windows = []
         for image in images:
-            # Resize image to fit the model expected size
+            # Resize image to fit the models expected size
             # TODO: move resizing to mold_image()
             molded_image, window, scale, padding = utils.resize_image(
                 image,

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 import coco
 import utils
-import model as modellib
+import models as modellib
 import visualize
 
 import torch
@@ -18,7 +18,7 @@ import torch
 # Root directory of the project
 ROOT_DIR = os.getcwd()
 
-# Directory to save logs and trained model
+# Directory to save logs and trained models
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
 # Path to trained weights file
@@ -39,7 +39,7 @@ class InferenceConfig(coco.CocoConfig):
 config = InferenceConfig()
 config.display()
 
-# Create model object.
+# Create models object.
 model = modellib.MaskRCNN(model_dir=MODEL_DIR, config=config)
 if config.GPU_COUNT:
     model = model.cuda()

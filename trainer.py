@@ -11,9 +11,9 @@ class Trainer:
                  n_epochs, n_save, n_print, learning_rate, is_validation, lr_decay_every, lr_decay_ratio,
                  is_auto_adjust_rate, lr_adjust_every):
         """
-        Initialization for Trainer of FCN model for image segmentation.
+        Initialization for Trainer of FCN models for image segmentation.
         :param cuda: True is cuda available.
-        :param model: The end-to-end FCN model.
+        :param model: The end-to-end FCN models.
         :param train_loader: The training dataset loader.
         :param val_loader: The validation dataset loader.
         :param loss: The loss function
@@ -119,7 +119,7 @@ class Trainer:
                     loss_val_print = 0
                     val_count = 0
 
-                # save model
+                # save models
                 if ((n_iter + 1) % self.n_save) == 0:
                     torch.save(self.model, 'model_saved.pt')
 

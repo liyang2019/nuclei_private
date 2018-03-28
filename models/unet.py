@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.segmentation_model import Model
+from models.segmentation_model import Model
 
 
 class SingleConv(nn.Module):

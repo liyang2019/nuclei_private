@@ -3,7 +3,7 @@ from torchvision import models
 from utils import get_upsampling_weight
 import numpy as np
 import torch
-from model.segmentation_model import Model
+from models.segmentation_model import Model
 
 import matplotlib.pyplot as plt
 

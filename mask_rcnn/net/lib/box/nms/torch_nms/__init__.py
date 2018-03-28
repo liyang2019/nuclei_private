@@ -1,5 +1,4 @@
 from net.lib.box.nms.torch_nms.extension import *
-
 import torch
 import numpy as np
 
@@ -24,7 +23,6 @@ def torch_nms(dets, thresh):
         cpu_nms(keep, num_out, dets, order, areas, thresh)
 
         return keep[:num_out[0]]
-
     else:
         x1 = dets[:, 0]
         y1 = dets[:, 1]

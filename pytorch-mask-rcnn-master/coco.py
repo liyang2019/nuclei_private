@@ -47,7 +47,7 @@ import shutil
 
 from config import Config
 import utils
-import model as modellib
+import models as modellib
 
 import torch
 
@@ -57,7 +57,7 @@ ROOT_DIR = os.getcwd()
 # Path to trained weights file
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.pth")
 
-# Directory to save logs and model checkpoints, if not provided
+# Directory to save logs and models checkpoints, if not provided
 # through the command line argument --logs
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 DEFAULT_DATASET_YEAR = "2014"
@@ -408,7 +408,7 @@ if __name__ == '__main__':
                         default=DEFAULT_DATASET_YEAR,
                         metavar="<year>",
                         help='Year of the MS-COCO dataset (2014 or 2017) (default=2014)')
-    parser.add_argument('--model', required=False,
+    parser.add_argument('--models', required=False,
                         metavar="/path/to/weights.pth",
                         help="Path to weights .pth file or 'coco'")
     parser.add_argument('--logs', required=False,
@@ -445,7 +445,7 @@ if __name__ == '__main__':
         config = InferenceConfig()
     config.display()
 
-    # Create model
+    # Create models
     if args.command == "train":
         model = modellib.MaskRCNN(config=config,
                                   model_dir=args.logs)

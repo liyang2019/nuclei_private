@@ -9,9 +9,9 @@ class Submitor:
 
     def __init__(self, model, test_loader, output_dir, cuda, threshold, saveseg):
         """
-        Initialize a submitor for Kaggle. using a model to predict the segmentation, and
+        Initialize a submitor for Kaggle. using a models to predict the segmentation, and
         save the result into a run length encoding csv file.
-        :param model: A trained model.
+        :param model: A trained models.
         :param test_loader: The test data set loader.
         :param output_dir: An output directory to save the kaggle_submission file.
         :param cuda: True is cuda available.

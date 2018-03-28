@@ -1,12 +1,12 @@
 from torch import nn
 from torchvision import models
 from utils import get_upsampling_weight
-from model.segmentation_model import Model
+from models.segmentation_model import Model
 
 class FCN32s(Model):
     def __init__(self, num_classes, pretrained=True):
         super(FCN32s, self).__init__()
-        # load the pretrained model.
+        # load the pretrained models.
         vgg = models.vgg16(pretrained=pretrained)
         # freeze the pretrained parameters.
         for param in vgg.parameters():

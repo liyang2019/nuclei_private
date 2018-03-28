@@ -13,6 +13,8 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 # WIDTH, HEIGHT = 64, 64
 # WIDTH, HEIGHT = 192,192
 WIDTH, HEIGHT = 256, 256
+
+
 # WIDTH, HEIGHT = 32, 32
 
 # -------------------------------------------------------------------------------------
@@ -469,12 +471,12 @@ def run_train():
                     # image_show('summary',summary,1)
 
                     name = train_dataset.ids[indices[b]].split('/')[-1]
-                    # cv2.imwrite(out_dir +'/train/%s.png'%name,summary)
-                    # cv2.imwrite(out_dir +'/train/%05d.png'%b,summary)
+                    # cv2.imwrite(out_dir + '/train/%s.rpn_precision.png' % name, all5)
+                    # cv2.imwrite(out_dir + '/train/%s.rcnn_precision.png' % name, all6)
 
-                    cv2.imwrite(out_dir + '/train/%05d.rpn_precision.png' % b, all5)
-                    cv2.imwrite(out_dir + '/train/%05d.rcnn_precision..png' % b, all6)
-                    cv2.waitKey(1)
+                    cv2.imwrite(out_dir + '/train/%05d.%s.rpn_precision.png' % (b, name), all5)
+                    cv2.imwrite(out_dir + '/train/%05d.%s.rcnn_precision.png' % (b, name), all6)
+                    # cv2.waitKey(1)
                     pass
 
                 net.set_mode('train')

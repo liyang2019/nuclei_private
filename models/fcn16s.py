@@ -1,7 +1,7 @@
 from torch import nn
 from torchvision import models
 from utils import get_upsampling_weight
-from model.segmentation_model import Model
+from models.segmentation_model import Model
 
 
 class FCN16VGG(Model):

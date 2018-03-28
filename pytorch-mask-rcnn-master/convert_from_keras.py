@@ -5,12 +5,12 @@ import torch
 
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
-parser = argparse.ArgumentParser(description='Convert keras-mask-rcnn model to pytorch-mask-rcnn model')
+parser = argparse.ArgumentParser(description='Convert keras-mask-rcnn models to pytorch-mask-rcnn models')
 parser.add_argument('--keras_model',
-                    help='the path of the keras model',
+                    help='the path of the keras models',
                     default=None, type=str)
 parser.add_argument('--pytorch_model',
-                    help='the path of the pytorch model',
+                    help='the path of the pytorch models',
                     default=None, type=str)
 
 args = parser.parse_args()
