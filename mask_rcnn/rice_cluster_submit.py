@@ -48,8 +48,8 @@ def submit(job_dir, config):
         print("module list", file=f)
         print("cd $SLURM_SUBMIT_DIR", file=f)
         print("", file=f)
-        print("cd.. /../net/lib/")
-        print("./build_lib.sh")
+        print("cd.. /../net/lib/", file=f)
+        print("./build_lib.sh", file=f)
         print("cd - ")
         print("")
 
