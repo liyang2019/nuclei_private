@@ -2,13 +2,12 @@ import os
 import torch
 from torch.utils.ffi import create_extension
 
-
 sources = ['src/crop_and_resize.c']
 headers = ['src/crop_and_resize.h']
 defines = []
 with_cuda = False
-
 extra_objects = []
+
 if torch.cuda.is_available():
     print('Including CUDA code.')
     sources += ['src/crop_and_resize_gpu.c']

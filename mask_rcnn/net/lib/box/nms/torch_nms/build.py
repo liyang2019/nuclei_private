@@ -6,9 +6,8 @@ sources = ['src/nms.c']
 headers = ['src/nms.h']
 defines = []
 with_cuda = False
-print('with cuda: ', with_cuda)
-
 extra_objects = []
+
 if torch.cuda.is_available():
     print('Including CUDA code.')
     sources += ['src/nms_cuda.c']
