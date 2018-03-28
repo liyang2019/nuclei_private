@@ -52,10 +52,10 @@ def submit(job_dir, config):
               "--learning_rate " + str(config.learning_rate) + " ",
               "--input_width " + str(config.input_width) + " ",
               "--input_height " + str(config.input_height) + " ",
-              "--train_split" + config.train_split + " ",
-              "--val_split" + config.val_split + " ",
-              "--batch_size" + str(config.batch_size) + " ",
-              "--is_validation",
+              "--train_split " + config.train_split + " ",
+              "--val_split " + config.val_split + " ",
+              "--batch_size " + str(config.batch_size) + " ",
+              "--is_validation ",
               file=f)
 
     os.chmod(slurm_file_name, mode=777)
