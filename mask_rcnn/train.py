@@ -118,7 +118,7 @@ class Trainer:
         self.log.write(' momentum=%f\n' % self.optimizer.param_groups[0]['momentum'])
         self.log.write(' LR=%s\n\n' % str(self.LR))
 
-        self.log.write(' images_per_epoch = %d\n\n' % len(self.images_per_epoch))
+        self.log.write(' images_per_epoch = %d\n\n' % self.images_per_epoch)
         self.log.write(
             ' rate    iter   epoch  num   | valid_loss               | train_loss               | batch_loss               |  time          \n')
         self.log.write(
