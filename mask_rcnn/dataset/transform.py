@@ -154,7 +154,7 @@ def random_shift_scale_rotate_transform2(image, mask,
             0, 0, 0,))  # cv2.BORDER_CONSTANT, borderValue = (0, 0, 0))  #cv2.BORDER_REFLECT_101
         mask = mask.astype(np.int32)
         # print('before relabel_multi_mask, ', np.unique(mask))
-        # mask = relabel_multi_mask(mask)  # TODO I changed to not relabel
+        mask = relabel_multi_mask(mask)
         # print('after relabel_multi_mask', np.unique(mask))
 
     return image, mask

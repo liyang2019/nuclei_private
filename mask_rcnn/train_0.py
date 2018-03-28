@@ -474,7 +474,6 @@ def run_train():
                     # cv2.imwrite(out_dir + '/train/%s.rpn_precision.png' % name, all5)
                     # cv2.imwrite(out_dir + '/train/%s.rcnn_precision.png' % name, all6)
 
-                    os.system('rm ' + out_dir + '/train/*')
                     cv2.imwrite(out_dir + '/train/%05d.rpn_precision.png' % b, all5)
                     cv2.imwrite(out_dir + '/train/%05d.rcnn_precision.png' % b, all6)
                     cv2.imwrite(out_dir + '/train/%05d.mask_precision.png' % b, all7)
