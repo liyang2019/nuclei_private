@@ -13,6 +13,7 @@ class Config:
         self.train_split = 'train1_ids_gray2_500'
         self.val_split = 'valid1_ids_gray2_43'
         self.batch_size = 1
+        self.result_dir = './'
 
     def __str__(self):
         rep = 'a' + jobid_to_string(self.job_id) + \
@@ -86,11 +87,14 @@ def main():
     cfg.learning_rate = 0.001
     cfg.input_height = 256
     cfg.input_width = 256
+    cfg.batch_size = 8
 
     cfg.train_split = 'train1_ids_gray2_500'
+    cfg.result_dir = '/scratch/ly15/' + str(cfg)
     submit(os.path.join("rice_cluster_result", str(cfg)), cfg)
 
     cfg.train_split = 'purple_108'
+    cfg.result_dir = '/scratch/ly15/' + str(cfg)
     submit(os.path.join("rice_cluster_result", str(cfg)), cfg)
 
     print("number of jobs: ", cfg.job_id)

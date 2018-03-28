@@ -40,6 +40,7 @@ if __name__ == '__main__':
         'train1_ids_gray2_500',
         'debug1_ids_gray_only_10',
         'disk0_ids_dummy_9',
+        'purple_108',
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='train1_ids_gray2_500')
     parser.add_argument('--val_split', help='the train dataset split', choices=[
@@ -49,8 +50,13 @@ if __name__ == '__main__':
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='valid1_ids_gray2_43')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
+    parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default=RESULTS_DIR)
 
     args = parser.parse_args()
+
+    RESULTS_DIR = args.result_dir
+    DATA_DIR = '/scratch/ly15/data'
+    os.makedirs(RESULTS_DIR, exist_ok=True)
 
     if args.seed:
         torch.manual_seed(args.seed)
@@ -58,7 +64,7 @@ if __name__ == '__main__':
         np.random.seed(args.seed)
 
     log = Logger()
-    log.open(ROOT_DIR + '/log.train.txt', mode='a')
+    log.open(args.result_dir + '/log.train.txt', mode='a')
 
     # net ----------------------
     log.write('** net setting **\n')
