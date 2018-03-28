@@ -51,7 +51,7 @@ def submit(job_dir, config):
         print("cd.. /../net/lib/", file=f)
         print("./build_lib.sh", file=f)
         print("cd - ", file=f)
-        print("")
+        print("", file=f)
 
         print("srun python main.py " +
               "--learning_rate " + str(config.learning_rate) + " ",
