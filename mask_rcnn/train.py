@@ -10,7 +10,7 @@ class Trainer:
 
     def __init__(self, net, train_loader, val_loader, optimizer, learning_rate, LR, logger,
                  iter_accum, num_iters, iter_smooth, iter_log, iter_valid, images_per_epoch,
-                 initial_checkpoint, pretrain_file, debug, is_validation):
+                 initial_checkpoint, pretrain_file, debug, is_validation, out_dir):
         self.net = net
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -28,26 +28,23 @@ class Trainer:
         self.LR = LR
         self.images_per_epoch = images_per_epoch
         self.is_validation = is_validation
+        self.out_dir = out_dir
 
     def run_train(self):
-        out_dir = RESULTS_DIR
-        # initial_checkpoint = RESULTS_DIR + '/mask-rcnn-50-gray500-02/checkpoint/00014500_model.pth'
-        # initial_checkpoint = None
 
         # pretrain_file = None  # RESULTS_DIR + '/mask-single-shot-dummy-1a/checkpoint/00028000_model.pth'
         skip = ['crop', 'mask']
 
         # setup  -----------------
-        os.makedirs(out_dir + '/checkpoint', exist_ok=True)
-        os.makedirs(out_dir + '/train', exist_ok=True)
-        os.makedirs(out_dir + '/backup', exist_ok=True)
-        backup_project_as_zip(PROJECT_PATH, out_dir + '/backup/code.train.%s.zip' % IDENTIFIER)
+        os.makedirs(self.out_dir + '/checkpoint', exist_ok=True)
+        os.makedirs(self.out_dir + '/train', exist_ok=True)
+        os.makedirs(self.out_dir + '/backup', exist_ok=True)
+        backup_project_as_zip(PROJECT_PATH, self.out_dir + '/backup/code.train.%s.zip' % IDENTIFIER)
 
         self.log.write('\n--- [START %s] %s\n\n' % (IDENTIFIER, '-' * 64))
         self.log.write('** some experiment setting **\n')
         self.log.write('\tSEED         = %u\n' % SEED)
-        self.log.write('\tPROJECT_PATH = %s\n' % PROJECT_PATH)
-        self.log.write('\tout_dir      = %s\n' % out_dir)
+        self.log.write('\tout_dir      = %s\n' % self.out_dir)
         self.log.write('\n')
 
         # net ----------------------
@@ -174,13 +171,13 @@ class Trainer:
 
                 # if 1:
                 if i in iter_save:
-                    torch.save(self.net.state_dict(), out_dir + '/checkpoint/%08d_model.pth' % i)
+                    torch.save(self.net.state_dict(), self.out_dir + '/checkpoint/%08d_model.pth' % i)
                     torch.save({
                         'optimizer': self.optimizer.state_dict(),
                         'iter': i,
                         'epoch': epoch,
-                    }, out_dir + '/checkpoint/%08d_optimizer.pth' % i)
-                    with open(out_dir + '/checkpoint/configuration.pkl', 'wb') as pickle_file:
+                    }, self.out_dir + '/checkpoint/%08d_optimizer.pth' % i)
+                    with open(self.out_dir + '/checkpoint/configuration.pkl', 'wb') as pickle_file:
                         pickle.dump(cfg, pickle_file, pickle.HIGHEST_PROTOCOL)
 
                 # learning rate schduler -------------
@@ -336,9 +333,9 @@ class Trainer:
                         # cv2.imwrite(out_dir + '/train/%s.rpn_precision.png' % name, all5)
                         # cv2.imwrite(out_dir + '/train/%s.rcnn_precision.png' % name, all6)
 
-                        cv2.imwrite(out_dir + '/train/%05d.rpn_precision.png' % b, all5)
-                        cv2.imwrite(out_dir + '/train/%05d.rcnn_precision.png' % b, all6)
-                        cv2.imwrite(out_dir + '/train/%05d.mask_precision.png' % b, all7)
+                        cv2.imwrite(self.out_dir + '/train/%05d.rpn_precision.png' % b, all5)
+                        cv2.imwrite(self.out_dir + '/train/%05d.rcnn_precision.png' % b, all6)
+                        cv2.imwrite(self.out_dir + '/train/%05d.mask_precision.png' % b, all7)
                         # cv2.waitKey(1)
                         pass
 
@@ -349,12 +346,12 @@ class Trainer:
         pass  # -- end of all iterations --
 
         if 1:  # save last
-            torch.save(self.net.state_dict(), out_dir + '/checkpoint/%d_model.pth' % i)
+            torch.save(self.net.state_dict(), self.out_dir + '/checkpoint/%d_model.pth' % i)
             torch.save({
                 'optimizer': self.optimizer.state_dict(),
                 'iter': i,
                 'epoch': epoch,
-            }, out_dir + '/checkpoint/%d_optimizer.pth' % i)
+            }, self.out_dir + '/checkpoint/%d_optimizer.pth' % i)
 
         self.log.write('\n')
 
