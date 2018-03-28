@@ -61,6 +61,7 @@ def submit(job_dir, config):
               "--train_split " + config.train_split + " ",
               "--val_split " + config.val_split + " ",
               "--batch_size " + str(config.batch_size) + " ",
+              "--result_dir " + config.result_dir + " ",
               "--is_validation ",
               file=f)
 
