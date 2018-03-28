@@ -57,6 +57,8 @@ if __name__ == '__main__':
     RESULTS_DIR = args.result_dir
     DATA_DIR = '/scratch/ly15/data'
     os.makedirs(RESULTS_DIR, exist_ok=True)
+    print('DATA_DIR', DATA_DIR)
+    print('RESULTS_DIR', RESULTS_DIR)
 
     if args.seed:
         torch.manual_seed(args.seed)
