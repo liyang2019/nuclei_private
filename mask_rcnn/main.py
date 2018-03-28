@@ -163,3 +163,5 @@ if __name__ == '__main__':
                       iter_accum=args.iter_accum, num_iters=1000 * 1000, iter_smooth=20, iter_log=50, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
                       initial_checkpoint=None, pretrain_file=None, debug=True)
+
+    trainer.run_train()
