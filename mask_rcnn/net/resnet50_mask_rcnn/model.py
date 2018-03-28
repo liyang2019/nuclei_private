@@ -396,7 +396,7 @@ class MaskRcnnNet(nn.Module):
         # print('inputs: ', inputs)
         # print('feature_net: ', self.feature_net)
         features = self.data_parallel(self.feature_net, inputs)
-        print('features: ', features)
+        # print('features: ', features)
 
         # rpn proposals -------------------------------------------
         # print('rpn_head', self.rpn_head)
