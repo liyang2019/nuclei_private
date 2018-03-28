@@ -10,7 +10,7 @@ class Trainer:
 
     def __init__(self, net, train_loader, val_loader, optimizer, learning_rate, LR, logger,
                  iter_accum, num_iters, iter_smooth, iter_log, iter_valid, images_per_epoch,
-                 initial_checkpoint, pretrain_file, debug):
+                 initial_checkpoint, pretrain_file, debug, is_validation):
         self.net = net
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -27,6 +27,7 @@ class Trainer:
         self.debug = debug
         self.LR = LR
         self.images_per_epoch = images_per_epoch
+        self.is_validation = is_validation
 
     def run_train(self):
         out_dir = RESULTS_DIR
@@ -152,7 +153,7 @@ class Trainer:
                 epoch = (i - start_iter) * batch_size * self.iter_accum / self.images_per_epoch + start_epoch
                 num_products = epoch * self.images_per_epoch
 
-                if i % self.iter_valid == 0:
+                if self.is_validation and i % self.iter_valid == 0:
                     self.net.set_mode('valid')
                     valid_loss, valid_acc = self.evaluate(self.net, self.val_loader)
                     self.net.set_mode('train')

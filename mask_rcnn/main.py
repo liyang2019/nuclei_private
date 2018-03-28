@@ -49,6 +49,7 @@ if __name__ == '__main__':
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='valid1_ids_gray2_43')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
+    parser.add_argument('--is_validation', help='do validation when training', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -162,6 +163,6 @@ if __name__ == '__main__':
                       learning_rate=args.learning_rate, LR=LR, logger=log,
                       iter_accum=args.iter_accum, num_iters=1000 * 1000, iter_smooth=20, iter_log=50, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
-                      initial_checkpoint=None, pretrain_file=None, debug=True)
+                      initial_checkpoint=None, pretrain_file=None, debug=True, is_validation=args.is_validation)
 
     trainer.run_train()
