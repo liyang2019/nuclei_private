@@ -88,7 +88,7 @@ def main():
     cfg.train_split = 'train1_ids_purple_only1_101'
     submit(os.path.join("rice_cluster_result", str(cfg)), cfg)
 
-    print("number of jobs: ", cfg.job_id + 1)
+    print("number of jobs: ", cfg.job_id)
 
 
 if __name__ == '__main__':
