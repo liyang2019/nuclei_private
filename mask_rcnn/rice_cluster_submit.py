@@ -50,7 +50,7 @@ def submit(job_dir, config):
         print("", file=f)
         print("cd.. /../net/lib/", file=f)
         print("./build_lib.sh", file=f)
-        print("cd - ")
+        print("cd - ", file=f)
         print("")
 
         print("srun python main.py " +
