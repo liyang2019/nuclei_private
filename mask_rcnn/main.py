@@ -64,7 +64,7 @@ if __name__ == '__main__':
         np.random.seed(args.seed)
 
     log = Logger()
-    log.open(args.result_dir + '/log.train.txt', mode='a')
+    log.open(RESULTS_DIR + '/log.train.txt', mode='a')
 
     # net ----------------------
     log.write('** net setting **\n')
