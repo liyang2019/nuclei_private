@@ -58,6 +58,7 @@ if __name__ == '__main__':
         np.random.seed(args.seed)
 
     log = Logger()
+    log.open(ROOT_DIR + '/log.train.txt', mode='a')
 
     # net ----------------------
     log.write('** net setting **\n')

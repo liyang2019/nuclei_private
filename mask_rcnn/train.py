@@ -42,7 +42,6 @@ class Trainer:
         os.makedirs(out_dir + '/backup', exist_ok=True)
         backup_project_as_zip(PROJECT_PATH, out_dir + '/backup/code.train.%s.zip' % IDENTIFIER)
 
-        self.log.open(out_dir + '/log.train.txt', mode='a')
         self.log.write('\n--- [START %s] %s\n\n' % (IDENTIFIER, '-' * 64))
         self.log.write('** some experiment setting **\n')
         self.log.write('\tSEED         = %u\n' % SEED)
