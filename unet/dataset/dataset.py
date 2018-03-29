@@ -9,15 +9,15 @@ import os
 
 class SemanticSegmentationDataset(Dataset):
 
-    def __init__(self, root, image_set, crop_size, mode='train'):
+    def __init__(self, data_dir, image_set, crop_size, mode='train'):
         """
         Initialization.
-        :param root: The folder root of the image samples.
+        :param data_dir: The folder root of the image samples.
         :param image_set: The image set file location, relative to 'root'.
         :param crop_size: The image and segmentation size after scale and crop for training.
         :param mode: 'train', 'valid', 'test'
         """
-        self.root = root
+        self.data_dir = data_dir
         self.size = crop_size
         self.mode = mode
 
@@ -27,12 +27,12 @@ class SemanticSegmentationDataset(Dataset):
             transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])])
 
-        image_set = os.path.join(root, image_set)
+        image_set = os.path.join(data_dir, image_set)
         self.image_locations = [x.strip('\n') for x in open(image_set, 'r').readlines() if x is not '\n']
         self.len = len(self.image_locations)
-        self.img_paths = [os.path.join(root, 'stage1_images', loc + '.png') for loc in self.image_locations]
+        self.img_paths = [os.path.join(data_dir, 'stage1_images', loc + '.png') for loc in self.image_locations]
         if self.mode in ['train', 'valid']:
-            self.seg_paths = [os.path.join(root, 'stage1_images', 'single_masks', loc.split('/')[1] + '.png')
+            self.seg_paths = [os.path.join(data_dir, 'stage1_images', 'single_masks', loc.split('/')[1] + '.png')
                               for loc in self.image_locations]
 
     def __getitem__(self, index):

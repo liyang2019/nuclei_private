@@ -186,7 +186,7 @@ def run_submit():
         pin_memory=True,
         collate_fn=submit_collate)
 
-    log.write('\ttest_dataset.split = %s\n' % test_dataset.split)
+    log.write('\ttest_dataset.split = %s\n' % test_dataset.image_set)
     log.write(f'\tlen(test_dataset)  = {len(test_dataset):d}\n')
     log.write('\n')
 

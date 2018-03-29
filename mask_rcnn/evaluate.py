@@ -121,7 +121,7 @@ def run_evaluate():
         pin_memory=True,
         collate_fn=eval_collate)
 
-    log.write('\ttest_dataset.split = %s\n' % (test_dataset.split))
+    log.write('\ttest_dataset.split = %s\n' % (test_dataset.image_set))
     log.write('\tlen(test_dataset)  = %d\n' % (len(test_dataset)))
     log.write('\n')
 

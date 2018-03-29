@@ -1,11 +1,6 @@
-from common import *
-
-from dataset.transform import *
-from dataset.sampler import *
-from utility.file import *
-from utility.draw import *
-
 from net.lib.box.process import *
+from utility.draw import *
+from utility.file import *
 
 # data reader  ----------------------------------------------------------------
 MIN_SIZE = 6
@@ -17,19 +12,18 @@ IGNORE_BIG = -3
 
 class ScienceDataset(Dataset):
 
-    def __init__(self, split, transform=None, mode='train'):
+    def __init__(self, data_dir, image_set, transform=None, mode='train'):
         super(ScienceDataset, self).__init__()
         start = timer()
 
-        self.split = split
+        self.image_set = image_set
+        self.data_dir = data_dir
         self.transform = transform
         self.mode = mode
 
         # read split
-        ids = read_list_from_file(DATA_DIR + '/split/' + split, comment='#')
-
-        # save
-        self.ids = ids
+        image_set = os.path.join(data_dir, image_set)
+        self.ids = read_list_from_file(image_set, comment='#')
 
         # print
         print('\ttime = %0.2f min' % ((timer() - start) / 60))
@@ -37,12 +31,12 @@ class ScienceDataset(Dataset):
         print('')
 
     def __getitem__(self, index):
-        id = self.ids[index]
-        name = id.split('/')[-1]
-        folder = id.split('/')[0]
-        image = cv2.imread(DATA_DIR + '/image/%s/images/%s.png' % (folder, name), cv2.IMREAD_COLOR)
+        loc = self.ids[index]
+        image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_COLOR)
         if self.mode in ['train']:
-            multi_mask = np.load(DATA_DIR + '/image/%s/multi_masks/%s.npy' % (folder, name)).astype(np.int32)
+            multi_mask = np.load(
+                os.path.join(self.data_dir, 'stage1_images', 'multi_masks', loc.split('/')[1] + '.png')
+            ).astype(np.int32)
             meta = '<not_used>'
 
             if self.transform is not None:
@@ -59,12 +53,6 @@ class ScienceDataset(Dataset):
     def __len__(self):
         return len(self.ids)
 
-
-# draw  ----------------------------------------------------------------
-# def multi_mask_to_overlay_0(multi_mask):
-#     overlay = skimage.color.label2rgb(multi_mask, bg_label=0, bg_color=(0, 0, 0))*255
-#     overlay = overlay.astype(np.uint8)
-#     return overlay
 
 def multi_mask_to_color_overlay(multi_mask, image=None, color=None):
     height, width = multi_mask.shape[:2]
@@ -84,7 +72,7 @@ def multi_mask_to_color_overlay(multi_mask, image=None, color=None):
         # np.random.shuffle(color)
 
     elif type(color) in [list, tuple]:
-        color = [color for i in range(num_masks)]
+        color = [color for _ in range(num_masks)]
 
     for i in range(num_masks):
         mask = multi_mask == i + 1
@@ -94,7 +82,7 @@ def multi_mask_to_color_overlay(multi_mask, image=None, color=None):
     return overlay
 
 
-def multi_mask_to_contour_overlay(multi_mask, image=None, color=[255, 255, 255]):
+def multi_mask_to_contour_overlay(multi_mask, image=None, color=(255, 255, 255)):
     height, width = multi_mask.shape[:2]
     overlay = np.zeros((height, width, 3), np.uint8) if image is None else image.copy()
     num_masks = int(multi_mask.max())

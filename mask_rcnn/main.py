@@ -151,8 +151,8 @@ if __name__ == '__main__':
         collate_fn=train_collate)
 
     log.write('\tWIDTH, HEIGHT = %d, %d\n' % (WIDTH, HEIGHT))
-    log.write('\ttrain_dataset.split = %s\n' % train_dataset.split)
-    log.write('\tvalid_dataset.split = %s\n' % valid_dataset.split)
+    log.write('\ttrain_dataset.split = %s\n' % train_dataset.image_set)
+    log.write('\tvalid_dataset.split = %s\n' % valid_dataset.image_set)
     log.write('\tlen(train_dataset)  = %d\n' % (len(train_dataset)))
     log.write('\tlen(valid_dataset)  = %d\n' % (len(valid_dataset)))
     log.write('\tlen(train_loader)   = %d\n' % (len(train_loader)))
