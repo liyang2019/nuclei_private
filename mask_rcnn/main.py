@@ -50,15 +50,14 @@ if __name__ == '__main__':
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='valid1_ids_gray2_43')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
-    parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default=RESULTS_DIR)
+    parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default='results')
+    parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data')
 
     args = parser.parse_args()
 
-    RESULTS_DIR = args.result_dir
-    DATA_DIR = '/scratch/ly15/data'
     os.makedirs(RESULTS_DIR, exist_ok=True)
-    print('DATA_DIR', DATA_DIR)
-    print('RESULTS_DIR', RESULTS_DIR)
+    print('data_dir', args.data_dir)
+    print('result_dir', args.result_dir)
 
     if args.seed:
         torch.manual_seed(args.seed)
@@ -128,7 +127,7 @@ if __name__ == '__main__':
         return [inputs, boxes, labels, instances, metas, indices]
 
 
-    train_dataset = ScienceDataset(args.train_split, mode='train', transform=train_augment)
+    train_dataset = ScienceDataset(args.data_dir, os.path.join('image_sets/', args.train_split), mode='train', transform=train_augment)
 
     train_loader = DataLoader(
         train_dataset,
@@ -139,7 +138,7 @@ if __name__ == '__main__':
         pin_memory=True,
         collate_fn=train_collate)
 
-    valid_dataset = ScienceDataset(args.val_split, mode='train', transform=valid_augment)
+    valid_dataset = ScienceDataset(args.data_dir, os.path.join('image_sets/', args.val_split), mode='train', transform=valid_augment)
 
     valid_loader = DataLoader(
         valid_dataset,
