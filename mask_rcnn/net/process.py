@@ -1,4 +1,4 @@
-from mask_rcnn.common import *
+from common import *
 
 
 def prob_delta_to_candidates(prob, delta, heads, threshold=0.4):

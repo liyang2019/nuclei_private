@@ -1,6 +1,6 @@
-from mask_rcnn.common import *
-from mask_rcnn.dataset.reader import multi_mask_to_color_overlay, multi_mask_to_contour_overlay
-from mask_rcnn.utility.file import read_list_from_file
+from common import *
+from dataset.reader import multi_mask_to_color_overlay, multi_mask_to_contour_overlay
+from utility.file import read_list_from_file
 
 
 def run_make_test_annotation():

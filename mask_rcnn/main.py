@@ -1,11 +1,11 @@
 import argparse
 
-from mask_rcnn.dataset.reader import *
-from mask_rcnn.dataset.transform import *
-from mask_rcnn.net.resnet50_mask_rcnn.configuration import Configuration
-from mask_rcnn.net.resnet50_mask_rcnn.model import MaskRcnnNet
-from mask_rcnn.utility.file import Logger
-from mask_rcnn.train import Trainer
+from dataset.reader import *
+from dataset.transform import *
+from net.resnet50_mask_rcnn.configuration import Configuration
+from net.resnet50_mask_rcnn.model import MaskRcnnNet
+from utility.file import Logger
+from train import Trainer
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')

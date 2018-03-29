@@ -1,7 +1,7 @@
-from mask_rcnn.dataset.reader import *
-from mask_rcnn.net.metric import run_length_encode
-from mask_rcnn.net.resnet50_mask_rcnn.configuration import Configuration
-from mask_rcnn.net.resnet50_mask_rcnn.model import MaskRcnnNet
+from dataset.reader import *
+from net.metric import run_length_encode
+from net.resnet50_mask_rcnn.configuration import Configuration
+from net.resnet50_mask_rcnn.model import MaskRcnnNet
 
 sys.path.append(os.path.dirname(__file__))
 

@@ -1,11 +1,11 @@
-from mask_rcnn.common import *
+from common import *
 
-from mask_rcnn.dataset.transform import *
-from mask_rcnn.dataset.sampler import *
-from mask_rcnn.utility.file import *
-from mask_rcnn.utility.draw import *
+from dataset.transform import *
+from dataset.sampler import *
+from utility.file import *
+from utility.draw import *
 
-from mask_rcnn.net.lib.box.process import *
+from net.lib.box.process import *
 
 # data reader  ----------------------------------------------------------------
 MIN_SIZE = 6

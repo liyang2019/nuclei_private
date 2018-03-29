@@ -1,7 +1,7 @@
-from mask_rcnn.ommon import *
-from mask_rcnn.utility.draw import *
+from common import *
+from utility.draw import *
 
-from mask_rcnn.net.lib.box.process import *
+from net.lib.box.process import *
 
 
 def run_length_encode(x):
