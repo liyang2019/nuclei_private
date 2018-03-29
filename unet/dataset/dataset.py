@@ -1,5 +1,5 @@
-from unet.utils import *
-from unet.dataset.transform import *
+from utils import *
+from dataset.transform import *
 
 import imageio
 from torch.utils.data import Dataset

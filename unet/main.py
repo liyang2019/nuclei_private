@@ -6,13 +6,13 @@ import torch
 from torch.utils.data import DataLoader
 from torch import optim
 
-from unet.dataset.dataset import SemanticSegmentationDataset
-from unet.models.fcn16s import FCN16VGG
-from unet.models.fcn32s import FCN32s
-from unet.models.fcn8s import FCN8s
-from unet.models.unet import UNet
-from unet.train import Trainer
-from unet.submit import Submitor
+from dataset.dataset import SemanticSegmentationDataset
+from models.fcn16s import FCN16VGG
+from models.fcn32s import FCN32s
+from models.fcn8s import FCN8s
+from models.unet import UNet
+from train import Trainer
+from submit import Submitor
 
 
 def print_to_log(description, value, f):
