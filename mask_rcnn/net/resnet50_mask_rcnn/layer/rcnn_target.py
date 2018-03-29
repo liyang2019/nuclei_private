@@ -1,7 +1,7 @@
 # reference:  https://github.com/rbgirshick/py-faster-rcnn/blob/master/lib/rpn/anchor_target_layer.py
-from mask_rcnn.common import *
-from mask_rcnn.utility.draw import *
-from mask_rcnn.net.lib.box.process import *
+from common import *
+from utility.draw import *
+from net.lib.box.process import *
 
 if __name__ == '__main__':
     from rcnn_nms import *

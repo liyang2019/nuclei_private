@@ -1,5 +1,5 @@
-from mask_rcnn.common import *
-from mask_rcnn.net.lib.roi_align_pool_tf.module import RoIAlign as Crop
+from common import *
+from net.lib.roi_align_pool_tf.module import RoIAlign as Crop
 
 if __name__ == '__main__':
     from configuration import *

@@ -1,7 +1,7 @@
-from mask_rcnn.common import *
+from common import *
 import itertools
 
-from mask_rcnn.net.lib.box.process import *
+from net.lib.box.process import *
 
 
 # ------------------------------------------------------------------------------

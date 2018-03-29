@@ -1,5 +1,5 @@
-from mask_rcnn.common import *
-from mask_rcnn.utility.draw import *
+from common import *
+from utility.draw import *
 import itertools
 
 if __name__ == '__main__':

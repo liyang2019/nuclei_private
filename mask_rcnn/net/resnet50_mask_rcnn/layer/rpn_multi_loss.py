@@ -25,7 +25,7 @@ class SmoothL1Loss(_Loss):
 # -----------------------------------------------------------------
 
 
-from mask_rcnn.common import *
+from common import *
 
 
 # focal loss
