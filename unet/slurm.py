@@ -63,7 +63,7 @@ def submit(job_dir, config):
               "--unet_batch_norm " +
               "--crop_size " + str(config.crop_size) + " ",
               "--train_set " + config.train_set + " ",
-              "--batch_size" + str(config.batch_size) + " ",
+              "--batch_size " + str(config.batch_size) + " ",
               file=f)
 
     os.chmod(slurm_file_name, mode=777)
