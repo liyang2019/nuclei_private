@@ -2,6 +2,7 @@ import time
 import torch
 from torch.autograd import Variable
 import numpy as np
+import os
 
 torch.set_num_threads(16)
 
@@ -9,7 +10,7 @@ torch.set_num_threads(16)
 class Trainer:
     def __init__(self, cuda, model, train_loader, val_loader, loss, optimizer,
                  n_epochs, n_save, n_print, learning_rate, is_validation, lr_decay_every, lr_decay_ratio,
-                 is_auto_adjust_rate, lr_adjust_every):
+                 is_auto_adjust_rate, lr_adjust_every, out_dir):
         """
         Initialization for Trainer of FCN models for image segmentation.
         :param cuda: True is cuda available.
@@ -27,6 +28,7 @@ class Trainer:
         :param lr_decay_ratio: learning rate decay ratio.
         :param is_auto_adjust_rate: If automatically adjusting the learning rate.
         :param lr_adjust_every: The length to check and adjust the learning rate.
+        :param out_dir: Output directory.
 
 
         """
@@ -46,6 +48,10 @@ class Trainer:
         self.lr_decay_ratio = lr_decay_ratio
         self.is_auto_adjust_rate = is_auto_adjust_rate
         self.lr_adjust_every = lr_adjust_every
+        self.out_dir = out_dir
+        self.log_file = os.path.join(self.out_dir, 'log.txt')
+        self.checkpoint_dir = os.path.join(self.out_dir, 'checkpoint')
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
 
     def train(self):
         n_iter = 0
@@ -106,13 +112,15 @@ class Trainer:
                 # print to log
                 if ((n_iter + 1) % self.n_print) == 0:
                     toc = time.time()
-                    print("epoch {:5d}\t| step {:5d}\t| loss_train {:.5f}\t| loss_val {:.5f}\t| lr {:.5f}\t| time {:.5f} "
-                          .format(epoch, n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16),
-                                  self.learning_rate, toc - tic))
-                    with open('results/log.txt', 'a') as log:
-                        print("epoch {:5d}\t| step {:5d}\t| loss_train {:.5f}\t| loss_val {:.5f}\t| lr {:.5f}\t| time {:.5f} "
-                              .format(epoch, n_iter, loss_train_print / train_count,
-                                      loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic), file=log)
+                    print(
+                        "epoch {:5d}\t| step {:5d}\t| loss_train {:.5f}\t| loss_val {:.5f}\t| lr {:.5f}\t| time {:.5f} "
+                        .format(epoch, n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16),
+                                self.learning_rate, toc - tic))
+                    with open(self.log_file, 'a') as log:
+                        print(
+                            "epoch {:5d}\t| step {:5d}\t| loss_train {:.5f}\t| loss_val {:.5f}\t| lr {:.5f}\t| time {:.5f} "
+                            .format(epoch, n_iter, loss_train_print / train_count,
+                                    loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic), file=log)
                     tic = time.time()
                     loss_train_print = 0
                     train_count = 0
@@ -121,7 +129,14 @@ class Trainer:
 
                 # save models
                 if ((n_iter + 1) % self.n_save) == 0:
-                    torch.save(self.model, 'model_saved.pt')
+                    torch.save(self.model.state_dict(), os.path.join(self.checkpoint_dir, '%08d_model.pth' % n_iter))
+                    torch.save({
+                        'optimizer': self.optimizer.state_dict(),
+                        'iter': n_iter,
+                        'epoch': epoch,
+                    }, os.path.join(self.checkpoint_dir, '%08d_optimizer.pth' % n_iter))
+                    # with open(self.out_dir + '/checkpoint/configuration.pkl', 'wb') as pickle_file:
+                    # pickle.dump(cfg, pickle_file, pickle.HIGHEST_PROTOCOL)
 
     def validation_loss(self):
         """

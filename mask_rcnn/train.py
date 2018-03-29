@@ -237,7 +237,7 @@ class Trainer:
                 j = j + 1
 
                 # <debug> ===================================================================
-                if self.debug:
+                if self.debug and i % self.iter_valid == 0:
 
                     self.net.set_mode('test')
                     with torch.no_grad():

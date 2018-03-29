@@ -71,6 +71,7 @@ if __name__ == '__main__':
                             'test1_ids_all_65',
                             'test1_ids_gray2_53'],
                         default='test1_ids_all_65')
+    parser.add_argument('--initial_checkpoint', help='the initialization checkpoint', action='store', default='')
 
     args = parser.parse_args()
 
@@ -91,7 +92,7 @@ if __name__ == '__main__':
         image_size = 224
         pretrained = True
         batch_size = 1
-        learning_rate = 0.001
+        learning_rate = 0.01
         n_epochs = 1000
         is_validation = False
         validation_every = 10
@@ -103,7 +104,7 @@ if __name__ == '__main__':
         lr_decay_ratio = 0.5
         is_auto_adjust_rate = True
         lr_adjust_every = 1000
-        load_model = False
+        load_model = True
 
     else:
         print_every = args.print_every
@@ -146,27 +147,30 @@ if __name__ == '__main__':
     print_to_log('lr_decay_ratio', lr_decay_ratio, log_file)
     print_to_log('is_auto_adjust_rate', is_auto_adjust_rate, log_file)
     print_to_log('lr_adjust_every', lr_adjust_every, log_file)
+    print_to_log('training set', args.train_set, log_file)
+
+    if args.model == 'vgg16fcn8':
+        model = FCN8s(num_classes=args.num_classes)
+        print_to_log('pretrained', args.pretrained, log_file)
+    elif args.model == 'vgg16fcn16':
+        model = FCN16VGG(num_classes=args.num_classes)
+        print_to_log('pretrained', args.pretrained, log_file)
+    elif args.model == 'vgg16fcn32':
+        model = FCN32s(num_classes=args.num_classes)
+        print_to_log('pretrained', args.pretrained, log_file)
+    elif args.model == 'unet':
+        model = UNet(3, n_classes=args.num_classes, first_conv_channels=args.unet_channels, batch_norm=unet_batch_norm, dropout_rate=unet_dropout_rate)
+    else:
+        raise Exception('Unknown models')
 
     if load_model:
-        print("loading models from file..")
-        model = torch.load('model_saved.pt')
-        print("models loaded!")
-    else:
-        if args.model == 'vgg16fcn8':
-            model = FCN8s(num_classes=args.num_classes)
-            print_to_log('pretrained', args.pretrained, log_file)
-        elif args.model == 'vgg16fcn16':
-            model = FCN16VGG(num_classes=args.num_classes)
-            print_to_log('pretrained', args.pretrained, log_file)
-        elif args.model == 'vgg16fcn32':
-            model = FCN32s(num_classes=args.num_classes)
-            print_to_log('pretrained', args.pretrained, log_file)
-        elif args.model == 'unet':
-            model = UNet(3, n_classes=args.num_classes, first_conv_channels=args.unet_channels, batch_norm=unet_batch_norm, dropout_rate=unet_dropout_rate)
-        else:
-            raise Exception('Unknown models')
-        print("Running models: " + args.model)
+        model_path = os.path.join(args.output_dir, 'checkpoint', args.initial_checkpoint)
+        print_to_log('loading models from file', args.initial_checkpoint, log_file)
+        # model.load_state_dict(torch.load(model_path, map_location=lambda storage, loc: storage))
+        model.load_state_dict(torch.load(model_path))
+        print_to_log('models loaded!', '', log_file)
 
+    print("Running models: " + args.model)
     cuda = torch.cuda.is_available() and args.use_gpu
     if cuda:
         model = model.cuda()
@@ -195,6 +199,13 @@ if __name__ == '__main__':
         else:
             raise Exception('Unknown optimizer')
 
+        if load_model:
+            optimizer_path = os.path.join(args.output_dir, 'checkpoint', args.initial_checkpoint.replace('_model.pth', '_optimizer.pth'))
+            checkpoint = torch.load(optimizer_path)
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = learning_rate  # load all except learning rate
+
         trainer = Trainer(cuda=cuda,
                           model=model,
                           train_loader=train_loader,
@@ -209,7 +220,8 @@ if __name__ == '__main__':
                           lr_decay_every=lr_decay_every,
                           lr_decay_ratio=lr_decay_ratio,
                           is_auto_adjust_rate=is_auto_adjust_rate,
-                          lr_adjust_every=lr_adjust_every)
+                          lr_adjust_every=lr_adjust_every,
+                          out_dir=args.output_dir)
         trainer.train()
 
     else:

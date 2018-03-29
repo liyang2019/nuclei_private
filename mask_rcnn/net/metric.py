@@ -1,4 +1,4 @@
-from cmask_rcnn.ommon import *
+from mask_rcnn.ommon import *
 from mask_rcnn.utility.draw import *
 
 from mask_rcnn.net.lib.box.process import *
