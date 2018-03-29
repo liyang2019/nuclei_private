@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    os.makedirs(RESULTS_DIR, exist_ok=True)
+    os.makedirs(args.result_dir, exist_ok=True)
     print('data_dir', args.data_dir)
     print('result_dir', args.result_dir)
 
