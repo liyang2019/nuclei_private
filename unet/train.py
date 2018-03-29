@@ -109,7 +109,7 @@ class Trainer:
                     print("epoch {:5d}\t| step {:5d}\t| loss_train {:.5f}\t| loss_val {:.5f}\t| lr {:.5f}\t| time {:.5f} "
                           .format(epoch, n_iter, loss_train_print / train_count, loss_val_print / (val_count + 1e-16),
                                   self.learning_rate, toc - tic))
-                    with open('log.txt', 'a') as log:
+                    with open('results/log.txt', 'a') as log:
                         print("epoch {:5d}\t| step {:5d}\t| loss_train {:.5f}\t| loss_val {:.5f}\t| lr {:.5f}\t| time {:.5f} "
                               .format(epoch, n_iter, loss_train_print / train_count,
                                       loss_val_print / (val_count + 1e-16), self.learning_rate, toc - tic), file=log)

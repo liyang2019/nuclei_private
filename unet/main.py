@@ -48,6 +48,29 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay_ratio', help='learning rate decay ratio', action='store', type=float, default=0.5)
     parser.add_argument('--is_auto_adjust_rate', help='if using auto adjust learning rate', action='store_true', default=True)
     parser.add_argument('--lr_adjust_every', help='number of iterations to check learning rate', action='store', type=int, default=1000)
+    parser.add_argument('--train_set', help='the training image set file location', action='store',
+                        choices=[
+                            'train1_ids_all_670',
+                            'train1_ids_gray2_500',
+                            'debug1_ids_gray_only_10',
+                            'disk0_ids_dummy_9',
+                            'purple_108',
+                            'train1_ids_purple_only1_101',
+                            'merge1_1'],
+                        default='train1_ids_gray2_500')
+    parser.add_argument('--valid_set', help='the validation image set file location', action='store',
+                        choices=[
+                            'valid1_ids_gray2_43',
+                            'debug1_ids_gray_only_10',
+                            'disk0_ids_dummy_9',
+                            'train1_ids_purple_only1_101',
+                            'merge1_1'],
+                        default='valid1_ids_gray2_43')
+    parser.add_argument('--test_set', help='the testing image set file location', action='store',
+                        choices=[
+                            'test1_ids_all_65',
+                            'test1_ids_gray2_53'],
+                        default='test1_ids_all_65')
 
     args = parser.parse_args()
 
@@ -155,10 +178,11 @@ if __name__ == '__main__':
     if not predict:
         print("training on train set")
         train_set = SemanticSegmentationDataset('../data',
-                                                'image_sets/train1_ids_gray2_500',
+                                                # 'image_sets/train1_ids_gray2_500',
+                                                os.path.join('image_sets/', args.train_set),
                                                 image_size, mode='train')
         val_set = SemanticSegmentationDataset('../data',
-                                              'image_sets/valid1_ids_gray2_43',
+                                              os.path.join('image_sets/', args.valid_set),
                                               image_size, mode='valid')
 
         loss = torch.nn.CrossEntropyLoss()
@@ -191,7 +215,7 @@ if __name__ == '__main__':
     else:
         print("predicting on test set")
         test_set = SemanticSegmentationDataset('../data',
-                                               'image_sets/test1_ids_all_65.txt',
+                                               os.path.join('image_sets/', args.test_set),
                                                crop_size=image_size, mode='test')
         test_loader = DataLoader(dataset=test_set, batch_size=1)
         # train_set = SemanticSegmentationDataset('data',

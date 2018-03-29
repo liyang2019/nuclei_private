@@ -73,8 +73,8 @@ class SemanticSegmentationDataset(Dataset):
                                                         borderMode=cv2.BORDER_REFLECT_101,
                                                         u=0.5)  # borderMode=cv2.BORDER_CONSTANT
 
-        overlay = multi_mask_to_contour_overlay(seg, img, color=(0, 255, 0))
-        cv2.imwrite('results/overlay.png', overlay)
+        # overlay = multi_mask_to_contour_overlay(seg, img, color=(0, 255, 0))
+        # cv2.imwrite('results/overlay.png', overlay)
 
         img, seg = random_crop_transform2(img, seg, self.size, self.size, u=0.5)
         img, seg = random_horizontal_flip_transform2(img, seg, 0.5)

@@ -14,12 +14,23 @@ class Config:
         self.print_every = 10
         self.save_model_every = 100
         self.crop_size = 224
+        self.train_set = 'purple_108'
+        self.valid_set = 'valid1_ids_gray2_43'
+        self.batch_size = 1
+
+    def __str__(self):
+        rep = "a" + jobid_to_string(self.job_id) + \
+              "_2018-3-21" + \
+              "_lr" + str(self.learning_rate) + \
+              "_ch" + str(self.unet_channels) + \
+              "_dropout" + str(self.dropout) + \
+              "_optimizer" + self.optimizer + \
+              "_size" + str(self.crop_size) + \
+              "_" + self.train_set
+        return rep
 
 
 def submit(job_dir, config):
-    os.system("module purge")
-    os.system("module load GCC/6.4.0  CUDA/7.5.18  OpenMPI/2.1.1 PyTorch/0.1.12")
-    # os.system("module load GCC/6.4.0  CUDA/7.5.18")
     os.makedirs(job_dir, exist_ok=True)
     slurm_file_name = os.path.join(job_dir, "a" + str(config.job_id) + ".slurm")
     with open(slurm_file_name, 'a') as f:
@@ -41,11 +52,9 @@ def submit(job_dir, config):
         print("module list", file=f)
         print("cd $SLURM_SUBMIT_DIR", file=f)
         print("", file=f)
-        # !python3
-        # main.py - -use_gpu - -print_every
-        # 100 - -save_model_every
-        # 100 - -unet_batch_norm - -crop_size
-        # 224
+        print("module purge", file=f)
+        print("module load GCC/6.4.0  CUDA/7.5.18  OpenMPI/2.1.1 PyTorch/0.1.12", file=f)
+        print("", file=f)
         print("srun python main.py " +
               "--not_debug " +
               "--use_gpu " +
@@ -53,6 +62,7 @@ def submit(job_dir, config):
               "--save_model_every " + str(config.save_model_every) + " " +
               "--unet_batch_norm " +
               "--crop_size " + str(config.crop_size) + " ",
+              "--train_set " + config.train_set + " ",
               file=f)
 
     os.chmod(slurm_file_name, mode=777)
@@ -71,18 +81,6 @@ def jobid_to_string(job_id):
     return JID
 
 
-def parse_dir(config):
-    JID = jobid_to_string(config.job_id)
-    return os.path.join("rice_cluster_result",
-                        "a" + JID + "_2018-3-21" +
-                        "_lr" + str(config.learning_rate) +
-                        "_ch" + str(config.unet_channels) +
-                        "_dropout" + str(config.dropout) +
-                        "_optimizer" + config.optimizer +
-                        "_cropsize" + str(config.crop_size)
-                        )
-
-
 def main():
     cfg = Config()
     cfg.job_id = 1
@@ -90,8 +88,11 @@ def main():
     cfg.print_every = 10
     cfg.save_model_every = 100
     cfg.optimizer = 'adam'
-    cfg.crop_size = 224
-    submit(parse_dir(cfg), cfg)
+    cfg.crop_size = 256
+    cfg.train_set = 'purple_108'
+    cfg.batch_size = 4
+    cfg.unet_channels = 64
+    submit(os.path.join("rice_cluster_result", str(cfg)), cfg)
 
     print("number of jobs: ", cfg.job_id)
 
