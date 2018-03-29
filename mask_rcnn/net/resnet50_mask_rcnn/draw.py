@@ -1,6 +1,6 @@
-from common import *
-from net.metric import *
-from dataset.reader import *
+from mask_rcnn.common import *
+from mask_rcnn.net.metric import *
+from mask_rcnn.dataset.reader import *
 
 if __name__ == '__main__':
     from configuration import *

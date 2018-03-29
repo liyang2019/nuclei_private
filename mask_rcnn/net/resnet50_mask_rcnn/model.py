@@ -1,5 +1,5 @@
-from common import *
-from net.lib.roi_align_pool_tf.module import RoIAlign as Crop
+from mask_rcnn.common import *
+from mask_rcnn.net.lib.roi_align_pool_tf.module import RoIAlign as Crop
 
 if __name__ == '__main__':
     from configuration import *
@@ -39,7 +39,7 @@ class LateralBlock(nn.Module):
         _, _, H, W = c.size()
         c = self.lateral(c)
         p = F.upsample(p, scale_factor=2, mode='nearest')
-        p = p[:, :, :H, :W] + c
+        p = p[:, :, :H, :W] + c  # TODO why :H, :W
         p = self.top(p)
 
         return p
@@ -108,7 +108,7 @@ class FeatureNet(nn.Module):
         self.cfg = cfg
 
         # bottom-top
-        self.layer_c0 = make_layer_c0(in_channels, 64)
+        self.layer_c0 = make_layer_c0(in_channels, 64)  # TODO different from original paper
 
         self.layer_c1 = make_layer_c(64, 64, 256, num_blocks=3, stride=1)  # out =  64*4 =  256
         self.layer_c2 = make_layer_c(256, 128, 512, num_blocks=4, stride=2)  # out = 128*4 =  512
@@ -141,8 +141,7 @@ class FeatureNet(nn.Module):
         return features
 
 
-# ############ various head ##############################################################################################
-
+# ############ various head ############
 class RpnMultiHead(nn.Module):
 
     def __init__(self, cfg, in_channels):
@@ -419,7 +418,7 @@ class MaskRcnnNet(nn.Module):
             # print('self.rpn_target_weights', self.rpn_target_weights)
 
             self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
-                make_rcnn_target(cfg, mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
+                make_rcnn_target(cfg, mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)  # TODO the new rpn_proposals is sampled, but why?
 
             # print('self.rpn_proposals', self.rpn_proposals)
             # print('self.rcnn_labels', self.rcnn_labels)

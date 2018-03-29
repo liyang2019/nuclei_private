@@ -1,5 +1,5 @@
-from common import *
-from utility.draw import *
+from mask_rcnn.common import *
+from mask_rcnn.utility.draw import *
 import itertools
 
 if __name__ == '__main__':
@@ -391,6 +391,6 @@ def make_rpn_target(cfg, mode, inputs, window, truth_boxes, truth_labels):
 if __name__ == '__main__':
     print('%s: calling main function ... ' % os.path.basename(__file__))
 
-    check_layer()
+    # check_layer()
 
     print('sucess')

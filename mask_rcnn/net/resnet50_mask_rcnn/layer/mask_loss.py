@@ -1,4 +1,4 @@
-from common import *
+from mask_rcnn.common import *
 
 
 def weighted_binary_cross_entropy_with_logits(logits, labels, weights):

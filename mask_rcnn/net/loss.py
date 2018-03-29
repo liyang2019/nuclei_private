@@ -1,4 +1,4 @@
-from common import *
+from mask_rcnn.common import *
 
 
 #  https://github.com/bermanmaxim/jaccardSegment/blob/master/losses.py

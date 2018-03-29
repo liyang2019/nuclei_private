@@ -1,7 +1,7 @@
-from common import *
+from mask_rcnn.common import *
 import itertools
 
-from net.lib.box.process import *
+from mask_rcnn.net.lib.box.process import *
 
 
 # ------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ def rpn_decode(window, delta):
     w = (window[:, 2] - window[:, 0] + 1)
     h = (window[:, 3] - window[:, 1] + 1)
 
-    delta = delta * np.array([-1, -1, 1, 1], np.float32)
+    delta = delta * np.array([-1, -1, 1, 1], np.float32)  # TODO if delta = (0.5, 0.5, 0.5, 0.5), then window = box
     box = delta * np.column_stack([w, h, w, h]) + np.column_stack([cx, cy, cx, cy])
 
     return box

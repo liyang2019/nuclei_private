@@ -1,6 +1,6 @@
-from net.rate import *
-from net.resnet50_mask_rcnn.draw import *
-from net.resnet50_mask_rcnn.model import *
+from mask_rcnn.net.rate import *
+from mask_rcnn.net.resnet50_mask_rcnn.draw import *
+from mask_rcnn.net.resnet50_mask_rcnn.model import *
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 

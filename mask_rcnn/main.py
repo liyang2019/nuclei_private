@@ -1,11 +1,11 @@
 import argparse
 
-from dataset.reader import *
-from dataset.transform import *
-from net.resnet50_mask_rcnn.configuration import Configuration
-from net.resnet50_mask_rcnn.model import MaskRcnnNet
-from utility.file import Logger
-from train import Trainer
+from mask_rcnn.dataset.reader import *
+from mask_rcnn.dataset.transform import *
+from mask_rcnn.net.resnet50_mask_rcnn.configuration import Configuration
+from mask_rcnn.net.resnet50_mask_rcnn.model import MaskRcnnNet
+from mask_rcnn.utility.file import Logger
+from mask_rcnn.train import Trainer
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
@@ -168,8 +168,10 @@ if __name__ == '__main__':
 
     trainer = Trainer(net=net, train_loader=train_loader, val_loader=valid_loader, optimizer=optimizer,
                       learning_rate=args.learning_rate, LR=LR, logger=log,
-                      iter_accum=args.iter_accum, num_iters=1000 * 1000, iter_smooth=20, iter_log=50, iter_valid=args.iter_valid,
+                      iter_accum=args.iter_accum, num_iters=1000 * 1000,
+                      iter_smooth=20, iter_log=50, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
-                      initial_checkpoint=None, pretrain_file=None, debug=True, is_validation=args.is_validation, out_dir=args.result_dir)
+                      initial_checkpoint=None, pretrain_file=None, debug=True, is_validation=args.is_validation,
+                      out_dir=args.result_dir)
 
     trainer.run_train()

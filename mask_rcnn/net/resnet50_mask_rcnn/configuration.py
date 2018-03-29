@@ -1,4 +1,4 @@
-from common import *
+from mask_rcnn.common import *
 import configparser
 
 
@@ -18,8 +18,8 @@ class Configuration(object):
         self.num_classes = 2  # include background class
 
         # multi-rpn
-        self.rpn_base_sizes = [8, 16, 32, 64, ]  # diameter
-        self.rpn_scales = [2, 4, 8, 16]
+        self.rpn_base_sizes = [8, 16, 32, 64, ]  # diameter  # TODO this should not change
+        self.rpn_scales = [2, 4, 8, 16]  # TODO this should not change
 
         aspect = lambda s, x: (s * 1 / x ** 0.5, s * x ** 0.5)
         # self.rpn_base_apsect_ratios = [

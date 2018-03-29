@@ -1,6 +1,6 @@
-from common import *
-from net.lib.box.process import *
-from utility.draw import *
+from mask_rcnn.common import *
+from mask_rcnn.net.lib.box.process import *
+from mask_rcnn.utility.draw import *
 
 
 def make_empty_masks(cfg, mode, inputs):  # <todo>

@@ -1,5 +1,5 @@
 # learning rate schduler
-from common import *
+from mask_rcnn.common import *
 
 
 # http://elgoacademy.org/anatomy-matplotlib-part-1/

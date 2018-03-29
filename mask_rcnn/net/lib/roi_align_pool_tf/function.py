@@ -1,18 +1,19 @@
-from net.lib.roi_align_pool_tf.extension import *
-
-import math
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Function
+
+from mask_rcnn.net.lib.roi_align_pool_tf.extension import \
+    crop_and_resize_gpu_forward, crop_and_resize_forward, \
+    crop_and_resize_gpu_backward, crop_and_resize_backward
 
 
 class CropAndResizeFunction(Function):
 
-    def __init__(self, crop_height, crop_width, extrapolation_value=0):
+    def __init__(self, crop_height, crop_width, extrapolation_value=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.crop_height = crop_height
         self.crop_width = crop_width
         self.extrapolation_value = extrapolation_value
+        self.im_size = None
 
     def forward(self, image, boxes, box_ind):
         crops = torch.zeros_like(image)
@@ -48,4 +49,3 @@ class CropAndResizeFunction(Function):
             )
 
         return grad_image, None, None
-
