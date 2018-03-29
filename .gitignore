@@ -8,3 +8,4 @@ data/stage1_images
 **/*.pt
 **/results
 results
+**/rice_cluster_result
