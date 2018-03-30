@@ -42,8 +42,8 @@ class Trainer:
         print(os.path.join(self.out_dir, 'checkpoint'))
         os.makedirs(os.path.join(self.out_dir, 'checkpoint'), exist_ok=True)
         os.makedirs(os.path.join(self.out_dir, 'train'), exist_ok=True)
-        os.makedirs(os.path.join(self.out_dir, 'backup'), exist_ok=True)
-        backup_project_as_zip(PROJECT_PATH, os.path.join(self.out_dir, 'backup/code.train.%s.zip' % IDENTIFIER))
+        os.makedirs(os.path.join('../backup'), exist_ok=True)
+        backup_project_as_zip(PROJECT_PATH, os.path.join('../backup/code.train.%s.zip' % IDENTIFIER))
 
         print('to here')
 
