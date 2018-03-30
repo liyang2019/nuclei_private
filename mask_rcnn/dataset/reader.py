@@ -35,7 +35,7 @@ class ScienceDataset(Dataset):
         image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_COLOR)
         if self.mode in ['train']:
             multi_mask = np.load(
-                os.path.join(self.data_dir, 'stage1_images', 'multi_masks', loc.split('/')[1] + '.png')
+                os.path.join(self.data_dir, 'stage1_images', 'multi_masks', loc.split('/')[1] + '.npy')
             ).astype(np.int32)
             meta = '<not_used>'
 
