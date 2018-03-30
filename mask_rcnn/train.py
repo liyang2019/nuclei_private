@@ -38,10 +38,12 @@ class Trainer:
         skip = ['crop', 'mask']
 
         # setup  -----------------
-        os.makedirs(self.out_dir + '/checkpoint', exist_ok=True)
-        os.makedirs(self.out_dir + '/train', exist_ok=True)
-        os.makedirs(self.out_dir + '/backup', exist_ok=True)
-        backup_project_as_zip(PROJECT_PATH, self.out_dir + '/backup/code.train.%s.zip' % IDENTIFIER)
+        print(self.out_dir)
+        print(os.path.join(self.out_dir, '/checkpoint'))
+        os.makedirs(os.path.join(self.out_dir, '/checkpoint'), exist_ok=True)
+        os.makedirs(os.path.join(self.out_dir, '/train'), exist_ok=True)
+        os.makedirs(os.path.join(self.out_dir, '/backup'), exist_ok=True)
+        backup_project_as_zip(PROJECT_PATH, os.path.join(self.out_dir, '/backup/code.train.%s.zip' % IDENTIFIER))
 
         print('to here')
 
