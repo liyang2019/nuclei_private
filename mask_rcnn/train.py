@@ -197,7 +197,7 @@ class Trainer:
                 loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # accumulated update
-                loss.backward()
+                loss.backward()  # here iter_smooth does no effect
                 if j % self.iter_accum == 0:
                     # torch.nn.utils.clip_grad_norm(net.parameters(), 1)
                     self.optimizer.step()
@@ -216,6 +216,7 @@ class Trainer:
                 sum_train_loss += batch_loss
                 sum_train_acc += batch_acc
                 sum += 1
+
                 if i % self.iter_smooth == 0:
                     train_loss = sum_train_loss / sum
                     train_acc = sum_train_acc / sum
@@ -223,18 +224,19 @@ class Trainer:
                     sum_train_acc = 0.
                     sum = 0
 
-                print(
-                    '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %s  %d,%d,%s \n' %
-                    (
-                        rate, i / 1000, epoch, num_products / 1000000,
-                        valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
-                        # valid_acc,
-                        train_loss[0], train_loss[1], train_loss[2], train_loss[3], train_loss[4], train_loss[5],
-                        # train_acc,
-                        batch_loss[0], batch_loss[1], batch_loss[2], batch_loss[3], batch_loss[4], batch_loss[5],
-                        # batch_acc,
-                        time_to_str((timer() - start) / 60), i, j, ''
-                    ), end='', flush=True)  # str(inputs.size()))
+                if i % self.iter_log == 0:
+                    print(
+                        '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %s  %d,%d,%s \n' %
+                        (
+                            rate, i / 1000, epoch, num_products / 1000000,
+                            valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
+                            # valid_acc,
+                            train_loss[0], train_loss[1], train_loss[2], train_loss[3], train_loss[4], train_loss[5],
+                            # train_acc,
+                            batch_loss[0], batch_loss[1], batch_loss[2], batch_loss[3], batch_loss[4], batch_loss[5],
+                            # batch_acc,
+                            time_to_str((timer() - start) / 60), i, j, ''
+                        ), end='', flush=True)  # str(inputs.size()))
                 j = j + 1
 
                 # <debug> ===================================================================
