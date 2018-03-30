@@ -30,6 +30,8 @@ class Trainer:
         self.is_validation = is_validation
         self.out_dir = out_dir
 
+        print('initializing trainer...')
+
     def run_train(self):
 
         # pretrain_file = None  # RESULTS_DIR + '/mask-single-shot-dummy-1a/checkpoint/00028000_model.pth'
@@ -41,14 +43,14 @@ class Trainer:
         os.makedirs(self.out_dir + '/backup', exist_ok=True)
         backup_project_as_zip(PROJECT_PATH, self.out_dir + '/backup/code.train.%s.zip' % IDENTIFIER)
 
+        print('to here')
+
         self.log.write('\n--- [START %s] %s\n\n' % (IDENTIFIER, '-' * 64))
         self.log.write('** some experiment setting **\n')
         self.log.write('\tSEED         = %u\n' % SEED)
         self.log.write('\tout_dir      = %s\n' % self.out_dir)
         self.log.write('\n')
 
-        # net ----------------------
-        self.log.write('** net setting **\n')
         cfg = self.net.cfg
 
         if self.initial_checkpoint is not None:
@@ -134,6 +136,7 @@ class Trainer:
         i = 0
         epoch = 0
         while i < self.num_iters:  # loop over the dataset multiple times
+
             sum_train_loss = np.zeros(6, np.float32)
             sum_train_acc = 0.0
             sum = 0

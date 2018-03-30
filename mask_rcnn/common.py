@@ -49,14 +49,6 @@ import matplotlib
 # matplotlib.use('Qt4Agg')
 # matplotlib.use('Qt5Agg')
 
-# edit settings here
-# ROOT_DIR = '/home/li/nuclei_private/'
-# ROOT_DIR = '/Users/li/2018_Data_Science_Bowl/nuclei_private'
-ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../'
-
-DATA_DIR = ROOT_DIR + '/data/data'  # '/media/root/5453d6d1-e517-4659-a3a8-d0a878ba4b60/data/kaggle/science2018/data' #
-RESULTS_DIR = ROOT_DIR + '/results'
-
 # ---------------------------------------------------------------------
 
 PROJECT_PATH = os.path.dirname(os.path.realpath(__file__))
