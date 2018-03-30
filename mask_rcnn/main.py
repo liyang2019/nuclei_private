@@ -52,7 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
     parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default='results')
     parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data')
-    parser.add_argument('--initial_checkpoint', help='check point to load model', action='store')
+    parser.add_argument('--initial_checkpoint', help='check point to load model', action='store', default=None)
 
     args = parser.parse_args()
 

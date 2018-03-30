@@ -49,6 +49,7 @@ class Trainer:
 
         cfg = self.net.cfg
 
+        print('initial_checkpoint', self.initial_checkpoint)
         if self.initial_checkpoint is not None:
             print('\tinitial_checkpoint = %s\n' % self.initial_checkpoint)
             self.log.write('\tinitial_checkpoint = %s\n' % self.initial_checkpoint)
