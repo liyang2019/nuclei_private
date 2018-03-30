@@ -6,6 +6,8 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 import os
 
+from skimage import transform
+
 
 class SemanticSegmentationDataset(Dataset):
 
@@ -49,9 +51,9 @@ class SemanticSegmentationDataset(Dataset):
             seg_path = self.seg_paths[index]
             seg = (imageio.imread(seg_path) > 128).astype(np.int)
             if self.mode in ['train']:
-                img, seg = self.train_augment(img, seg)
+                img, seg = self.train_augment_simple(img, seg)  # TODO changed to simple
             else:
-                img, seg = self.valid_augment(img, seg)
+                img, seg = self.valid_augment_simple(img, seg)  # TODO changed to simple
             seg = seg.astype(np.long)
             seg = torch.from_numpy(seg.copy())
         img = img.astype(np.float32)
@@ -86,3 +88,54 @@ class SemanticSegmentationDataset(Dataset):
     def valid_augment(self,  img, seg):
         img, seg = fix_crop_transform2(img, seg, -1, -1, self.size, self.size)
         return img, seg
+
+    def train_augment_simple(self, img, seg):
+        img, seg = self._scale_and_crop(img, seg, self.size, mode='train')
+        if random.choice([-1, 1]) > 0:
+            img, seg = self._flip(img, seg)
+        return img, seg
+
+    def valid_augment_simple(self, img, seg):
+        img, seg = self._scale_and_crop(img, seg, self.size, mode='valid')
+        return img, seg
+
+    @staticmethod
+    def _scale_and_crop(img, seg, crop_size, mode):
+        """
+        scale crop the image to make every image of the same square size, H = W = crop_size
+        :param img: The image.
+        :param seg: The segmentation of the image.
+        :param crop_size: The crop size.
+        :return: The cropped image and segmentation.
+        """
+        h, w = img.shape[0], img.shape[1]
+        # if train:
+        #     # random scale
+        #     scale = random.random() + 0.5  # 0.5-1.5
+        #     scale = max(scale, 1. * crop_size / (min(h, w) - 1))  # ??
+        # else:
+        #     # scale to crop size
+        #     scale = 1. * crop_size / (min(h, w) - 1)
+        scale = crop_size / min(h, w)
+        if scale > 1:
+            print('scale: ', scale)
+            img = transform.rescale(img, scale, mode='reflect', order=1)  # order 1 is bilinear
+            seg = transform.rescale(seg.astype(np.float), scale, mode='reflect', order=0)  # order 0 is nearest neighbor
+
+        h_s, w_s = img.shape[0], seg.shape[1]
+        if mode in ['train']:
+            x1 = random.randint(0, w_s - crop_size)
+            y1 = random.randint(0, h_s - crop_size)
+        else:
+            x1 = (w_s - crop_size) // 2
+            y1 = (h_s - crop_size) // 2
+
+        img_crop = img[y1: y1 + crop_size, x1: x1 + crop_size, :]
+        seg_crop = seg[y1: y1 + crop_size, x1: x1 + crop_size]
+        return img_crop, seg_crop
+
+    @staticmethod
+    def _flip(img, seg):
+        img_flip = img[:, ::-1, :]
+        seg_flip = seg[:, ::-1]
+        return img_flip, seg_flip
