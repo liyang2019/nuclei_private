@@ -51,9 +51,9 @@ class SemanticSegmentationDataset(Dataset):
             seg_path = self.seg_paths[index]
             seg = (imageio.imread(seg_path) > 128).astype(np.int)
             if self.mode in ['train']:
-                img, seg = self.train_augment_simple(img, seg)  # TODO changed to simple
+                img, seg = self.train_augment(img, seg)
             else:
-                img, seg = self.valid_augment_simple(img, seg)  # TODO changed to simple
+                img, seg = self.valid_augment(img, seg)
             seg = seg.astype(np.long)
             seg = torch.from_numpy(seg.copy())
         img = img.astype(np.float32)

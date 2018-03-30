@@ -135,57 +135,15 @@ def submit_collate(batch):
     return [inputs, images, indices]
 
 
-def predict(net, image_keys, test_loader, initial_checkpoint):
-    """
-    net should be set to test mode
-    :param net:
-    :param image_keys:
-    :param test_loader:
-    :param initial_checkpoint:
-    :return:
-    """
-    net.load_state_dict(torch.load(initial_checkpoint, map_location=lambda storage, loc: storage))
-    cvs_ImageId = []
-    cvs_EncodedPixels = []
-    for i, (inputs, images, indices) in enumerate(test_loader, 0):
-        with torch.no_grad():
-            inputs = inputs.cuda() if USE_CUDA else inputs
-            inputs = Variable(inputs)
-            net(inputs)
-            revert(net, images)  # unpad, undo test-time augment etc ....
-
-        # save results ---------------------------------------
-        batch_size = len(indices)
-        assert (batch_size == 1)  # note current version support batch_size==1 for variable size input
-        # to use batch_size>1, need to fix code for net.windows, etc
-
-        batch_size, C, H, W = inputs.size()
-        masks = net.masks
-
-        for b in range(batch_size):
-            mask = masks[b]
-            name = image_keys[indices[b]]
-            mask = filter_small(mask, 8)
-            for m in range(mask.max()):
-                rle = run_length_encode(mask == m + 1)
-                cvs_ImageId.append(name)
-                cvs_EncodedPixels.append(rle)
-        for t in ALL_TEST_IMAGE_ID:
-            cvs_ImageId.append(t)
-            cvs_EncodedPixels.append('')  # null
-    return cvs_ImageId, cvs_EncodedPixels
-
 # --------------------------------------------------------------
-def run_submit():
-    out_dir = RESULTS_DIR + '/mask-rcnn-50-gray500-02'
-    initial_checkpoint = RESULTS_DIR + '/checkpoint/00004500_model.pth'
+def run_submit(out_dir, initial_checkpoint, data_dir, image_set):
 
     # setup  ---------------------------
     os.makedirs(out_dir + '/submit/overlays', exist_ok=True)
     os.makedirs(out_dir + '/submit/npys', exist_ok=True)
     os.makedirs(out_dir + '/checkpoint', exist_ok=True)
     os.makedirs(out_dir + '/backup', exist_ok=True)
-    backup_project_as_zip(PROJECT_PATH, out_dir + '/backup/code.%s.zip' % IDENTIFIER)
+    # backup_project_as_zip(PROJECT_PATH, out_dir + '/backup/code.%s.zip' % IDENTIFIER)
 
     log = Logger()
     log.open(out_dir + '/log.evaluate.txt', mode='a')
@@ -211,13 +169,7 @@ def run_submit():
     # dataset ----------------------------------------
     log.write('** dataset setting **\n')
 
-    test_dataset = ScienceDataset(
-        # 'train1_ids_gray_only1_500', mode='test',
-        # 'valid1_ids_gray_only1_43', mode='test',
-        # 'debug1_ids_gray_only_10', mode='test',
-        # 'test1_ids_gray_only_53', mode='test',
-        'test1_ids_all_65', mode='test',
-        transform=submit_augment)
+    test_dataset = ScienceDataset(data_dir, image_set, mode='test', transform=submit_augment)
     test_loader = DataLoader(
         test_dataset,
         sampler=SequentialSampler(test_dataset),
@@ -244,7 +196,8 @@ def run_submit():
 
         net.set_mode('test')
         with torch.no_grad():
-            inputs = Variable(inputs).cuda() if torch.cuda.is_available() else Variable(inputs)
+            inputs = inputs.cuda() if USE_CUDA else inputs
+            inputs = Variable(inputs)
             net(inputs)
             revert(net, images)  # unpad, undo test-time augment etc ....
 
@@ -290,8 +243,8 @@ def run_submit():
 
     assert (test_num == len(test_loader.sampler))
 
-    log.write('initial_checkpoint  = %s\n' % (initial_checkpoint))
-    log.write('test_num  = %d\n' % (test_num))
+    log.write('initial_checkpoint  = %s\n' % initial_checkpoint)
+    log.write('test_num  = %d\n' % test_num)
     log.write('\n')
 
 
@@ -358,16 +311,16 @@ def run_npy_to_sumbit_csv(image_dir, npy_dir, csv_file):
         all_num += num
 
         # <debug> ------------------------------------
-        if 0:
-            print(all_num, num)  # GT is 4152?
-            image_file = image_dir + '/%s.png' % name
-            image = cv2.imread(image_file)
-            color_overlay = multi_mask_to_color_overlay(multi_mask)
-            color1_overlay = multi_mask_to_contour_overlay(multi_mask, color_overlay)
-            contour_overlay = multi_mask_to_contour_overlay(multi_mask, image, [0, 255, 0])
-            all = np.hstack((image, contour_overlay, color1_overlay)).astype(np.uint8)
-            image_show('all', all)
-            cv2.waitKey(1)
+        # if 0:
+        #     print(all_num, num)  # GT is 4152?
+        #     image_file = image_dir + '/%s.png' % name
+        #     image = cv2.imread(image_file)
+        #     color_overlay = multi_mask_to_color_overlay(multi_mask)
+        #     color1_overlay = multi_mask_to_contour_overlay(multi_mask, color_overlay)
+        #     contour_overlay = multi_mask_to_contour_overlay(multi_mask, image, [0, 255, 0])
+        #     all = np.hstack((image, contour_overlay, color1_overlay)).astype(np.uint8)
+        #     image_show('all', all)
+        #     cv2.waitKey(1)
 
     # exit(0)
     # submission csv  ----------------------------
@@ -379,13 +332,14 @@ def run_npy_to_sumbit_csv(image_dir, npy_dir, csv_file):
 
     df = pd.DataFrame({'ImageId': cvs_ImageId, 'EncodedPixels': cvs_EncodedPixels})
     df.to_csv(csv_file, index=False, columns=['ImageId', 'EncodedPixels'])
+    return cvs_ImageId, cvs_EncodedPixels
 
 
 # main #################################################################
 if __name__ == '__main__':
     print('%s: calling main function ... ' % os.path.basename(__file__))
 
-    run_submit()
-    run_npy_to_sumbit_csv()
+    # run_submit()
+    # run_npy_to_sumbit_csv()
 
     print('\nsucess!')

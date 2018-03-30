@@ -91,7 +91,7 @@ class Trainer:
 
                 count_inner += 1
                 # restore the loss of most recent
-                loss_train_rec = np.append(loss_train_rec, [loss_train_print / train_count])
+                # loss_train_rec = np.append(loss_train_rec, [loss_train_print / train_count])
 
                 # if n_iter > 2 * self.lr_adjust_every:
                 #     loss_train_rec = loss_train_rec[1:]

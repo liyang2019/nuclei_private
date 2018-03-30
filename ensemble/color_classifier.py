@@ -36,11 +36,20 @@ def classify(data_folder, image_set):
     RGB_test_intensities = get_average_RGB(data_folder, image_test_keys, 'test')
     model = KMeans(n_clusters=2, max_iter=1000, tol=1e-6)
     prediction = model.fit_predict(RGB_test_intensities)
-    return prediction
+    # put 0 for black and white image, and 1 for color image
+    mask = prediction > 0
+    if RGB_test_intensities[mask, :].mean() < RGB_test_intensities[~mask, :].mean():
+        prediction ^= 1
+    return prediction, image_test_locations
 
 
-def generate_class_file(preds, locs):
-    with open('class1', 'a') as c1, open('class2', 'a') as c2:
+def generate_class_file(preds, locs, files):
+    """
+    :param preds: The predictions, 0 for black and white image, 1 for purple image
+    :param locs: The image locations for two classes.
+    :param files: The files to save the image locations.
+    """
+    with open(files[0], 'w') as c1, open(files[1], 'w') as c2:
         for i in range(len(preds)):
             if preds[i] == 0:
                 print(locs[i], file=c1)

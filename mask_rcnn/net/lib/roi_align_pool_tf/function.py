@@ -1,9 +1,7 @@
 import torch
 from torch.autograd import Function
 
-from net.lib.roi_align_pool_tf.extension import \
-    crop_and_resize_gpu_forward, crop_and_resize_forward, \
-    crop_and_resize_gpu_backward, crop_and_resize_backward
+from net.lib.roi_align_pool_tf.extension import *
 
 
 class CropAndResizeFunction(Function):
