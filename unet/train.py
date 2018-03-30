@@ -97,17 +97,17 @@ class Trainer:
                     loss_train_rec = loss_train_rec[1:]
 
                 # learning rate decay/auto adjust
-                if self.is_auto_adjust_rate and n_iter >= 2 * self.lr_adjust_every and count_inner > 1000 and self.learning_rate > 1e-5:
-                    std_of_last = np.std(loss_train_rec[int(self.lr_adjust_every):], axis=0)
-                    mean_of_last = np.mean(loss_train_rec[0:int(self.lr_adjust_every)])
-                    mean_of_current = np.mean(loss_train_rec[self.lr_adjust_every:])
-                    if abs(mean_of_current - mean_of_last) <= std_of_last * 1:
-                        self.learning_rate *= self.lr_decay_ratio
-                        print("Learning rate is automatically adjusted")
-                    count_inner = 0
-
-                elif ((n_iter + 1) % self.lr_decay_every) == 0:
-                    self.learning_rate *= self.lr_decay_ratio
+                # if self.is_auto_adjust_rate and n_iter >= 2 * self.lr_adjust_every and count_inner > 1000 and self.learning_rate > 1e-5:
+                #     std_of_last = np.std(loss_train_rec[int(self.lr_adjust_every):], axis=0)
+                #     mean_of_last = np.mean(loss_train_rec[0:int(self.lr_adjust_every)])
+                #     mean_of_current = np.mean(loss_train_rec[self.lr_adjust_every:])
+                #     if abs(mean_of_current - mean_of_last) <= std_of_last * 1:
+                #         self.learning_rate *= self.lr_decay_ratio
+                #         print("Learning rate is automatically adjusted")
+                #     count_inner = 0
+                #
+                # elif ((n_iter + 1) % self.lr_decay_every) == 0 and self.is_auto_adjust_rate:
+                #     self.learning_rate *= self.lr_decay_ratio
 
                 # print to log
                 if ((n_iter + 1) % self.n_print) == 0:
