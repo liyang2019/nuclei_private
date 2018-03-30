@@ -93,8 +93,8 @@ class Trainer:
                 # restore the loss of most recent
                 loss_train_rec = np.append(loss_train_rec, [loss_train_print / train_count])
 
-                if n_iter > 2 * self.lr_adjust_every:
-                    loss_train_rec = loss_train_rec[1:]
+                # if n_iter > 2 * self.lr_adjust_every:
+                #     loss_train_rec = loss_train_rec[1:]
 
                 # learning rate decay/auto adjust
                 # if self.is_auto_adjust_rate and n_iter >= 2 * self.lr_adjust_every and count_inner > 1000 and self.learning_rate > 1e-5:

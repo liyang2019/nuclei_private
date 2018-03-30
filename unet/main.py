@@ -104,7 +104,7 @@ if __name__ == '__main__':
         lr_decay_ratio = 0.5
         is_auto_adjust_rate = True
         lr_adjust_every = 1000
-        load_model = True
+        load_model = False
 
     else:
         print_every = args.print_every
