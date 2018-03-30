@@ -52,6 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
     parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default='results')
     parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data')
+    parser.add_argument('--initial_checkpoint', help='check point to load model', action='store')
 
     args = parser.parse_args()
 
@@ -170,7 +171,7 @@ if __name__ == '__main__':
                       iter_accum=args.iter_accum, num_iters=1000 * 1000,
                       iter_smooth=20, iter_log=args.print_every, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
-                      initial_checkpoint=None, pretrain_file=None, debug=True, is_validation=args.is_validation,
+                      initial_checkpoint=args.initial_checkpoint, pretrain_file=None, debug=True, is_validation=args.is_validation,
                       out_dir=args.result_dir)
 
     trainer.run_train()
