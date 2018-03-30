@@ -168,7 +168,7 @@ if __name__ == '__main__':
     trainer = Trainer(net=net, train_loader=train_loader, val_loader=valid_loader, optimizer=optimizer,
                       learning_rate=args.learning_rate, LR=LR, logger=log,
                       iter_accum=args.iter_accum, num_iters=1000 * 1000,
-                      iter_smooth=20, iter_log=50, iter_valid=args.iter_valid,
+                      iter_smooth=20, iter_log=args.print_every, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
                       initial_checkpoint=None, pretrain_file=None, debug=True, is_validation=args.is_validation,
                       out_dir=args.result_dir)
