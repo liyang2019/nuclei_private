@@ -36,8 +36,6 @@ class Trainer:
         skip = ['crop', 'mask']
 
         # setup  -----------------
-        print(self.out_dir)
-        print(os.path.join(self.out_dir, 'checkpoint'))
         os.makedirs(os.path.join(self.out_dir, 'checkpoint'), exist_ok=True)
         os.makedirs(os.path.join(self.out_dir, 'train'), exist_ok=True)
         os.makedirs(os.path.join('../backup'), exist_ok=True)
@@ -52,6 +50,7 @@ class Trainer:
         cfg = self.net.cfg
 
         if self.initial_checkpoint is not None:
+            print('\tinitial_checkpoint = %s\n' % self.initial_checkpoint)
             self.log.write('\tinitial_checkpoint = %s\n' % self.initial_checkpoint)
             self.net.load_state_dict(torch.load(self.initial_checkpoint, map_location=lambda storage, loc: storage))
 
