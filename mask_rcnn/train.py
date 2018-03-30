@@ -30,8 +30,6 @@ class Trainer:
         self.is_validation = is_validation
         self.out_dir = out_dir
 
-        print('initializing trainer...')
-
     def run_train(self):
 
         # pretrain_file = None  # RESULTS_DIR + '/mask-single-shot-dummy-1a/checkpoint/00028000_model.pth'
@@ -44,8 +42,6 @@ class Trainer:
         os.makedirs(os.path.join(self.out_dir, 'train'), exist_ok=True)
         os.makedirs(os.path.join('../backup'), exist_ok=True)
         backup_project_as_zip(PROJECT_PATH, os.path.join('../backup/maskrcnn.code.train.%s.zip' % IDENTIFIER))
-
-        print('to here')
 
         self.log.write('\n--- [START %s] %s\n\n' % (IDENTIFIER, '-' * 64))
         self.log.write('** some experiment setting **\n')
