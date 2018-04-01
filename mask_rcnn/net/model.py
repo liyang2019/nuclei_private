@@ -1,34 +1,92 @@
 from common import *
 from net.lib.roi_align_pool_tf.module import RoIAlign as Crop
 
+from net.layer.rpn_multi_nms import *
+from net.layer.rpn_multi_target import *
+from net.layer.rpn_multi_loss import *
+from net.layer.rcnn_nms import *
+from net.layer.rcnn_target import *
+from net.layer.rcnn_loss import *
+from net.layer.mask_nms import *
+from net.layer.mask_target import *
+from net.layer.mask_loss import *
+
 if __name__ == '__main__':
     from configuration import *
-    from layer.rpn_multi_nms import *
-    from layer.rpn_multi_target import *
-    from layer.rpn_multi_loss import *
-    from layer.rcnn_nms import *
-    from layer.rcnn_target import *
-    from layer.rcnn_loss import *
-    from layer.mask_nms import *
-    from layer.mask_target import *
-    from layer.mask_loss import *
-
 else:
     from .configuration import *
-    from .layer.rpn_multi_nms import *
-    from .layer.rpn_multi_target import *
-    from .layer.rpn_multi_loss import *
-    from .layer.rcnn_nms import *
-    from .layer.rcnn_target import *
-    from .layer.rcnn_loss import *
-    from .layer.mask_nms import *
-    from .layer.mask_target import *
-    from .layer.mask_loss import *
 
 
-# ############  resent50 pyramid feature net ##############################################################################
+# block ######################################################################################################
 
-# P layers ## ---------------------------
+class ConvBn2d(nn.Module):
+
+    def merge_bn(self):
+        # raise NotImplementedError
+        assert (self.conv.bias is None)
+        conv_weight = self.conv.weight.data
+        bn_weight = self.bn.weight.data
+        bn_bias = self.bn.bias.data
+        bn_running_mean = self.bn.running_mean
+        bn_running_var = self.bn.running_var
+        bn_eps = self.bn.eps
+
+        # https://github.com/sanghoon/pva-faster-rcnn/issues/5
+        # https://github.com/sanghoon/pva-faster-rcnn/commit/39570aab8c6513f0e76e5ab5dba8dfbf63e9c68c
+
+        N, C, KH, KW = conv_weight.size()
+        std = 1 / (torch.sqrt(bn_running_var + bn_eps))
+        std_bn_weight = (std * bn_weight).repeat(C * KH * KW, 1).t().contiguous().view(N, C, KH, KW)
+        conv_weight_hat = std_bn_weight * conv_weight
+        conv_bias_hat = (bn_bias - bn_weight * std * bn_running_mean)
+
+        self.bn = None
+        self.conv = nn.Conv2d(in_channels=self.conv.in_channels, out_channels=self.conv.out_channels,
+                              kernel_size=self.conv.kernel_size,
+                              padding=self.conv.padding, stride=self.conv.stride, dilation=self.conv.dilation,
+                              groups=self.conv.groups,
+                              bias=True)
+        self.conv.weight.data = conv_weight_hat  # fill in
+        self.conv.bias.data = conv_bias_hat
+
+    def __init__(self, in_channels, out_channels, kernel_size=3, padding=1, dilation=1, stride=1, groups=1, is_bn=True):
+        super(ConvBn2d, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, padding=padding, stride=stride,
+                              dilation=dilation, groups=groups, bias=False)
+        self.bn = nn.BatchNorm2d(out_channels, eps=1e-5)
+
+        if is_bn is False:
+            self.bn = None
+
+    def forward(self, x):
+        x = self.conv(x)
+        if self.bn is not None:
+            x = self.bn(x)
+        return x
+
+
+class SEScale(nn.Module):
+    def __init__(self, channel, reduction=16):
+        super(SEScale, self).__init__()
+        self.fc1 = nn.Conv2d(channel, reduction, kernel_size=1, padding=0)
+        self.fc2 = nn.Conv2d(reduction, channel, kernel_size=1, padding=0)
+
+    def forward(self, x):
+        x = F.adaptive_avg_pool2d(x, 1)
+        x = self.fc1(x)
+        x = F.relu(x, inplace=True)
+        x = self.fc2(x)
+        x = F.sigmoid(x)
+        return x
+
+
+# ############  resnext50 pyramid feature net ###################################################################
+# https://github.com/Hsuxu/ResNeXt/blob/master/models.py
+# https://github.com/D-X-Y/ResNeXt-DenseNet/blob/master/models/resnext.py
+# https://github.com/miraclewkf/ResNeXt-PyTorch/blob/master/resnext.py
+
+
+## P layers ## ---------------------------
 class LateralBlock(nn.Module):
     def __init__(self, c_planes, p_planes, out_planes):
         super(LateralBlock, self).__init__()
@@ -39,42 +97,40 @@ class LateralBlock(nn.Module):
         _, _, H, W = c.size()
         c = self.lateral(c)
         p = F.upsample(p, scale_factor=2, mode='nearest')
-        p = p[:, :, :H, :W] + c  # TODO why :H, :W
+        p = p[:, :, :H, :W] + c
         p = self.top(p)
 
         return p
 
 
-# C layers ## ---------------------------
-class BottleneckBlock(nn.Module):
-    def __init__(self, in_planes, planes, out_planes, is_downsample=False, stride=1):
-        super(BottleneckBlock, self).__init__()
+## C layers ## ---------------------------
+
+# bottleneck type C
+class SENextBottleneckBlock(nn.Module):
+    def __init__(self, in_planes, planes, out_planes, groups, reduction=16, is_downsample=False, stride=1):
+        super(SENextBottleneckBlock, self).__init__()
         self.is_downsample = is_downsample
 
-        self.bn1 = nn.BatchNorm2d(in_planes, eps=2e-5)
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, padding=0, stride=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes, eps=2e-5)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, padding=1, stride=stride, bias=False)
-        self.bn3 = nn.BatchNorm2d(planes, eps=2e-5)
-        self.conv3 = nn.Conv2d(planes, out_planes, kernel_size=1, padding=0, stride=1, bias=False)
+        self.conv_bn1 = ConvBn2d(in_planes, planes, kernel_size=1, padding=0, stride=1)
+        self.conv_bn2 = ConvBn2d(planes, planes, kernel_size=3, padding=1, stride=stride, groups=groups)
+        self.conv_bn3 = ConvBn2d(planes, out_planes, kernel_size=1, padding=0, stride=1)
+        self.scale = SEScale(out_planes, reduction)
 
         if is_downsample:
-            self.downsample = nn.Conv2d(in_planes, out_planes, kernel_size=1, padding=0, stride=stride, bias=False)
+            self.downsample = ConvBn2d(in_planes, out_planes, kernel_size=1, padding=0, stride=stride)
 
     def forward(self, x):
 
-        x = F.relu(self.bn1(x), inplace=True)
-        z = self.conv1(x)
-        z = F.relu(self.bn2(z), inplace=True)
-        z = self.conv2(z)
-        z = F.relu(self.bn3(z), inplace=True)
-        z = self.conv3(z)
+        z = F.relu(self.conv_bn1(x), inplace=True)
+        z = F.relu(self.conv_bn2(z), inplace=True)
+        z = self.conv_bn3(z)
 
         if self.is_downsample:
-            z += self.downsample(x)
+            z = self.scale(z) * z + self.downsample(x)
         else:
-            z += x
+            z = self.scale(z) * z + x
 
+        z = F.relu(z, inplace=True)
         return z
 
 
@@ -87,33 +143,28 @@ def make_layer_c0(in_planes, out_planes):
     return nn.Sequential(*layers)
 
 
-def make_layer_c(in_planes, planes, out_planes, num_blocks, stride):
-    layers = [BottleneckBlock(in_planes, planes, out_planes, is_downsample=True, stride=stride)]
+def make_layer_c(in_planes, planes, out_planes, groups, num_blocks, stride):
+    layers = [SENextBottleneckBlock(in_planes, planes, out_planes, groups, is_downsample=True, stride=stride)]
     for i in range(1, num_blocks):
-        layers.append(BottleneckBlock(out_planes, planes, out_planes))
+        layers.append(SENextBottleneckBlock(out_planes, planes, out_planes, groups))
 
     return nn.Sequential(*layers)
 
 
+# resnext50_32x4d
 class FeatureNet(nn.Module):
 
     def __init__(self, cfg, in_channels, out_channels=256):
-        """
-        This is the hardcoded FPN net using resnet50 architecture
-        :param cfg:
-        :param in_channels:
-        :param out_channels:
-        """
         super(FeatureNet, self).__init__()
         self.cfg = cfg
 
         # bottom-top
-        self.layer_c0 = make_layer_c0(in_channels, 64)  # TODO different from original paper
+        self.layer_c0 = make_layer_c0(in_channels, 64)
 
-        self.layer_c1 = make_layer_c(64, 64, 256, num_blocks=3, stride=1)  # out =  64*4 =  256
-        self.layer_c2 = make_layer_c(256, 128, 512, num_blocks=4, stride=2)  # out = 128*4 =  512
-        self.layer_c3 = make_layer_c(512, 256, 1024, num_blocks=6, stride=2)  # out = 256*4 = 1024
-        self.layer_c4 = make_layer_c(1024, 512, 2048, num_blocks=3, stride=2)  # out = 512*4 = 2048
+        self.layer_c1 = make_layer_c(64, 64, 256, groups=32, num_blocks=3, stride=1)  # out =  64*4 =  256
+        self.layer_c2 = make_layer_c(256, 128, 512, groups=32, num_blocks=4, stride=2)  # out = 128*4 =  512
+        self.layer_c3 = make_layer_c(512, 256, 1024, groups=32, num_blocks=6, stride=2)  # out = 256*4 = 1024
+        self.layer_c4 = make_layer_c(1024, 512, 2048, groups=32, num_blocks=3, stride=2)  # out = 512*4 = 2048
 
         # top-down
         self.layer_p4 = nn.Conv2d(2048, out_channels, kernel_size=1, stride=1, padding=0)
@@ -141,7 +192,8 @@ class FeatureNet(nn.Module):
         return features
 
 
-# ############ various head ############
+############# various head ##############################################################################################
+
 class RpnMultiHead(nn.Module):
 
     def __init__(self, cfg, in_channels):
@@ -221,16 +273,13 @@ class CropRoi(nn.Module):
         distances = torch.abs(sizes.view(num_proposals, 1).expand(num_proposals, 4) - self.sizes)
         min_distances, min_index = distances.min(1)
 
-        rois = proposals.detach().data[:, 0:5]
-        rois = Variable(rois)
-
         crops = []
         indices = []
         for l in range(self.num_scales):
             index = (min_index == l).nonzero()
 
             if len(index) > 0:
-                crop = self.crops[l](fs[l], rois[index].view(-1, 5))
+                crop = self.crops[l](fs[l], proposals[index, :5].view(-1, 5))
                 crops.append(crop)
                 indices.append(index)
 
@@ -323,18 +372,18 @@ class MaskHead(nn.Module):
         return logits
 
 
-# ############ mask rcnn net ##############################################################################
+############# mask rcnn net ##############################################################################
 
 
-class MaskRcnnNet(nn.Module):
+class MaskNet(nn.Module):
 
     def __init__(self, cfg):
-        super(MaskRcnnNet, self).__init__()
-        self.version = 'net version \'mask-rcnn-resnet50-fpn\''
+        super(MaskNet, self).__init__()
+        self.version = 'net version \'mask-rcnn-se-resnext50-fpn\''
         self.cfg = cfg
         self.mode = 'train'
 
-        feature_channels = 128
+        feature_channels = 256
         crop_channels = feature_channels
         self.feature_net = FeatureNet(cfg, 3, feature_channels)
         self.rpn_head = RpnMultiHead(cfg, feature_channels)
@@ -380,82 +429,50 @@ class MaskRcnnNet(nn.Module):
         self.detections = None
         self.total_loss = None
         self.masks = None
+        self.mask_proposals = None
 
     def forward(self, inputs, truth_boxes=None, truth_labels=None, truth_instances=None):
         cfg = self.cfg
         mode = self.mode
-        batch_size = len(inputs)
-
-        # print('mode', mode)
-        # print('truth_boxes', truth_boxes)
-        # print('truth_labels', truth_labels)
-        # print('truth_instances', truth_instances)
-
-        # features
-        # print('inputs: ', inputs)
-        # print('feature_net: ', self.feature_net)
         features = self.data_parallel(self.feature_net, inputs)
-        # print('features: ', features)
 
         # rpn proposals -------------------------------------------
-        # print('rpn_head', self.rpn_head)
         self.rpn_logits_flat, self.rpn_deltas_flat = self.data_parallel(self.rpn_head, features)
-        # print('self.rpn_logits_flat', self.rpn_logits_flat)
-        # print('self.rpn_deltas_flat', self.rpn_deltas_flat)
         self.rpn_window = make_rpn_windows(cfg, features)
-        # print('self.rpn_window', self.rpn_window)
         self.rpn_proposals = rpn_nms(cfg, mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
-        # print('self.rpn_proposals', self.rpn_proposals)
 
         if mode in ['train', 'valid']:
             self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
                 make_rpn_target(cfg, mode, inputs, self.rpn_window, truth_boxes, truth_labels)
 
-            # print('self.rpn_labels', self.rpn_labels)
-            # print('self.rpn_label_assigns', self.rpn_label_assigns)
-            # print('self.rpn_label_weights', self.rpn_label_weights)
-            # print('self.rpn_targets', self.rpn_targets)
-            # print('self.rpn_target_weights', self.rpn_target_weights)
-
             self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
-                make_rcnn_target(cfg, mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)  # TODO the new rpn_proposals is sampled, but why?
-
-            # print('self.rpn_proposals', self.rpn_proposals)
-            # print('self.rcnn_labels', self.rcnn_labels)
-            # print('self.rcnn_assigns', self.rcnn_assigns)
-            # print('self.rcnn_targets', self.rcnn_targets)
+                make_rcnn_target(cfg, mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
 
         # rcnn proposals ------------------------------------------------
         self.rcnn_proposals = self.rpn_proposals
         if len(self.rpn_proposals) > 0:
             rcnn_crops = self.rcnn_crop(features, self.rpn_proposals)
-            # print('rcnn_crops', rcnn_crops)
-            # print('self.rcnn_head', self.rcnn_head)
             self.rcnn_logits, self.rcnn_deltas = self.data_parallel(self.rcnn_head, rcnn_crops)
-            # print('self.rcnn_logits', self.rcnn_logits)
-            # print('self.rcnn_deltas', self.rcnn_deltas)
             self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
-            # print('self.rcnn_proposals', self.rcnn_proposals)
 
         if mode in ['train', 'valid']:
             self.rcnn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
                 make_mask_target(cfg, mode, inputs, self.rcnn_proposals, truth_boxes, truth_labels, truth_instances)
-            # print('self.rcnn_proposals', self.rcnn_proposals)
-            # print('self.mask_labels', self.mask_labels)
-            # print('self.mask_instances', self.mask_instances)
 
         # segmentation  -------------------------------------------
         self.detections = self.rcnn_proposals
         self.masks = make_empty_masks(cfg, mode, inputs)
 
-        if len(self.detections) > 0:
+        if len(self.rcnn_proposals) > 0:
             mask_crops = self.mask_crop(features, self.detections)
-            # print('mask_crops', mask_crops)
-            # print('self.mask_head', self.mask_head)
             self.mask_logits = self.data_parallel(self.mask_head, mask_crops)
-            # print('self.mask_logits', self.mask_logits)
-            self.masks = mask_nms(cfg, mode, inputs, self.detections, self.mask_logits)  # <todo> better nms for mask
-            # print('self.masks', self.masks)
+
+
+            # self.masks, self.mask_proposals = mask_nms(cfg, mode, inputs, self.rcnn_proposals,
+            #                                            self.mask_logits)  # <todo> better nms for mask
+            self.masks = mask_nms(cfg, mode, inputs, self.rcnn_proposals,
+                                                       self.mask_logits)  # <todo> better nms for mask
+            # self.detections = self.mask_proposals
 
     def loss(self, inputs, truth_boxes, truth_labels, truth_instances):
         cfg = self.cfg
@@ -467,13 +484,12 @@ class MaskRcnnNet(nn.Module):
         self.rcnn_cls_loss, self.rcnn_reg_loss = \
             rcnn_loss(self.rcnn_logits, self.rcnn_deltas, self.rcnn_labels, self.rcnn_targets)
 
-        # self.mask_cls_loss = Variable(torch.cuda.FloatTensor(1).zero_()).sum()
         self.mask_cls_loss = \
             mask_loss(self.mask_logits, self.mask_labels, self.mask_instances)
 
         self.total_loss = \
-            self.rpn_cls_loss + self.rpn_reg_loss + \
-            self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
+            self.rpn_cls_loss + self.rpn_reg_loss \
+            + self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
 
         return self.total_loss
 
@@ -508,12 +524,10 @@ def run_check_feature_net():
     feature_channels = 128
 
     x = torch.randn(batch_size, C, H, W)
-    inputs = Variable(x)
-    inputs = inputs.cuda() if USE_CUDA else inputs
+    inputs = Variable(x).cuda()
 
     cfg = Configuration()
-    feature_net = FeatureNet(cfg, C, feature_channels)
-    feature_net = feature_net.cuda() if USE_CUDA else feature_net
+    feature_net = FeatureNet(cfg, C, feature_channels).cuda()
 
     ps = feature_net(inputs)
 
@@ -535,13 +549,11 @@ def run_check_multi_rpn_head():
     fs = []
     for h, w in zip(feature_heights, feature_widths):
         f = np.random.uniform(-1, 1, size=(batch_size, in_channels, h, w)).astype(np.float32)
-        f = Variable(torch.from_numpy(f))
-        f = f.cuda() if USE_CUDA else f
+        f = Variable(torch.from_numpy(f)).cuda()
         fs.append(f)
 
     cfg = Configuration()
-    rpn_head = RpnMultiHead(cfg, in_channels)
-    rpn_head = rpn_head.cuda() if USE_CUDA else rpn_head
+    rpn_head = RpnMultiHead(cfg, in_channels).cuda()
     logits_flat, deltas_flat = rpn_head(fs)
 
     print('logits_flat ', logits_flat.size())
@@ -562,8 +574,7 @@ def run_check_crop_head():
     fs = []
     for h, w in zip(feature_heights, feature_widths):
         f = np.random.uniform(-1, 1, size=(batch_size, in_channels, h, w)).astype(np.float32)
-        f = Variable(torch.from_numpy(f))
-        f = f.cuda() if USE_CUDA else f
+        f = Variable(torch.from_numpy(f)).cuda()
         fs.append(f)
 
     # proposal i,x0,y0,x1,y1,score, label
@@ -586,13 +597,11 @@ def run_check_crop_head():
         proposals.append(proposal)
 
     proposals = np.vstack(proposals)
-    proposals = Variable(torch.from_numpy(proposals))
-    proposals = proposals.cuda() if USE_CUDA else proposals
+    proposals = Variable(torch.from_numpy(proposals)).cuda()
 
     # --------------------------------------
     cfg = Configuration()
-    crop_net = CropRoi(cfg)
-    crop_net = crop_net.cuda() if USE_CUDA else crop_net
+    crop_net = CropRoi(cfg).cuda()
     crops = crop_net(fs, proposals)
 
     print('crops', crops.size())
@@ -620,14 +629,12 @@ def run_check_rcnn_head():
     crop_size = 14
 
     crops = np.random.uniform(-1, 1, size=(num_rois, in_channels, crop_size, crop_size)).astype(np.float32)
-    crops = Variable(torch.from_numpy(crops))
-    crops = crops.cuda() if USE_CUDA else crops
+    crops = Variable(torch.from_numpy(crops)).cuda()
 
     cfg = Configuration()
     assert (crop_size == cfg.rcnn_crop_size)
 
-    rcnn_head = RcnnHead(cfg, in_channels)
-    rcnn_head = rcnn_head.cuda() if USE_CUDA else rcnn_head
+    rcnn_head = RcnnHead(cfg, in_channels).cuda()
     logits, deltas = rcnn_head(crops)
 
     print('logits ', logits.size())
@@ -641,31 +648,27 @@ def run_check_mask_head():
     crop_size = 14
 
     crops = np.random.uniform(-1, 1, size=(num_rois, in_channels, crop_size, crop_size)).astype(np.float32)
-    crops = Variable(torch.from_numpy(crops))
-    crops = crops.cuda() if USE_CUDA else crops
+    crops = Variable(torch.from_numpy(crops)).cuda()
 
     cfg = Configuration()
     assert (crop_size == cfg.crop_size)
 
-    mask_head = MaskHead(cfg, in_channels)
-    mask_head = mask_head.cuda() if USE_CUDA else mask_head
+    mask_head = MaskHead(cfg, in_channels).cuda()
     logits = mask_head(crops)
 
     print('logits ', logits.size())
     print('')
 
 
-# -----------------------------------
+##-----------------------------------
 def run_check_mask_net():
     batch_size, C, H, W = 1, 3, 128, 128
     feature_channels = 64
     inputs = np.random.uniform(-1, 1, size=(batch_size, C, H, W)).astype(np.float32)
-    inputs = Variable(torch.from_numpy(inputs))
-    inputs = inputs.cuda() if USE_CUDA else inputs
+    inputs = Variable(torch.from_numpy(inputs)).cuda()
 
     cfg = Configuration()
-    mask_net = MaskSingleShotNet(cfg)
-    mask_net = mask_net.cuda() if USE_CUDA else mask_net
+    mask_net = MaskSingleShotNet(cfg).cuda()
 
     mask_net.set_mode('eval')
     mask_net(inputs)

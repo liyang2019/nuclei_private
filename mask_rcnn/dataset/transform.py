@@ -118,8 +118,8 @@ def relabel_multi_mask(multi_mask):
 
 
 def random_shift_scale_rotate_transform2(image, mask,
-                                         shift_limit=[-0.0625, 0.0625], scale_limit=[1 / 1.2, 1.2],
-                                         rotate_limit=[-15, 15], borderMode=cv2.BORDER_REFLECT_101, u=0.5):
+                                         shift_limit=(-0.0625, 0.0625), scale_limit=(1 / 1.2, 1.2),
+                                         rotate_limit=(-15, 15), borderMode=cv2.BORDER_REFLECT_101, u=0.5):
     # cv2.BORDER_REFLECT_101  cv2.BORDER_CONSTANT
 
     if random.random() < u:

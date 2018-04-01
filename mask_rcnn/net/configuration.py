@@ -1,7 +1,6 @@
 from common import *
 import configparser
-
-
+from skimage.color import rgb2gray
 #
 # proposal i,x0,y0,x1,y1,score, label, (scale_level)
 # roi      i,x0,y0,x1,y1

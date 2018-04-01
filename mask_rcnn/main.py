@@ -2,8 +2,8 @@ import argparse
 
 from dataset.reader import *
 from dataset.transform import *
-from net.resnet50_mask_rcnn.configuration import Configuration
-from net.resnet50_mask_rcnn.model import MaskRcnnNet
+from net.configuration import Configuration
+from net.model import MaskNet
 from utility.file import Logger
 from train import Trainer
 
@@ -23,8 +23,8 @@ if __name__ == '__main__':
                         default=10)
     parser.add_argument('--save_model_every', help='save models every save_model_every steps', action='store', type=int,
                         default=100)
-    parser.add_argument('--input_width', help='input image width to a net', action='store', type=int, default=256)
-    parser.add_argument('--input_height', help='input image height to a net', action='store', type=int, default=256)
+    parser.add_argument('--input_width', help='input image width to a net', action='store', type=int, default=128)
+    parser.add_argument('--input_height', help='input image height to a net', action='store', type=int, default=128)
     parser.add_argument('--pretrained', help='load pretrained models when doing transfer learning', action='store_true',
                         default=True)
     parser.add_argument('--num_epochs', help='total number of epochs for training', action='store', type=int,
@@ -56,6 +56,21 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # debug
+    if 1:
+        args.batch_size = 1
+        args.print_every = 1
+        args.learning_rate = 0.005
+        args.iter_valid = 1
+        args.is_validation = False
+        args.train_split = 'train1_ids_gray2_500'
+        args.input_width = 128
+        args.input_height = 128
+        args.iter_accum = 1
+        args.seed = 0
+        args.num_workers = 1
+        args.save_model_every = 1000
+
     os.makedirs(args.result_dir, exist_ok=True)
     print('data_dir', args.data_dir)
     print('result_dir', args.result_dir)
@@ -71,7 +86,7 @@ if __name__ == '__main__':
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskRcnnNet(cfg)
+    net = MaskNet(cfg)
     net = net.cuda() if USE_CUDA else net
 
     log.write('** dataset setting **\n')

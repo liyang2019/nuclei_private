@@ -37,7 +37,8 @@ class ScienceDataset(Dataset):
             multi_mask = np.load(
                 os.path.join(self.data_dir, 'stage1_images', 'multi_masks', loc.split('/')[1] + '.npy')
             ).astype(np.int32)
-            meta = '<not_used>'
+            # meta = '<not_used>'
+            meta = self.ids[index].split('/')[-1]  # image key
 
             if self.transform is not None:
                 return self.transform(image, multi_mask, meta, index)

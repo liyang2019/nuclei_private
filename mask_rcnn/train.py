@@ -1,6 +1,6 @@
 from net.rate import *
-from net.resnet50_mask_rcnn.draw import *
-from net.resnet50_mask_rcnn.model import *
+from net.draw import *
+from net.model import *
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 
@@ -39,7 +39,7 @@ class Trainer:
         os.makedirs(os.path.join(self.out_dir, 'checkpoint'), exist_ok=True)
         os.makedirs(os.path.join(self.out_dir, 'train'), exist_ok=True)
         os.makedirs(os.path.join('../backup'), exist_ok=True)
-        backup_project_as_zip(PROJECT_PATH, os.path.join('../backup/maskrcnn.code.train.%s.zip' % IDENTIFIER))
+        # backup_project_as_zip(PROJECT_PATH, os.path.join('../backup/maskrcnn.code.train.%s.zip' % IDENTIFIER))
 
         self.log.write('\n--- [START %s] %s\n\n' % (IDENTIFIER, '-' * 64))
         self.log.write('** some experiment setting **\n')
@@ -241,6 +241,7 @@ class Trainer:
 
                 # <debug> ===================================================================
                 if self.debug and i % self.iter_valid == 0:
+                # if 1:
 
                     self.net.set_mode('test')
                     with torch.no_grad():
@@ -336,9 +337,9 @@ class Trainer:
                         # cv2.imwrite(out_dir + '/train/%s.rpn_precision.png' % name, all5)
                         # cv2.imwrite(out_dir + '/train/%s.rcnn_precision.png' % name, all6)
 
-                        cv2.imwrite(self.out_dir + '/train/%05d.rpn_precision.png' % b, all5)
-                        cv2.imwrite(self.out_dir + '/train/%05d.rcnn_precision.png' % b, all6)
-                        cv2.imwrite(self.out_dir + '/train/%05d.mask_precision.png' % b, all7)
+                        cv2.imwrite(self.out_dir + '/train/%05d.%s.rpn_precision.png' % (b, metas[b]), all5)
+                        cv2.imwrite(self.out_dir + '/train/%05d.%s.rcnn_precision.png' % (b, metas[b]), all6)
+                        cv2.imwrite(self.out_dir + '/train/%05d.%s.mask_precision.png' % (b, metas[b]), all7)
                         # cv2.waitKey(1)
                         pass
 

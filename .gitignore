@@ -10,3 +10,6 @@ data/stage1_images
 results
 **/rice_cluster_result
 **/mask_rcnn_ensemble_*
+backup
+data
+
