@@ -274,7 +274,8 @@ class Trainer:
                     print('masks shape in train ', masks[0].shape)
 
                     # print('train',batch_size)
-                    for b in range(batch_size):
+                    # for b in range(batch_size):
+                    for b in range(1):
 
                         image = (images[b].transpose((1, 2, 0)) * 255)
                         image = image.astype(np.uint8)
