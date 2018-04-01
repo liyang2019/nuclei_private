@@ -402,7 +402,8 @@ class Trainer:
                 net.rpn_reg_loss.cpu().data.numpy(),
                 net.rcnn_cls_loss.cpu().data.numpy(),
                 net.rcnn_reg_loss.cpu().data.numpy(),
-                net.mask_cls_loss.cpu().data.numpy(),
+                # net.mask_cls_loss.cpu().data.numpy(),  # TODO
+                0,
             ))
 
         assert (test_num == len(test_loader.sampler))
