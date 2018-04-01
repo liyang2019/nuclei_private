@@ -479,16 +479,13 @@ class MaskNet(nn.Module):
         self.rpn_logits_flat, self.rpn_deltas_flat = self.rpn_head(features)
         self.rpn_window = make_rpn_windows(self.cfg, features)
         self.rpn_proposals = rpn_nms(self.cfg, self.mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
-        print('rpn after rpn_nms ', self.rpn_proposals.size())
         self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
             make_rpn_target(self.cfg, self.mode, inputs, self.rpn_window, truth_boxes, truth_labels)
         self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
             make_rcnn_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
-        print('rpn after make_rcnn_target ', self.rpn_proposals.size())
         self.rpn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
             make_mask_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels,
                              truth_instances)
-        print('rpn after make_mask_target ', self.rpn_proposals.size())
 
         if len(self.rpn_proposals) > 0:
             # crops for rcnn and mask
@@ -517,15 +514,12 @@ class MaskNet(nn.Module):
         if len(self.rpn_proposals) > 0:
             self.rcnn_proposals = rcnn_nms(self.cfg, self.mode, inputs, self.rpn_proposals, self.rcnn_logits,
                                            self.rcnn_deltas)
-        print('rcnn proposals ', self.rcnn_proposals.size())
         return self.rcnn_proposals
 
     def get_masks(self, inputs):
         self.masks = make_empty_masks(self.cfg, self.mode, inputs)
         if len(self.rpn_proposals) > 0:
             self.masks = mask_nms(self.cfg, self.mode, inputs, self.rpn_proposals, self.mask_logits)
-        print('masks len ', len(self.masks))
-        print('masks shape ', self.masks[0].shape)
         return self.masks
 
     def loss(self, inputs, truth_boxes, truth_labels, truth_instances):
