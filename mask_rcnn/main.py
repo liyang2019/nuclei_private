@@ -114,6 +114,8 @@ if __name__ == '__main__':
         # image,  multi_mask = fix_crop_transform2(image, multi_mask, -1,-1,WIDTH, HEIGHT)
         # ---------------------------------------
         input = torch.from_numpy(image[..., np.newaxis].transpose((2, 0, 1))).float().div(255)
+
+        # TODO add padding to image???
         box, label, instance = multi_mask_to_annotation(multi_mask)
 
         return input, box, label, instance, meta, index

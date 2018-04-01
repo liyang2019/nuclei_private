@@ -114,7 +114,7 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
         nms_min_size = cfg.rpn_test_nms_min_size
 
         if mode in ['eval']:
-            nms_pre_score_threshold = 0.05  # set low numbe r to make roc curve.
+            nms_pre_score_threshold = 0.05  # set low number to make roc curve.
 
     else:
         raise ValueError('rpn_nms(): invalid mode = %s?' % mode)
