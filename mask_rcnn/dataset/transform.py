@@ -80,7 +80,8 @@ def random_rotate90_transform2(image, mask, u=0.5):
 
         angle = random.randint(1, 3) * 90
         if angle == 90:
-            image = image.transpose(1, 0, 2)  # cv2.transpose(img)
+            if image.ndim == 3:
+                image = image.transpose(1, 0, 2)  # cv2.transpose(img)
             image = cv2.flip(image, 1)
             mask = mask.transpose(1, 0)
             mask = cv2.flip(mask, 1)
@@ -90,7 +91,8 @@ def random_rotate90_transform2(image, mask, u=0.5):
             mask = cv2.flip(mask, -1)
 
         elif angle == 270:
-            image = image.transpose(1, 0, 2)  # cv2.transpose(img)
+            if image.ndim == 3:
+                image = image.transpose(1, 0, 2)  # cv2.transpose(img)
             image = cv2.flip(image, 0)
             mask = mask.transpose(1, 0)
             mask = cv2.flip(mask, 0)
@@ -123,7 +125,7 @@ def random_shift_scale_rotate_transform2(image, mask,
     # cv2.BORDER_REFLECT_101  cv2.BORDER_CONSTANT
 
     if random.random() < u:
-        height, width, channel = image.shape
+        height, width, = image.shape
 
         angle = random.uniform(rotate_limit[0], rotate_limit[1])  # degree
         scale = random.uniform(scale_limit[0], scale_limit[1])

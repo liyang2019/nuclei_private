@@ -166,8 +166,8 @@ class Trainer:
                             # train_acc,
                             batch_loss[0], batch_loss[1], batch_loss[2], batch_loss[3], batch_loss[4], batch_loss[5],
                             # batch_acc,
-                            time_to_str((timer() - start) / 60))
-                    )
+                            time_to_str((timer() - start) / 60)),
+                        is_terminal=0)
                     time.sleep(0.01)
 
                 # if 1:
@@ -215,7 +215,7 @@ class Trainer:
                     self.net.rpn_reg_loss.cpu().data.numpy(),
                     self.net.rcnn_cls_loss.cpu().data.numpy(),
                     self.net.rcnn_reg_loss.cpu().data.numpy(),
-                    np.zeros(1, np.float32), # TODO train rcnn only
+                    np.zeros(1, np.float32),  # TODO train rcnn only
                     # self.net.mask_cls_loss.cpu().data.numpy(),
                 ))
                 sum_train_loss += batch_loss
@@ -246,12 +246,13 @@ class Trainer:
 
                 # <debug> ===================================================================
                 if self.debug and i % self.iter_valid == 0:
-                # if 1:
+                    # if 1:
 
                     self.net.set_mode('test')
                     with torch.no_grad():
                         # self.net(inputs, truth_boxes, truth_labels, truth_instances)
-                        self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)  # TODO train rcnn only
+                        self.net.forward_train(inputs, truth_boxes, truth_labels,
+                                               truth_instances)  # TODO train rcnn only
 
                     batch_size, C, H, W = inputs.size()
                     images = inputs.data.cpu().numpy()
@@ -259,19 +260,15 @@ class Trainer:
                     rpn_logits_flat = self.net.rpn_logits_flat.data.cpu().numpy()
                     rpn_deltas_flat = self.net.rpn_deltas_flat.data.cpu().numpy()
                     rpn_proposals = self.net.rpn_proposals.data.cpu().numpy()
-                    print('rpn_proposals in train ', rpn_proposals.shape)
 
                     rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
                     rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
                     # rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
                     rcnn_proposals = self.net.get_rcnn_proposals(inputs).data.cpu().numpy()  # TODO train rcnn only
-                    print('rcnn_proposals in train ', rcnn_proposals.shape)
 
                     detections = self.net.detections.data.cpu().numpy()
                     # masks = self.net.masks
                     masks = self.net.get_masks(inputs)  # TODO train rcnn only
-                    print('masks len in train ', len(masks))
-                    print('masks shape in train ', masks[0].shape)
 
                     # print('train',batch_size)
                     # for b in range(batch_size):

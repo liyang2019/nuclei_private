@@ -86,7 +86,7 @@ if __name__ == '__main__':
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskNet(cfg)
+    net = MaskNet(cfg, 1)
     net = net.cuda() if USE_CUDA else net
 
     log.write('** dataset setting **\n')
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     def train_augment(image, multi_mask, meta, index):
         image, multi_mask = random_shift_scale_rotate_transform2(image, multi_mask,
                                                                  shift_limit=[0, 0], scale_limit=[1 / 2, 2],
-                                                                 rotate_limit=[-45, 45],
+                                                                 rotate_limit=[0, 0],
                                                                  borderMode=cv2.BORDER_REFLECT_101,
                                                                  u=0.5)  # borderMode=cv2.BORDER_CONSTANT
 
@@ -112,9 +112,8 @@ if __name__ == '__main__':
         image, multi_mask = random_vertical_flip_transform2(image, multi_mask, 0.5)
         image, multi_mask = random_rotate90_transform2(image, multi_mask, 0.5)
         # image,  multi_mask = fix_crop_transform2(image, multi_mask, -1,-1,WIDTH, HEIGHT)
-
         # ---------------------------------------
-        input = torch.from_numpy(image.transpose((2, 0, 1))).float().div(255)
+        input = torch.from_numpy(image[..., np.newaxis].transpose((2, 0, 1))).float().div(255)
         box, label, instance = multi_mask_to_annotation(multi_mask)
 
         return input, box, label, instance, meta, index
@@ -124,7 +123,7 @@ if __name__ == '__main__':
         image, multi_mask = fix_crop_transform2(image, multi_mask, -1, -1, WIDTH, HEIGHT)
 
         # ---------------------------------------
-        input = torch.from_numpy(image.transpose((2, 0, 1))).float().div(255)
+        input = torch.from_numpy(image[..., np.newaxis].transpose((2, 0, 1))).float().div(255)
         box, label, instance = multi_mask_to_annotation(multi_mask)
 
         return input, box, label, instance, meta, index

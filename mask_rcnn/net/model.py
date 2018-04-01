@@ -377,7 +377,7 @@ class MaskHead(nn.Module):
 
 class MaskNet(nn.Module):
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, input_channel):
         super(MaskNet, self).__init__()
         self.version = 'net version \'mask-rcnn-se-resnext50-fpn\''
         self.cfg = cfg
@@ -385,7 +385,8 @@ class MaskNet(nn.Module):
 
         feature_channels = 256
         crop_channels = feature_channels
-        self.feature_net = FeatureNet(cfg, 3, feature_channels)
+        self.feature_net = FeatureNet(cfg, input_channel, feature_channels)  # TODO
+        # self.feature_net = FeatureNet(cfg, 1, feature_channels)
         self.rpn_head = RpnMultiHead(cfg, feature_channels)
         self.rcnn_crop = CropRoi(cfg, cfg.rcnn_crop_size)
         self.rcnn_head = RcnnHead(cfg, crop_channels)

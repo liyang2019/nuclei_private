@@ -32,7 +32,9 @@ class ScienceDataset(Dataset):
 
     def __getitem__(self, index):
         loc = self.ids[index]
-        image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_COLOR)
+        loc = os.path.join('linear_gray_image', loc.split('/')[-1])
+        # image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_COLOR)
+        image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_GRAYSCALE)
         if self.mode in ['train']:
             multi_mask = np.load(
                 os.path.join(self.data_dir, 'stage1_images', 'multi_masks', loc.split('/')[1] + '.npy')
