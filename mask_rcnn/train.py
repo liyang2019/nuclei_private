@@ -387,8 +387,12 @@ class Trainer:
                 if all(len(b) == 0 for b in truth_boxes):
                     print('all None in evaluateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
                     continue
-                net(inputs, truth_boxes, truth_labels, truth_instances)
-                loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+                # net(inputs, truth_boxes, truth_labels, truth_instances)
+                # loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+
+                # TODO train rcnn only
+                net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
+                loss = net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
 
             # acc    = dice_loss(masks, labels) #todo
             test_acc += 0  # batch_size*acc[0][0]
