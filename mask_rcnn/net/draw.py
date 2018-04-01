@@ -102,7 +102,7 @@ def draw_truth_box(cfg, image, truth_box, truth_label):
 
 
 def draw_multi_proposal_metric(cfg, image, proposal, truth_box, truth_label,
-                               color0=[0, 255, 255], color1=[255, 0, 255], color2=[255, 255, 0], thickness=1):
+                               color0=(0, 255, 255), color1=(255, 0, 255), color2=(255, 255, 0), thickness=1):
     H, W = image.shape[:2]
     image_truth = image.copy()  # yellow
     image_proposal = image.copy()  # pink

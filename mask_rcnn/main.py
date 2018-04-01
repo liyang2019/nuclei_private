@@ -60,7 +60,7 @@ if __name__ == '__main__':
     if 1:
         args.batch_size = 1
         args.print_every = 1
-        args.learning_rate = 0.005
+        args.learning_rate = 0.002
         args.iter_valid = 1
         args.is_validation = False
         args.train_split = 'train1_ids_gray2_500'

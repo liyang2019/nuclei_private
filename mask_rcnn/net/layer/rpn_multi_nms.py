@@ -159,8 +159,9 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
         proposal = np.vstack(proposal)
         proposals.append(proposal)
 
-    proposals = Variable(torch.from_numpy(np.vstack(proposals)))
+    proposals = torch.from_numpy(np.vstack(proposals))
     proposals = proposals.cuda() if USE_CUDA else proposals
+    proposals = Variable(proposals)
     return proposals
 
 

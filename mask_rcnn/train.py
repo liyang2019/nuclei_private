@@ -190,11 +190,15 @@ class Trainer:
                 rate = get_learning_rate(self.optimizer) * self.iter_accum
 
                 # one iteration update  -------------
-                inputs = Variable(inputs)
                 inputs = inputs.cuda() if USE_CUDA else inputs
+                inputs = Variable(inputs)
 
-                self.net(inputs, truth_boxes, truth_labels, truth_instances)
-                loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+                # self.net(inputs, truth_boxes, truth_labels, truth_instances)
+                # loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+
+                # TODO training rcnn only!
+                self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
+                loss = self.net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # accumulated update
                 loss.backward()  # here iter_smooth does no effect
@@ -211,7 +215,8 @@ class Trainer:
                     self.net.rpn_reg_loss.cpu().data.numpy(),
                     self.net.rcnn_cls_loss.cpu().data.numpy(),
                     self.net.rcnn_reg_loss.cpu().data.numpy(),
-                    self.net.mask_cls_loss.cpu().data.numpy(),
+                    np.zeros(1, np.float32), # TODO train rcnn only
+                    # self.net.mask_cls_loss.cpu().data.numpy(),
                 ))
                 sum_train_loss += batch_loss
                 sum_train_acc += batch_acc
@@ -245,7 +250,8 @@ class Trainer:
 
                     self.net.set_mode('test')
                     with torch.no_grad():
-                        self.net(inputs, truth_boxes, truth_labels, truth_instances)
+                        # self.net(inputs, truth_boxes, truth_labels, truth_instances)
+                        self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)  # TODO train rcnn only
 
                     batch_size, C, H, W = inputs.size()
                     images = inputs.data.cpu().numpy()
@@ -253,13 +259,19 @@ class Trainer:
                     rpn_logits_flat = self.net.rpn_logits_flat.data.cpu().numpy()
                     rpn_deltas_flat = self.net.rpn_deltas_flat.data.cpu().numpy()
                     rpn_proposals = self.net.rpn_proposals.data.cpu().numpy()
+                    print('rpn_proposals in train ', rpn_proposals.shape)
 
                     rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
                     rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
-                    rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
+                    # rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
+                    rcnn_proposals = self.net.get_rcnn_proposals(inputs).data.cpu().numpy()  # TODO train rcnn only
+                    print('rcnn_proposals in train ', rcnn_proposals.shape)
 
                     detections = self.net.detections.data.cpu().numpy()
-                    masks = self.net.masks
+                    # masks = self.net.masks
+                    masks = self.net.get_masks(inputs)  # TODO train rcnn only
+                    print('masks len in train ', len(masks))
+                    print('masks shape in train ', masks[0].shape)
 
                     # print('train',batch_size)
                     for b in range(batch_size):
@@ -337,9 +349,9 @@ class Trainer:
                         # cv2.imwrite(out_dir + '/train/%s.rpn_precision.png' % name, all5)
                         # cv2.imwrite(out_dir + '/train/%s.rcnn_precision.png' % name, all6)
 
-                        cv2.imwrite(self.out_dir + '/train/%05d.%s.rpn_precision.png' % (b, metas[b]), all5)
-                        cv2.imwrite(self.out_dir + '/train/%05d.%s.rcnn_precision.png' % (b, metas[b]), all6)
-                        cv2.imwrite(self.out_dir + '/train/%05d.%s.mask_precision.png' % (b, metas[b]), all7)
+                        cv2.imwrite(self.out_dir + '/train/%05d.%02d.%s.rpn_precision.png' % (i, b, metas[b]), all5)
+                        cv2.imwrite(self.out_dir + '/train/%05d.%02d.%s.rcnn_precision.png' % (i, b, metas[b]), all6)
+                        cv2.imwrite(self.out_dir + '/train/%05d.%02d.%s.mask_precision.png' % (i, b, metas[b]), all7)
                         # cv2.waitKey(1)
                         pass
 

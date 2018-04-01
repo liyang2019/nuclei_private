@@ -27,13 +27,17 @@ def add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label, score=-1
 # gpu version
 # see https://github.com/ruotianluo/pytorch-faster-rcnn
 def make_one_rcnn_target(cfg, input, proposal, truth_box, truth_label):
-    sampled_proposal = Variable(torch.FloatTensor((0, 7)))
-    sampled_label = Variable(torch.LongTensor((0, 1)))
-    sampled_target = Variable(torch.FloatTensor((0, 4)))
+    sampled_proposal = torch.FloatTensor((0, 7))
+    sampled_label = torch.LongTensor((0, 1))
+    sampled_target = torch.FloatTensor((0, 4))
     if USE_CUDA:
         sampled_proposal = sampled_proposal.cuda()
         sampled_label = sampled_label.cuda()
         sampled_target = sampled_target.cuda()
+    sampled_proposal = Variable(sampled_proposal)
+    sampled_label = Variable(sampled_label)
+    sampled_target = Variable(sampled_target)
+
     sampled_assign = np.array((0, 1), np.int32)
 
     if len(truth_box) == 0 or len(proposal) == 0:
@@ -125,13 +129,16 @@ def make_one_rcnn_target(cfg, input, proposal, truth_box, truth_label):
         target_box = sampled_proposal[:num_fg][:, 1:5]
         sampled_target = rcnn_encode(target_box, target_truth_box)
 
-    sampled_target = Variable(torch.from_numpy(sampled_target))
-    sampled_label = Variable(torch.from_numpy(sampled_label)).long()
-    sampled_proposal = Variable(torch.from_numpy(sampled_proposal))
+    sampled_target = torch.from_numpy(sampled_target)
+    sampled_label = torch.from_numpy(sampled_label).long()
+    sampled_proposal = torch.from_numpy(sampled_proposal)
     if USE_CUDA:
         sampled_target = sampled_target.cuda()
         sampled_label = sampled_label.cuda()
         sampled_proposal = sampled_proposal.cuda()
+    sampled_target = Variable(sampled_target)
+    sampled_label = Variable(sampled_label)
+    sampled_proposal = Variable(sampled_proposal)
 
     return sampled_proposal, sampled_label, sampled_assign, sampled_target
 
