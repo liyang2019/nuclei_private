@@ -92,7 +92,7 @@ def run_make_train_annotation_fixing_masks(data_root, image_set):
     fixed_masks_loc = os.path.join(data_root, 'stage1_images', 'fixed_mask_new', '*')
     fixed_masks_image_keys = [loc.split('/')[-1] for loc in glob.glob(fixed_masks_loc)]
 
-    num_ids = len(ids)*0+10
+    num_ids = len(ids)
     for i in range(num_ids):
         id = ids[i]
         print(id)
