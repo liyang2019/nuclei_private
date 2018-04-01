@@ -168,7 +168,6 @@ def draw_multi_proposal_metric(cfg, image, proposal, truth_box, truth_label,
 
 def draw_mask_metric(cfg, image, mask, truth_box, truth_label, truth_instance):
     H, W = image.shape[:2]
-    image = image.repeat(3, axis=2)  # TODO
     overlay_truth = np.zeros((H, W, 3), np.uint8)  # yellow
     overlay_mask = np.zeros((H, W, 3), np.uint8)  # pink
     overlay_error = np.zeros((H, W, 3), np.uint8)
