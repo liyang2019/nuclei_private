@@ -144,7 +144,6 @@ class Trainer:
             for inputs, truth_boxes, truth_labels, truth_instances, metas, indices in self.train_loader:
                 if all(len(b) == 0 for b in truth_boxes):
                     continue
-
                 batch_size = len(indices)
                 i = j / self.iter_accum + start_iter
                 epoch = (i - start_iter) * batch_size * self.iter_accum / self.images_per_epoch + start_epoch
@@ -276,8 +275,6 @@ class Trainer:
 
                         image = (images[b].transpose((1, 2, 0)) * 255)
                         image = image.astype(np.uint8)
-                        if image.shape[2] == 1:
-                            image = image.repeat(3, axis=2)  # TODO
                         # image = np.clip(image.astype(np.float32)*2,0,255).astype(np.uint8)  #improve contrast
 
                         truth_box = truth_boxes[b]

@@ -82,6 +82,8 @@ def random_rotate90_transform2(image, mask, u=0.5):
         if angle == 90:
             if image.ndim == 3:
                 image = image.transpose(1, 0, 2)  # cv2.transpose(img)
+            else:
+                image = image.transpose(1, 0)
             image = cv2.flip(image, 1)
             mask = mask.transpose(1, 0)
             mask = cv2.flip(mask, 1)
@@ -93,6 +95,8 @@ def random_rotate90_transform2(image, mask, u=0.5):
         elif angle == 270:
             if image.ndim == 3:
                 image = image.transpose(1, 0, 2)  # cv2.transpose(img)
+            else:
+                image = image.transpose(1, 0)
             image = cv2.flip(image, 0)
             mask = mask.transpose(1, 0)
             mask = cv2.flip(mask, 0)

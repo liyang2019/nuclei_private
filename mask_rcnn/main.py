@@ -131,7 +131,6 @@ if __name__ == '__main__':
 
     def train_collate(batch):
         batch_size = len(batch)
-        # for b in range(batch_size): print (batch[b][0].size())
         inputs = torch.stack([batch[b][0] for b in range(batch_size)], 0)
         boxes = [batch[b][1] for b in range(batch_size)]
         labels = [batch[b][2] for b in range(batch_size)]
