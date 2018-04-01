@@ -122,11 +122,11 @@ class Trainer:
             '-------------------------------------------------------------------------------------------------------------------------------\n')
 
         train_loss = np.zeros(6, np.float32)
-        train_acc = 0.0
+        # train_acc = 0.0
         valid_loss = np.zeros(6, np.float32)
-        valid_acc = 0.0
+        # valid_acc = 0.0
         batch_loss = np.zeros(6, np.float32)
-        batch_acc = 0.0
+        # batch_acc = 0.0
         rate = 0
 
         start = timer()
@@ -197,7 +197,8 @@ class Trainer:
 
                 # TODO training rcnn only!
                 self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
-                loss = self.net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
+                # loss = self.net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
+                loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # accumulated update
                 loss.backward()  # here iter_smooth does no effect
@@ -214,8 +215,8 @@ class Trainer:
                     self.net.rpn_reg_loss.cpu().data.numpy(),
                     self.net.rcnn_cls_loss.cpu().data.numpy(),
                     self.net.rcnn_reg_loss.cpu().data.numpy(),
-                    np.zeros(1, np.float32),  # TODO train rcnn only
-                    # self.net.mask_cls_loss.cpu().data.numpy(),
+                    # np.zeros(1, np.float32),  # TODO train rcnn only
+                    self.net.mask_cls_loss.cpu().data.numpy(),
                 ))
                 sum_train_loss += batch_loss
                 sum_train_acc += batch_acc
@@ -223,7 +224,7 @@ class Trainer:
 
                 if i % self.iter_smooth == 0:
                     train_loss = sum_train_loss / sum
-                    train_acc = sum_train_acc / sum
+                    # train_acc = sum_train_acc / sum
                     sum_train_loss = np.zeros(6, np.float32)
                     sum_train_acc = 0.
                     sum = 0
@@ -251,23 +252,22 @@ class Trainer:
                     with torch.no_grad():
                         # self.net(inputs, truth_boxes, truth_labels, truth_instances)
                         self.net.forward_train(inputs, truth_boxes, truth_labels,
-                                               truth_instances)  # TODO train rcnn only
+                                               truth_instances)
 
-                    batch_size, C, H, W = inputs.size()
                     images = inputs.data.cpu().numpy()
-                    window = self.net.rpn_window
-                    rpn_logits_flat = self.net.rpn_logits_flat.data.cpu().numpy()
-                    rpn_deltas_flat = self.net.rpn_deltas_flat.data.cpu().numpy()
+                    # window = self.net.rpn_window
+                    # rpn_logits_flat = self.net.rpn_logits_flat.data.cpu().numpy()
+                    # rpn_deltas_flat = self.net.rpn_deltas_flat.data.cpu().numpy()
                     rpn_proposals = self.net.rpn_proposals.data.cpu().numpy()
 
-                    rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
-                    rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
+                    # rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
+                    # rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
                     # rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
-                    rcnn_proposals = self.net.get_rcnn_proposals(inputs).data.cpu().numpy()  # TODO train rcnn only
+                    rcnn_proposals = self.net.get_rcnn_proposals(inputs).data.cpu().numpy()
 
-                    detections = self.net.detections.data.cpu().numpy()
+                    # detections = self.net.detections.data.cpu().numpy()
                     # masks = self.net.masks
-                    masks = self.net.get_masks(inputs)  # TODO train rcnn only
+                    masks = self.net.get_masks(inputs)
 
                     # print('train',batch_size)
                     # for b in range(batch_size):
@@ -275,17 +275,17 @@ class Trainer:
 
                         image = (images[b].transpose((1, 2, 0)) * 255)
                         image = image.astype(np.uint8)
-                        image = image.repeat(3, axis=2)  # TODO
+                        image = image.repeat(3, axis=2)  # TODO for gray scale image
                         # image = np.clip(image.astype(np.float32)*2,0,255).astype(np.uint8)  #improve contrast
 
                         truth_box = truth_boxes[b]
                         truth_label = truth_labels[b]
                         truth_instance = truth_instances[b]
-                        truth_mask = instance_to_multi_mask(truth_instance)
+                        # truth_mask = instance_to_multi_mask(truth_instance)
 
-                        rpn_logit_flat = rpn_logits_flat[b]
-                        rpn_delta_flat = rpn_deltas_flat[b]
-                        rpn_prob_flat = np_softmax(rpn_logit_flat)
+                        # rpn_logit_flat = rpn_logits_flat[b]
+                        # rpn_delta_flat = rpn_deltas_flat[b]
+                        # rpn_prob_flat = np_softmax(rpn_logit_flat)
 
                         rpn_proposal = np.zeros((0, 7), np.float32)
                         if len(rpn_proposals) > 0:
@@ -295,9 +295,9 @@ class Trainer:
                         rcnn_proposal = np.zeros((0, 7), np.float32)
                         if len(rcnn_proposals) > 0:
                             index = np.where(rcnn_proposals[:, 0] == b)[0]
-                            rcnn_logit = rcnn_logits[index]
-                            rcnn_delta = rcnn_deltas[index]
-                            rcnn_prob = np_softmax(rcnn_logit)
+                            # rcnn_logit = rcnn_logits[index]
+                            # rcnn_delta = rcnn_deltas[index]
+                            # rcnn_prob = np_softmax(rcnn_logit)
                             rcnn_proposal = rcnn_proposals[index]
 
                         mask = masks[b]
@@ -389,7 +389,8 @@ class Trainer:
 
                 # TODO train rcnn only
                 net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
-                loss = net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
+                # loss = net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
+                loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
             # acc    = dice_loss(masks, labels) #todo
             test_acc += 0  # batch_size*acc[0][0]
@@ -399,8 +400,8 @@ class Trainer:
                 net.rpn_reg_loss.cpu().data.numpy(),
                 net.rcnn_cls_loss.cpu().data.numpy(),
                 net.rcnn_reg_loss.cpu().data.numpy(),
-                # net.mask_cls_loss.cpu().data.numpy(),  # TODO
-                0,
+                net.mask_cls_loss.cpu().data.numpy(),  # TODO train rcnn only
+                # 0,
             ))
 
         assert (test_num == len(test_loader.sampler))

@@ -224,7 +224,7 @@ class RpnMultiHead(nn.Module):
         batch_size = len(fs[0])
 
         logits_flat = []
-        probs_flat = []
+        # probs_flat = []
         deltas_flat = []
         for l in range(self.num_scales):  # apply multibox head to feature maps
             f = fs[l]
@@ -385,8 +385,7 @@ class MaskNet(nn.Module):
 
         feature_channels = 256
         crop_channels = feature_channels
-        self.feature_net = FeatureNet(cfg, input_channel, feature_channels)  # TODO
-        # self.feature_net = FeatureNet(cfg, 1, feature_channels)
+        self.feature_net = FeatureNet(cfg, input_channel, feature_channels)
         self.rpn_head = RpnMultiHead(cfg, feature_channels)
         self.rcnn_crop = CropRoi(cfg, cfg.rcnn_crop_size)
         self.rcnn_head = RcnnHead(cfg, crop_channels)

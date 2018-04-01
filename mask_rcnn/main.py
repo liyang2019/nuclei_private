@@ -57,7 +57,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # debug
-    if 0:
+    if 1:
         args.batch_size = 1
         args.print_every = 1
         args.learning_rate = 0.002
