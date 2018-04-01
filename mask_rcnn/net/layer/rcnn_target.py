@@ -172,8 +172,7 @@ def make_rcnn_target(cfg, mode, inputs, proposals, truth_boxes, truth_labels):
             else:
                 proposal = proposals[proposals[:, 0] == b]
 
-            # TODO do not add
-            # proposal = add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label)
+            proposal = add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label)
 
             sampled_proposal, sampled_label, sampled_assign, sampled_target = \
                 make_one_rcnn_target(cfg, input, proposal, truth_box, truth_label)
