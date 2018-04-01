@@ -479,19 +479,21 @@ class MaskNet(nn.Module):
         self.rpn_logits_flat, self.rpn_deltas_flat = self.rpn_head(features)
         self.rpn_window = make_rpn_windows(self.cfg, features)
         self.rpn_proposals = rpn_nms(self.cfg, self.mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
-        self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
-            make_rpn_target(self.cfg, self.mode, inputs, self.rpn_window, truth_boxes, truth_labels)
-        self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
-            make_rcnn_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
-        self.rpn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
-            make_mask_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels,
-                             truth_instances)
+        if self.mode in ['train', 'valid']:
+            self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
+                make_rpn_target(self.cfg, self.mode, inputs, self.rpn_window, truth_boxes, truth_labels)
+            self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
+                make_rcnn_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
 
         if len(self.rpn_proposals) > 0:
             # crops for rcnn and mask
             crops = self.rcnn_crop(features, self.rpn_proposals)
             self.rcnn_logits, self.rcnn_deltas = self.rcnn_head(crops)
             self.mask_logits = self.mask_head(crops)
+        if self.mode in ['train', 'valid']:
+            self.rpn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
+                make_mask_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels,
+                                 truth_instances)
 
     def loss_train_rcnn(self, inputs, truth_boxes, truth_labels, truth_instances):
 
