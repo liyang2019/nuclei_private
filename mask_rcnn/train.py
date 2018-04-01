@@ -250,8 +250,8 @@ class Trainer:
 
                     self.net.set_mode('test')
                     with torch.no_grad():
-                        self.net(inputs, truth_boxes, truth_labels, truth_instances)
-                        # self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)  # TODO train rcnn only
+                        # self.net(inputs, truth_boxes, truth_labels, truth_instances)
+                        self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)  # TODO train rcnn only
 
                     batch_size, C, H, W = inputs.size()
                     images = inputs.data.cpu().numpy()
