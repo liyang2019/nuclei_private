@@ -1,7 +1,11 @@
 from common import *
-from dataset.reader import multi_mask_to_color_overlay, multi_mask_to_contour_overlay
+from dataset.reader import multi_mask_to_color_overlay, multi_mask_to_contour_overlay, mask_to_inner_contour
 from utility.file import read_list_from_file
-
+import skimage.morphology as morph
+from skimage.filters import threshold_otsu
+import scipy.ndimage as ndi
+from scipy.stats import itemfreq
+import matplotlib.pyplot as plt
 
 def run_make_test_annotation(data_root, image_set):
 
@@ -78,9 +82,9 @@ def run_make_train_annotation(data_root, image_set):
 
 def run_make_train_annotation_fixing_masks(data_root, image_set):
     imageset_file_loc = os.path.join(data_root, 'image_sets', image_set)
-    multimask_dir = os.path.join(data_root, 'stage1_images', 'fixed_multi_masks')
+    multimask_dir = os.path.join(data_root, 'stage1_images', 'fixed_multi_masks_watershred_debug')
     os.makedirs(multimask_dir, exist_ok=True)
-    overlays_dir = os.path.join(data_root, 'stage1_images', 'fixed_overlays')
+    overlays_dir = os.path.join(data_root, 'stage1_images', 'fixed_overlays_watershred_debug')
     os.makedirs(overlays_dir, exist_ok=True)
 
     ids = read_list_from_file(imageset_file_loc, comment='#')
@@ -88,7 +92,7 @@ def run_make_train_annotation_fixing_masks(data_root, image_set):
     fixed_masks_loc = os.path.join(data_root, 'stage1_images', 'fixed_mask_new', '*')
     fixed_masks_image_keys = [loc.split('/')[-1] for loc in glob.glob(fixed_masks_loc)]
 
-    num_ids = len(ids)
+    num_ids = len(ids)*0+10
     for i in range(num_ids):
         id = ids[i]
         print(id)
@@ -123,10 +127,14 @@ def run_make_train_annotation_fixing_masks(data_root, image_set):
                 print(fixed_mask_files)
                 for fixed_mask_file in fixed_mask_files:
                     mask = cv2.imread(fixed_mask_file, cv2.IMREAD_GRAYSCALE)
+                    instance_contour_overlay = mask_to_inner_contour(mask)
+                    mask = watershred_post_proess(mask, instance_contour_overlay, 20)
                     multi_mask[np.where(mask > 128)] = instance_count
                     instance_count += 1
             else:
                 mask = cv2.imread(mask_file, cv2.IMREAD_GRAYSCALE)
+                instance_contour_overlay = mask_to_inner_contour(mask)
+                mask = watershred_post_proess(mask, instance_contour_overlay, 20)
                 multi_mask[np.where(mask > 128)] = instance_count
                 instance_count += 1
 
@@ -139,6 +147,40 @@ def run_make_train_annotation_fixing_masks(data_root, image_set):
         np.save(os.path.join(multimask_dir, name + '.npy'), multi_mask)
         cv2.imwrite(os.path.join(multimask_dir, name + '.png'), color_overlay)
         cv2.imwrite(os.path.join(overlays_dir, name + '.png'), all)
+
+# Calculate the average size of the nuclei for watershred
+
+def mean_blob_size(mask):
+    labels, labels_nr = ndi.label(mask)
+    if labels_nr<2:
+        mean_area = 1
+        mean_radius = 1
+    else:
+        mean_are = int(itemfreq(labels)[1:1].mean())
+        mean_radius = int(np.round(np.sqrt(mean_are) / np.pi))
+
+    return mean_area, mean_radius
+
+# Watershred to fillin holes, and get rid of small mask instance
+
+def watershred_post_proess(mask, contour, threshold_small_mask_instance):
+    m_b = mask > threshold_otsu(mask)
+    c_b = contour > threshold_otsu(contour)
+    # print(contour.shape)
+    # print(c_b.shape)
+    # print(c_b.shape)
+    m_ = np.where(m_b | c_b, 1, 0)
+    m_ = ndi.binary_fill_holes(m_)
+    non_zero_entry_x, _ = np.nonzero(m_)
+    # print(non_zero_entry_x.shape)
+    # plt.imshow(mask)
+    # plt.show()
+    # plt.imshow(m_)
+    # plt.show()
+    if non_zero_entry_x.shape[0] < threshold_small_mask_instance:
+        # print("find it")
+        return np.zeros(mask.shape)
+    return m_*255
 
 
 # main #################################################################
