@@ -382,8 +382,8 @@ class Trainer:
             batch_size = len(indices)
             test_num += batch_size
             with torch.no_grad():
-                inputs = Variable(inputs)
                 inputs = inputs.cuda() if USE_CUDA else inputs
+                inputs = Variable(inputs)
                 if all(len(b) == 0 for b in truth_boxes):
                     print('all None in evaluateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
                     continue

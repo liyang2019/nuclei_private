@@ -67,7 +67,7 @@ def make_one_rcnn_target(cfg, input, proposal, truth_box, truth_label):
     max_overlap = overlap[np.arange(num_proposal), argmax_overlap]
 
     fg_index = np.where(max_overlap >= cfg.rcnn_train_fg_thresh_low)[0]
-    bg_index = np.where((max_overlap < cfg.rcnn_train_bg_thresh_high) & \
+    bg_index = np.where((max_overlap < cfg.rcnn_train_bg_thresh_high) &
                         (max_overlap >= cfg.rcnn_train_bg_thresh_low))[0]
 
     # sampling for class balance
@@ -172,7 +172,8 @@ def make_rcnn_target(cfg, mode, inputs, proposals, truth_boxes, truth_labels):
             else:
                 proposal = proposals[proposals[:, 0] == b]
 
-            proposal = add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label)
+            # TODO do not add
+            # proposal = add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label)
 
             sampled_proposal, sampled_label, sampled_assign, sampled_target = \
                 make_one_rcnn_target(cfg, input, proposal, truth_box, truth_label)

@@ -165,7 +165,8 @@ def make_mask_target(cfg, mode, inputs, proposals, truth_boxes, truth_labels, tr
             else:
                 proposal = proposals[proposals[:, 0] == b]
 
-            proposal = add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label)
+            # TODO do not add!
+            # proposal = add_truth_box_to_proposal(cfg, proposal, b, truth_box, truth_label)
             sampled_proposal, sampled_label, sampled_assign, sampled_instance = \
                 make_one_mask_target(cfg, mode, input, proposal, truth_box, truth_label, truth_instance)
 

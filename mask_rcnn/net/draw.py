@@ -47,7 +47,7 @@ def draw_multi_rpn_prob(cfg, image, rpn_prob_flat):
     return all
 
 
-def draw_multi_rpn_delta(cfg, image, rpn_prob_flat, rpn_delta_flat, window, color=[255, 255, 255]):
+def draw_multi_rpn_delta(cfg, image, rpn_prob_flat, rpn_delta_flat, window, color=(255, 255, 255)):
     threshold = cfg.rpn_test_nms_pre_score_threshold
 
     image_box = image.copy()
@@ -95,7 +95,8 @@ def draw_truth_box(cfg, image, truth_box, truth_label):
     if len(truth_box) > 0:
         for b, l in zip(truth_box, truth_label):
             x0, y0, x1, y1 = b.astype(np.int32)
-            if l <= 0: continue
+            if l <= 0:
+                continue
             cv2.rectangle(image, (x0, y0), (x1, y1), [0, 255, 255], 1)
 
     return image
