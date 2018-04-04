@@ -55,3 +55,6 @@ def generate_class_file(preds, locs, files):
                 print(locs[i], file=c1)
             else:
                 print(locs[i], file=c2)
+
+if __name__ == '__main__':
+    pass

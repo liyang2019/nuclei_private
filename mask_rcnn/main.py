@@ -1,5 +1,7 @@
 import argparse
 
+import torchvision
+
 from dataset.reader import *
 from dataset.transform import *
 from net.configuration import Configuration
@@ -7,7 +9,8 @@ from net.model import MaskNet
 from utility.file import Logger
 from train import Trainer
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(description='Script to run segmentation models')
     parser.add_argument('--batch_size', help='desired batch size for training', action='store', type=int,
                         dest='batch_size', default=1)
@@ -38,14 +41,14 @@ if __name__ == '__main__':
     parser.add_argument('--train_split', help='the train dataset split', choices=[
         'train1_ids_all_670',
         'train1_ids_gray2_500',
-        'debug1_ids_gray_only_10',
+        'debug1_ids_gray2_10',
         'disk0_ids_dummy_9',
         'purple_108',
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='train1_ids_gray2_500')
-    parser.add_argument('--val_split', help='the train dataset split', choices=[
+    parser.add_argument('--valid_split', help='the train dataset split', choices=[
         'valid1_ids_gray2_43',
-        'debug1_ids_gray_only_10',
+        'debug1_ids_gray2_10',
         'disk0_ids_dummy_9',
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='valid1_ids_gray2_43')
@@ -93,11 +96,10 @@ if __name__ == '__main__':
 
     WIDTH, HEIGHT = args.input_width, args.input_height
 
-
     def train_augment(image, multi_mask, meta, index):
         image, multi_mask = random_shift_scale_rotate_transform2(image, multi_mask,
                                                                  shift_limit=[0, 0], scale_limit=[1 / 2, 2],
-                                                                 rotate_limit=[0, 0],
+                                                                 rotate_limit=[-45, 45],
                                                                  borderMode=cv2.BORDER_REFLECT_101,
                                                                  u=0.5)  # borderMode=cv2.BORDER_CONSTANT
 
@@ -120,7 +122,6 @@ if __name__ == '__main__':
 
         return input, box, label, instance, meta, index
 
-
     def valid_augment(image, multi_mask, meta, index):
         image, multi_mask = fix_crop_transform2(image, multi_mask, -1, -1, WIDTH, HEIGHT)
 
@@ -129,7 +130,6 @@ if __name__ == '__main__':
         box, label, instance = multi_mask_to_annotation(multi_mask)
 
         return input, box, label, instance, meta, index
-
 
     def train_collate(batch):
         batch_size = len(batch)
@@ -142,8 +142,13 @@ if __name__ == '__main__':
 
         return [inputs, boxes, labels, instances, metas, indices]
 
-
-    train_dataset = ScienceDataset(args.data_dir, os.path.join('image_sets/', args.train_split), mode='train', transform=train_augment)
+    train_dataset = ScienceDataset(
+        data_dir=args.data_dir,
+        image_set=args.train_split,
+        image_folder='stage1_train',
+        masks_folder='fixed_multi_masks',
+        color_scheme=cv2.IMREAD_GRAYSCALE,
+        transform=train_augment, mode='train')
 
     train_loader = DataLoader(
         train_dataset,
@@ -154,12 +159,18 @@ if __name__ == '__main__':
         pin_memory=True,
         collate_fn=train_collate)
 
-    valid_dataset = ScienceDataset(args.data_dir, os.path.join('image_sets/', args.val_split), mode='train', transform=valid_augment)
+    valid_dataset = ScienceDataset(
+        data_dir=args.data_dir,
+        image_set=args.valid_split,
+        image_folder='stage1_train',
+        masks_folder='fixed_multi_masks',
+        color_scheme=cv2.IMREAD_GRAYSCALE,
+        transform=valid_augment, mode='train')
 
     valid_loader = DataLoader(
         valid_dataset,
         sampler=SequentialSampler(valid_dataset),
-        batch_size=args.batch_size,
+        batch_size=1,
         drop_last=False,
         num_workers=args.num_workers,
         pin_memory=True,
@@ -186,7 +197,25 @@ if __name__ == '__main__':
                       iter_accum=args.iter_accum, num_iters=1000 * 1000,
                       iter_smooth=20, iter_log=args.print_every, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
-                      initial_checkpoint=args.initial_checkpoint, pretrain_file=None, debug=True, is_validation=args.is_validation,
+                      initial_checkpoint=args.initial_checkpoint, pretrain_file=None, debug=True,
+                      is_validation=args.is_validation,
                       out_dir=args.result_dir)
 
     trainer.run_train()
+
+
+if __name__ == '__main__':
+    main()
+    # # resnet18 = torchvision.models.resnet18(pretrained=True)
+    # # print(resnet18)
+    # #
+    # # print('####################################################')
+    # cfg = Configuration()
+    # net = MaskNet(cfg, 1)
+    # print(net.state_dict().keys())
+    # # print(net)
+    # #
+    # # print('####################################################')
+    # resnet50 = torchvision.models.resnet50(pretrained=True)
+    # # print(resnet50)
+    # print(resnet50.state_dict().keys())

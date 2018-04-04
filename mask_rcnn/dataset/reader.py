@@ -12,18 +12,27 @@ IGNORE_BIG = -3
 
 class ScienceDataset(Dataset):
 
-    def __init__(self, data_dir, image_set, transform=None, mode='train'):
+    def __init__(self, data_dir, image_set, image_folder, masks_folder, color_scheme, transform=None, mode='train'):
         super(ScienceDataset, self).__init__()
         start = timer()
 
         self.image_set = image_set
+        self.image_folder = image_folder
+        self.masks_folder = masks_folder
         self.data_dir = data_dir
         self.transform = transform
         self.mode = mode
+        self.color_scheme = color_scheme
 
         # read split
-        image_set = os.path.join(data_dir, image_set)
+        image_set = os.path.join(data_dir, 'image_sets', image_set)
         self.ids = read_list_from_file(image_set, comment='#')
+
+        print('############## creating dataset ##############')
+        print('image set file location: ', image_set)
+        print('image location: ', os.path.join(self.data_dir, 'stage1_images', self.image_folder))
+        print('masks location: ', os.path.join(self.data_dir, 'stage1_images', self.masks_folder))
+        print('color scheme: ', color_scheme)
 
         # print
         print('\ttime = %0.2f min' % ((timer() - start) / 60))
@@ -31,14 +40,20 @@ class ScienceDataset(Dataset):
         print('')
 
     def __getitem__(self, index):
-        loc = self.ids[index]
-        key = loc.split('/')[-1]
-        loc = os.path.join('linear_gray_image', loc.split('/')[-1])
-        # image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_COLOR)
-        image = cv2.imread(os.path.join(self.data_dir, 'stage1_images', loc + '.png'), cv2.IMREAD_GRAYSCALE)
+        key = self.ids[index].split('/')[-1]
+        loc = os.path.join(self.data_dir, 'stage1_images', self.image_folder, key + '.png')
+        image = cv2.imread(loc, self.color_scheme)
+        # # TODO for using gray model to predict purple on yellow images.
+        # # image = -image
+        # image = (image - np.min(image)) / (np.max(image) - np.min(image))
+        # image = image ** 2
+        # image = (image - np.min(image)) / (np.max(image) - np.min(image))
+        # image *= 255
+        # image = image[..., np.newaxis].repeat(3, axis=2)
+
         if self.mode in ['train']:
             multi_mask = np.load(
-                os.path.join(self.data_dir, 'stage1_images', 'fixed_multi_masks', key + '.npy')
+                os.path.join(self.data_dir, 'stage1_images', self.masks_folder, key + '.npy')
             ).astype(np.int32)
             # meta = '<not_used>'
             meta = key  # image key

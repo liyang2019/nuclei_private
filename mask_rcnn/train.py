@@ -75,40 +75,6 @@ class Trainer:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
             adjust_learning_rate(self.optimizer, rate)
 
-        # <debug>========================================================================================
-        # if self.debug:
-        if 0:
-            for inputs, truth_boxes, truth_labels, truth_instances, metas, indices in self.val_loader:
-
-                batch_size, C, H, W = inputs.size()
-                print('batch_size=%d' % batch_size)
-
-                images = inputs.cpu().numpy()
-                for b in range(batch_size):
-                    image = (images[b].transpose((1, 2, 0)) * 255)
-                    image = np.clip(image.astype(np.float32) * 2, 0, 255)
-
-                    contour_overlay = image.copy()
-                    box_overlay = image.copy()
-
-                    truth_box = truth_boxes[b]
-                    truth_label = truth_labels[b]
-                    truth_instance = truth_instances[b]
-                    for box, label, instance in zip(truth_box, truth_label, truth_instance):
-                        print('label=%d' % label)
-
-                        x0, y0, x1, y1 = box.astype(np.int32)
-                        cv2.rectangle(box_overlay, (x0, y0), (x1, y1), (0, 0, 255), 1)
-
-                        mask = instance > 0.5
-                        contour = mask_to_inner_contour(mask)
-                        contour_overlay[contour] = [0, 255, 0]
-
-                    # image_show('contour_overlay', contour_overlay)
-                    # image_show('box_overlay', box_overlay)
-                    # cv2.waitKey(0)
-        # <debug>========================================================================================
-
         # start training here! ##############################################
         self.log.write('** start training here! **\n')
         self.log.write(' optimizer=%s\n' % str(self.optimizer))

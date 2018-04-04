@@ -372,6 +372,31 @@ class MaskHead(nn.Module):
         return logits
 
 
+class MaskHeadMiniUnet(nn.Module):
+
+    def __init__(self, cfg, in_channels):
+        super(MaskHeadMiniUnet, self).__init__()
+        self.num_classes = cfg.num_classes
+
+        self.conv1 = nn.Conv2d(in_channels, 256, kernel_size=3, padding=1, stride=1)
+        self.down = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.bn1 = nn.BatchNorm2d(256)
+        self.conv2 = nn.Conv2d(256, 512, kernel_size=3, padding=1, stride=1)
+        self.bn2 = nn.BatchNorm2d(512)
+        self.up = nn.ConvTranspose2d(512, 256, kernel_size=4, padding=1, stride=2, bias=False)
+        self.conv3 = nn.Conv2d(512, 256, kernel_size=3, padding=1, stride=1)
+        self.bn3 = nn.BatchNorm2d(256)
+        self.logit = nn.Conv2d(256, self.num_classes, kernel_size=1, padding=0, stride=1)
+
+    def forward(self, crops):
+        x1 = F.relu(self.bn1(self.conv1(crops)), inplace=True)
+        x2 = F.relu(self.bn2(self.conv2(self.down(x1))), inplace=True)
+        x = torch.cat([x1, self.up(x2)], dim=1)
+        x = F.relu(self.bn3(self.conv3(x)))
+        logits = self.logit(x)
+        return logits
+
+
 ############# mask rcnn net ##############################################################################
 
 
@@ -479,21 +504,23 @@ class MaskNet(nn.Module):
         self.rpn_logits_flat, self.rpn_deltas_flat = self.rpn_head(features)
         self.rpn_window = make_rpn_windows(self.cfg, features)
         self.rpn_proposals = rpn_nms(self.cfg, self.mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
+        rpn_proposals_sampled_for_rcnn = self.rpn_proposals
+        rpn_proposals_sampled_for_mask = self.rpn_proposals
         if self.mode in ['train', 'valid']:
             self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
                 make_rpn_target(self.cfg, self.mode, inputs, self.rpn_window, truth_boxes, truth_labels)
-            self.rpn_proposals, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
+            rpn_proposals_sampled_for_rcnn, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
                 make_rcnn_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
-
-        if len(self.rpn_proposals) > 0:
-            # crops for rcnn and mask
-            crops = self.rcnn_crop(features, self.rpn_proposals)
-            self.rcnn_logits, self.rcnn_deltas = self.rcnn_head(crops)
-            self.mask_logits = self.mask_head(crops)
-        if self.mode in ['train', 'valid']:
-            self.rpn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
+            rpn_proposals_sampled_for_mask, self.mask_labels, self.mask_assigns, self.mask_instances, = \
                 make_mask_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels,
                                  truth_instances)
+        # crops for rcnn and mask
+        if len(rpn_proposals_sampled_for_rcnn) > 0:
+            crops_for_rcnn = self.rcnn_crop(features, rpn_proposals_sampled_for_rcnn)
+            self.rcnn_logits, self.rcnn_deltas = self.rcnn_head(crops_for_rcnn)
+        if len(rpn_proposals_sampled_for_mask) > 0:
+            crops_for_mask = self.mask_crop(features, rpn_proposals_sampled_for_mask)
+            self.mask_logits = self.mask_head(crops_for_mask)
 
     def loss_train_rcnn(self, inputs, truth_boxes, truth_labels, truth_instances):
 
@@ -514,8 +541,8 @@ class MaskNet(nn.Module):
         self.rcnn_proposals = self.rpn_proposals
         self.detections = self.rpn_proposals
         if len(self.rpn_proposals) > 0:
-            self.rcnn_proposals = rcnn_nms(self.cfg, self.mode, inputs, self.rpn_proposals, self.rcnn_logits,
-                                           self.rcnn_deltas)
+            self.rcnn_proposals = rcnn_nms(self.cfg, self.mode, inputs, self.rpn_proposals,
+                                           self.rcnn_logits, self.rcnn_deltas)
         return self.rcnn_proposals
 
     def get_masks(self, inputs):

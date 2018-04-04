@@ -129,7 +129,7 @@ def random_shift_scale_rotate_transform2(image, mask,
     # cv2.BORDER_REFLECT_101  cv2.BORDER_CONSTANT
 
     if random.random() < u:
-        height, width, = image.shape
+        height, width = image.shape[0], image.shape[1]
 
         angle = random.uniform(rotate_limit[0], rotate_limit[1])  # degree
         scale = random.uniform(scale_limit[0], scale_limit[1])

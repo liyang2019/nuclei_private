@@ -1,8 +1,9 @@
 from dataset.reader import *
 from dataset.transform import pad_to_factor
 from net.metric import run_length_encode
-from net.resnet50_mask_rcnn.configuration import Configuration
-from net.resnet50_mask_rcnn.model import MaskRcnnNet
+from net.configuration import Configuration
+from net.model import MaskNet
+from net.model_resnet50 import MaskRcnnNet
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -156,12 +157,15 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set):
 
     # net ------------------------------
     cfg = Configuration()
+    # net = MaskNet(cfg, 3)
     net = MaskRcnnNet(cfg)
     net = net.cuda() if USE_CUDA else net
 
     if initial_checkpoint is not None:
         log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
         net.load_state_dict(torch.load(initial_checkpoint, map_location=lambda storage, loc: storage))
+        # net = torch.load(initial_checkpoint, map_location=lambda storage, loc: storage)
+        print(net)
 
     log.write('%s\n\n' % (type(net)))
     log.write('\n')
@@ -326,9 +330,9 @@ def run_npy_to_sumbit_csv(image_dir, npy_dir, csv_file):
     # submission csv  ----------------------------
 
     # kaggle submission requires all test image to be listed!
-    for t in ALL_TEST_IMAGE_ID:
-        cvs_ImageId.append(t)
-        cvs_EncodedPixels.append('')  # null
+    # for t in ALL_TEST_IMAGE_ID:
+    #     cvs_ImageId.append(t)
+    #     cvs_EncodedPixels.append('')  # null
 
     df = pd.DataFrame({'ImageId': cvs_ImageId, 'EncodedPixels': cvs_EncodedPixels})
     df.to_csv(csv_file, index=False, columns=['ImageId', 'EncodedPixels'])
