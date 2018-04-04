@@ -162,8 +162,8 @@ class Trainer:
                 # loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # TODO training rcnn only!
-                # self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
+                self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
+                # self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
                 # loss = self.net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
                 loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
@@ -218,8 +218,8 @@ class Trainer:
                     self.net.set_mode('test')
                     with torch.no_grad():
                         # self.net(inputs, truth_boxes, truth_labels, truth_instances)
-                        # self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                        self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
+                        self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
+                        # self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
 
                     images = inputs.data.cpu().numpy()
                     # window = self.net.rpn_window
@@ -229,12 +229,12 @@ class Trainer:
 
                     # rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
                     # rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
-                    # rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
-                    rcnn_proposals = self.net.get_detections(inputs).data.cpu().numpy()
+                    rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
+                    # rcnn_proposals = self.net.get_detections(inputs).data.cpu().numpy()
 
                     # detections = self.net.detections.data.cpu().numpy()
-                    # masks = self.net.masks
-                    masks = self.net.get_masks(inputs)
+                    masks = self.net.masks
+                    # masks = self.net.get_masks(inputs)
 
                     # print('train',batch_size)
                     # for b in range(batch_size):
@@ -355,8 +355,8 @@ class Trainer:
                 # loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # TODO train rcnn only
-                # net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
+                net.forward(inputs, truth_boxes, truth_labels, truth_instances)
+                # net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
                 # loss = net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
                 loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
