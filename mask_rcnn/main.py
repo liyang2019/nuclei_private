@@ -60,7 +60,7 @@ def main():
     args = parser.parse_args()
 
     # debug
-    if 1:
+    if 0:
         args.batch_size = 1
         args.print_every = 1
         args.learning_rate = 0.002
@@ -145,8 +145,8 @@ def main():
     train_dataset = ScienceDataset(
         data_dir=args.data_dir,
         image_set=args.train_split,
-        image_folder='stage1_train',
-        masks_folder='fixed_multi_masks',
+        image_folder='disk0/images',
+        masks_folder='disk0/multi_masks',
         color_scheme=cv2.IMREAD_GRAYSCALE,
         transform=train_augment, mode='train')
 
