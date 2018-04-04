@@ -566,8 +566,8 @@ class MaskNet(nn.Module):
         self.mask_cls_loss = \
             mask_loss(self.mask_logits, self.mask_labels, self.mask_instances)
 
-        # self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
-        self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.rcnn_cls_loss + self.rcnn_reg_loss
+        self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
+        # self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.rcnn_cls_loss + self.rcnn_reg_loss
         # self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.mask_cls_loss
         # self.total_loss = self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
 
