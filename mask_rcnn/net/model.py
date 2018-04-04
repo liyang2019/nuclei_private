@@ -537,18 +537,22 @@ class MaskNet(nn.Module):
 
         return self.total_loss
 
-    def get_rcnn_proposals(self, inputs):
+    def get_detections(self, inputs):
         self.rcnn_proposals = self.rpn_proposals
-        self.detections = self.rpn_proposals
+        self.detections = self.rcnn_proposals
         if len(self.rpn_proposals) > 0:
-            self.rcnn_proposals = rcnn_nms(self.cfg, self.mode, inputs, self.rpn_proposals,
-                                           self.rcnn_logits, self.rcnn_deltas)
-        return self.rcnn_proposals
+            self.rcnn_proposals = rcnn_nms(
+                self.cfg, self.mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
+            self.detections = self.rcnn_proposals
+        return self.detections
 
     def get_masks(self, inputs):
+        """
+        This function must be called after get_detections
+        """
         self.masks = make_empty_masks(self.cfg, self.mode, inputs)
         if len(self.rpn_proposals) > 0:
-            self.masks = mask_nms(self.cfg, self.mode, inputs, self.rpn_proposals, self.mask_logits)
+            self.masks = mask_nms(self.cfg, self.mode, inputs, self.detections, self.mask_logits)
         return self.masks
 
     def loss(self, inputs, truth_boxes, truth_labels, truth_instances):

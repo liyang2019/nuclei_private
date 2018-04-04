@@ -111,8 +111,8 @@ def revert(net, images):
 
         # mask --
         # net.mask_logits
-        index = (net.detections[:, 0] == b).nonzero().view(-1)
-        net.detections = torch_clip_proposals(net.detections, index, width, height)
+        index = (net.get_detections[:, 0] == b).nonzero().view(-1)
+        net.get_detections = torch_clip_proposals(net.get_detections, index, width, height)
 
         net.masks[b] = net.masks[b][:height, :width]
 
