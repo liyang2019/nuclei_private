@@ -416,6 +416,7 @@ class MaskNet(nn.Module):
         self.rcnn_head = RcnnHead(cfg, crop_channels)
         self.mask_crop = CropRoi(cfg, cfg.mask_crop_size)
         self.mask_head = MaskHead(cfg, crop_channels)
+        # self.mask_head = MaskHeadMiniUnet(cfg, crop_channels)
 
         if USE_CUDA:
             print('in constructing mask rcnn net, using gpu, using data parallel')

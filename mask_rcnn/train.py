@@ -182,8 +182,8 @@ class Trainer:
                     self.net.rpn_reg_loss.cpu().data.numpy(),
                     self.net.rcnn_cls_loss.cpu().data.numpy(),
                     self.net.rcnn_reg_loss.cpu().data.numpy(),
-                    # np.zeros(1, np.float32),  # TODO train rcnn only
-                    self.net.mask_cls_loss.cpu().data.numpy(),
+                    # self.net.mask_cls_loss.cpu().data.numpy(),
+                    0,  # TODO train rcnn only
                 ))
                 sum_train_loss += batch_loss
                 sum_train_acc += batch_acc
@@ -368,8 +368,8 @@ class Trainer:
                 net.rpn_reg_loss.cpu().data.numpy(),
                 net.rcnn_cls_loss.cpu().data.numpy(),
                 net.rcnn_reg_loss.cpu().data.numpy(),
-                net.mask_cls_loss.cpu().data.numpy(),  # TODO train rcnn only
-                # 0,
+                # net.mask_cls_loss.cpu().data.numpy(),  # TODO train rcnn only
+                0,
             ))
 
         assert (test_num == len(test_loader.sampler))
