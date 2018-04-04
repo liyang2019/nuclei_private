@@ -2,7 +2,7 @@ python main.py \
        --learning_rate 0.01 \
        --input_width 128 --input_height 128 \
        --train_split disk0_ids_dummy_9 \
-       --val_split valid1_ids_gray2_43 \
+       --valid_split valid1_ids_gray2_43 \
        --batch_size 4 \
        --result_dir results/2018-3-31_gray500_size128 \
        --print_every 10 \
