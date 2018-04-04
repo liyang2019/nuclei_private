@@ -478,7 +478,7 @@ class MaskNet(nn.Module):
         if len(self.rpn_proposals) > 0:
             rcnn_crops = self.rcnn_crop(features, self.rpn_proposals)
             self.rcnn_logits, self.rcnn_deltas = self.data_parallel(self.rcnn_head, rcnn_crops)
-            self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
+            # self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
 
         if mode in ['train', 'valid']:
             self.rcnn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
@@ -486,7 +486,7 @@ class MaskNet(nn.Module):
 
         # segmentation  -------------------------------------------
         self.detections = self.rcnn_proposals
-        self.masks = make_empty_masks(cfg, mode, inputs)
+        # self.masks = make_empty_masks(cfg, mode, inputs)
 
         if len(self.rcnn_proposals) > 0:
             mask_crops = self.mask_crop(features, self.detections)
@@ -494,7 +494,7 @@ class MaskNet(nn.Module):
 
             # self.masks, self.mask_proposals = mask_nms(cfg, mode, inputs, self.rcnn_proposals,
             #                                            self.mask_logits)  # <todo> better nms for mask
-            self.masks = mask_nms(cfg, mode, inputs, self.rcnn_proposals, self.mask_logits)  # <todo> better nms for mask
+            # self.masks = mask_nms(cfg, mode, inputs, self.rcnn_proposals, self.mask_logits)  # <todo> better nms for mask
             # self.detections = self.mask_proposals
 
     def forward_train(self, inputs, truth_boxes=None, truth_labels=None, truth_instances=None):
