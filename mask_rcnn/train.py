@@ -230,7 +230,8 @@ class Trainer:
                     # rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
                     # rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
                     # rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
-                    rcnn_proposals = self.net.get_detections(inputs).data.cpu().numpy()
+                    # rcnn_proposals = self.net.get_detections(inputs).data.cpu().numpy()
+                    rcnn_proposals = []
 
                     # detections = self.net.detections.data.cpu().numpy()
                     # masks = self.net.masks
