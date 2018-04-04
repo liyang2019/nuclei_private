@@ -51,7 +51,7 @@ class ScienceDataset(Dataset):
         # image *= 255
         # image = image[..., np.newaxis].repeat(3, axis=2)
 
-        if self.mode in ['train']:
+        if self.mode in ['train', 'valid']:
             multi_mask = np.load(
                 os.path.join(self.data_dir, 'stage1_images', self.masks_folder, key + '.npy')
             ).astype(np.int32)

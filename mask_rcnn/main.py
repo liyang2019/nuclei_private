@@ -43,19 +43,30 @@ def main():
         'train1_ids_gray2_500',
         'debug1_ids_gray2_10',
         'disk0_ids_dummy_9',
+        'disk0_ids_dummy_10',
         'purple_108',
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='train1_ids_gray2_500')
     parser.add_argument('--valid_split', help='the train dataset split', choices=[
         'valid1_ids_gray2_43',
         'debug1_ids_gray2_10',
-        'disk0_ids_dummy_9',
+        'disk0_ids_dummy_3',
         'train1_ids_purple_only1_101',
         'merge1_1'], action='store', default='valid1_ids_gray2_43')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
     parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default='results')
     parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data')
     parser.add_argument('--initial_checkpoint', help='check point to load model', action='store', default=None)
+    parser.add_argument('--image_folder_train', help='the folder containing images for training', action='store',
+                        default='stage1_train')
+    parser.add_argument('--image_folder_valid', help='the folder containing images for validation', action='store',
+                        default='stage1_train')
+    parser.add_argument('--image_folder_test', help='the folder containing images for testing', action='store',
+                        default='stage1_test')
+    parser.add_argument('--masks_folder_train', help='the folder containing masks for training', action='store',
+                        default='fixed_multi_masks')
+    parser.add_argument('--masks_folder_valid', help='the folder containing masks for validation', action='store',
+                        default='fixed_multi_masks')
 
     args = parser.parse_args()
 
@@ -145,8 +156,8 @@ def main():
     train_dataset = ScienceDataset(
         data_dir=args.data_dir,
         image_set=args.train_split,
-        image_folder='disk0/images',
-        masks_folder='disk0/multi_masks',
+        image_folder=args.image_folder_train,
+        masks_folder=args.masks_folder_train,
         color_scheme=cv2.IMREAD_GRAYSCALE,
         transform=train_augment, mode='train')
 
@@ -162,10 +173,10 @@ def main():
     valid_dataset = ScienceDataset(
         data_dir=args.data_dir,
         image_set=args.valid_split,
-        image_folder='stage1_train',
-        masks_folder='fixed_multi_masks',
+        image_folder=args.image_folder_valid,
+        masks_folder=args.masks_folder_valid,
         color_scheme=cv2.IMREAD_GRAYSCALE,
-        transform=valid_augment, mode='train')
+        transform=valid_augment, mode='valid')
 
     valid_loader = DataLoader(
         valid_dataset,
