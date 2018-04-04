@@ -147,7 +147,9 @@ def rpn_nms(cfg, mode, inputs, window, logits_flat, deltas_flat):
                     # keep = gpu_nms(np.hstack((box, p)), nms_overlap_threshold)
                     # TODO which nms???
                     # keep = torch_nms(np.hstack((box, p)), nms_overlap_threshold)
-                    keep = torch_nms(torch.from_numpy(np.hstack((box, p))), nms_overlap_threshold)
+                    dets = torch.from_numpy(np.hstack((box, p)))
+                    dets = dets.cuda() if USE_CUDA else dets
+                    keep = torch_nms(dets, nms_overlap_threshold)
 
                     prop = np.zeros((len(keep), 7), np.float32)
                     prop[:, 0] = b
