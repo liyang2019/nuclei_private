@@ -162,7 +162,7 @@ class Trainer:
                 # loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # TODO training rcnn only!
-                self.net.forwad(inputs, truth_boxes, truth_labels, truth_instances)
+                self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
                 # self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
                 # loss = self.net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
                 loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
