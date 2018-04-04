@@ -478,7 +478,7 @@ class MaskNet(nn.Module):
         if len(self.rpn_proposals) > 0:
             rcnn_crops = self.rcnn_crop(features, self.rpn_proposals)
             self.rcnn_logits, self.rcnn_deltas = self.data_parallel(self.rcnn_head, rcnn_crops)
-            # self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
+            self.rcnn_proposals = rcnn_nms(cfg, mode, inputs, self.rpn_proposals, self.rcnn_logits, self.rcnn_deltas)
 
         if mode in ['train', 'valid']:
             self.rcnn_proposals, self.mask_labels, self.mask_assigns, self.mask_instances, = \
@@ -551,7 +551,7 @@ class MaskNet(nn.Module):
         This function must be called after get_detections
         """
         self.masks = make_empty_masks(self.cfg, self.mode, inputs)
-        if len(self.rpn_proposals) > 0:
+        if len(self.detections) > 0:
             self.masks = mask_nms(self.cfg, self.mode, inputs, self.detections, self.mask_logits)
         return self.masks
 
