@@ -83,8 +83,8 @@ def weighted_smooth_l1(predicts, targets, weights, sigma=3.0):
     sigma2 = sigma * sigma
     diffs = predicts - targets
     smooth_l1_signs = torch.abs(diffs) < (1.0 / sigma2)
-    smooth_l1_signs = smooth_l1_signs.type(torch.FloatTensor)  # TODO is this correct?
-    smooth_l1_signs = smooth_l1_signs.cuda() if USE_CUDA else smooth_l1_signs  # TODO is this correct?
+    smooth_l1_signs = smooth_l1_signs.type(torch.FloatTensor)
+    smooth_l1_signs = smooth_l1_signs.cuda() if USE_CUDA else smooth_l1_signs
 
     smooth_l1_option1 = 0.5 * diffs * diffs * sigma2
     smooth_l1_option2 = torch.abs(diffs) - 0.5 / sigma2

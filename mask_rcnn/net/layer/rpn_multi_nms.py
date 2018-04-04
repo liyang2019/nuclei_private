@@ -19,19 +19,6 @@ def make_bases(base_size, base_apsect_ratios):
     bases = np.array(bases, np.float32)
     return bases
 
-# def make_bases(base_size, base_apsect_ratios):
-#     bases = []
-#     for ratio in base_apsect_ratios:
-#         w = base_size / math.sqrt(ratio)
-#         h = w * ratio
-#         rw = round(w / 2)
-#         rh = round(h / 2)
-#         base = (-rw, -rh, rw, rh, )
-#         bases.append(base)
-#
-#     bases = np.array(bases, np.float32)
-#     return bases
-
 
 def make_windows(f, scale, bases):
     windows = []

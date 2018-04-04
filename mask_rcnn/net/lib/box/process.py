@@ -180,6 +180,9 @@ def clip_boxes(boxes, width, height):
     boxes[:, 3] = np.clip(boxes[:, 3], 0, height - 1)
     return boxes
 
+# "UnitBox: An Advanced Object Detection Network" - Jiahui Yu, Yuning Jiang, Zhangyang Wang, Zhimin Cao, Thomas Huang
+#  https://arxiv.org/abs/1608.01471
+
 
 def box_transform(windows, targets):
     # targets : ground truth
@@ -228,9 +231,9 @@ def box_transform_inv(windows, deltas):
     h = np.exp(dh) * bh
 
     predictions[:, 0::4] = x - 0.5 * w  # x0,y0,x1,y1
-    predictions[:, 1::4] = y - 0.5 * h
+    predictions[:, 1::4] = y - 0.5 * h - 1  # TODO I corrected here add -1
     predictions[:, 2::4] = x + 0.5 * w
-    predictions[:, 3::4] = y + 0.5 * h
+    predictions[:, 3::4] = y + 0.5 * h - 1  # TODO I corrected here add -1
 
     return predictions
 
