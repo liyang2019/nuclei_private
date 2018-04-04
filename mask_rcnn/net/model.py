@@ -551,8 +551,8 @@ class MaskNet(nn.Module):
         This function must be called after get_detections
         """
         self.masks = make_empty_masks(self.cfg, self.mode, inputs)
-        if len(self.detections) > 0:
-            self.masks = mask_nms(self.cfg, self.mode, inputs, self.detections, self.mask_logits)
+        if len(self.rpn_proposals) > 0:
+            self.masks = mask_nms(self.cfg, self.mode, inputs, self.rpn_proposals, self.mask_logits)
         return self.masks
 
     def loss(self, inputs, truth_boxes, truth_labels, truth_instances):
