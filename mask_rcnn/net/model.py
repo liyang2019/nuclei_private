@@ -504,20 +504,20 @@ class MaskNet(nn.Module):
         self.rpn_logits_flat, self.rpn_deltas_flat = self.rpn_head(features)
         self.rpn_window = make_rpn_windows(self.cfg, features)
         self.rpn_proposals = rpn_nms(self.cfg, self.mode, inputs, self.rpn_window, self.rpn_logits_flat, self.rpn_deltas_flat)
-        rpn_proposals_sampled_for_rcnn = self.rpn_proposals
+        # rpn_proposals_sampled_for_rcnn = self.rpn_proposals
         rpn_proposals_sampled_for_mask = self.rpn_proposals
         if self.mode in ['train', 'valid']:
             self.rpn_labels, self.rpn_label_assigns, self.rpn_label_weights, self.rpn_targets, self.rpn_target_weights = \
                 make_rpn_target(self.cfg, self.mode, inputs, self.rpn_window, truth_boxes, truth_labels)
-            rpn_proposals_sampled_for_rcnn, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
-                make_rcnn_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
+            # rpn_proposals_sampled_for_rcnn, self.rcnn_labels, self.rcnn_assigns, self.rcnn_targets = \
+            #     make_rcnn_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels)
             rpn_proposals_sampled_for_mask, self.mask_labels, self.mask_assigns, self.mask_instances, = \
                 make_mask_target(self.cfg, self.mode, inputs, self.rpn_proposals, truth_boxes, truth_labels,
                                  truth_instances)
-        # crops for rcnn and mask
-        if len(rpn_proposals_sampled_for_rcnn) > 0:
-            crops_for_rcnn = self.rcnn_crop(features, rpn_proposals_sampled_for_rcnn)
-            self.rcnn_logits, self.rcnn_deltas = self.rcnn_head(crops_for_rcnn)
+        # # crops for rcnn and mask
+        # if len(rpn_proposals_sampled_for_rcnn) > 0:
+        #     crops_for_rcnn = self.rcnn_crop(features, rpn_proposals_sampled_for_rcnn)
+        #     self.rcnn_logits, self.rcnn_deltas = self.rcnn_head(crops_for_rcnn)
         if len(rpn_proposals_sampled_for_mask) > 0:
             crops_for_mask = self.mask_crop(features, rpn_proposals_sampled_for_mask)
             self.mask_logits = self.mask_head(crops_for_mask)
@@ -561,15 +561,16 @@ class MaskNet(nn.Module):
             rpn_loss(self.rpn_logits_flat, self.rpn_deltas_flat, self.rpn_labels, self.rpn_label_weights,
                      self.rpn_targets, self.rpn_target_weights)
 
-        self.rcnn_cls_loss, self.rcnn_reg_loss = \
-            rcnn_loss(self.rcnn_logits, self.rcnn_deltas, self.rcnn_labels, self.rcnn_targets)
+        # self.rcnn_cls_loss, self.rcnn_reg_loss = \
+        #     rcnn_loss(self.rcnn_logits, self.rcnn_deltas, self.rcnn_labels, self.rcnn_targets)
 
         self.mask_cls_loss = \
             mask_loss(self.mask_logits, self.mask_labels, self.mask_instances)
 
         self.total_loss = \
-            self.rpn_cls_loss + self.rpn_reg_loss \
-            + self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
+            self.rpn_cls_loss + self.rpn_reg_loss + self.mask_cls_loss
+            # + self.rcnn_cls_loss + self.rcnn_reg_loss \
+            # + self.mask_cls_loss
 
         return self.total_loss
 
