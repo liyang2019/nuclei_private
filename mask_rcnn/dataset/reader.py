@@ -25,8 +25,8 @@ class ScienceDataset(Dataset):
         self.color_scheme = color_scheme
 
         # read split
-        # image_set = os.path.join(data_dir, 'image_sets', image_set)
-        image_set = os.path.join(data_dir, '../ensemble', image_set)
+        image_set = os.path.join(data_dir, 'image_sets', image_set)
+        # image_set = os.path.join(data_dir, '../ensemble', image_set)
         self.ids = read_list_from_file(image_set, comment='#')
 
         print('############## creating dataset ##############')
