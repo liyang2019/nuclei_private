@@ -100,7 +100,7 @@ def main():
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskNet(cfg, 3)
+    net = MaskNet(cfg, 1)
     net = net.cuda() if USE_CUDA else net
 
     log.write('** dataset setting **\n')
@@ -159,7 +159,7 @@ def main():
         image_set=args.train_split,
         image_folder=args.image_folder_train,
         masks_folder=args.masks_folder_train,
-        color_scheme=cv2.IMREAD_COLOR,
+        color_scheme=cv2.IMREAD_GRAYSCALE,
         transform=train_augment, mode='train')
 
     train_loader = DataLoader(
@@ -176,7 +176,7 @@ def main():
         image_set=args.valid_split,
         image_folder=args.image_folder_valid,
         masks_folder=args.masks_folder_valid,
-        color_scheme=cv2.IMREAD_COLOR,
+        color_scheme=cv2.IMREAD_GRAYSCALE,
         transform=valid_augment, mode='valid')
 
     valid_loader = DataLoader(
