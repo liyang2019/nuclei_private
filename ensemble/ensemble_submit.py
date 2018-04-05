@@ -176,7 +176,7 @@ def main():
     initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00021000_model.pth'
     data_dir = '../data'
     image_set = 'gray'
-    image_folder = '../ensemble/'
+    image_folder = 'stage1_test'
     color_scheme = cv2.IMREAD_GRAYSCALE
     predict_and_generate_csv(
         out_dir=out_dir,

@@ -111,8 +111,8 @@ def revert(net, images):
 
         # mask --
         # net.mask_logits
-        index = (net.get_detections[:, 0] == b).nonzero().view(-1)
-        net.get_detections = torch_clip_proposals(net.get_detections, index, width, height)
+        index = (net.detections[:, 0] == b).nonzero().view(-1)
+        net.detections = torch_clip_proposals(net.detections, index, width, height)
 
         net.masks[b] = net.masks[b][:height, :width]
 
@@ -122,7 +122,9 @@ def revert(net, images):
 # -----------------------------------------------------------------------------------
 def submit_augment(image, index):
     pad_image = pad_to_factor(image, factor=16)
-    input = torch.from_numpy(pad_image.transpose((2, 0, 1))).float().div(255)
+    H, W = pad_image.shape[0], pad_image.shape[1]
+    input = torch.from_numpy(pad_image.reshape(H, W, -1).transpose((2, 0, 1))).float().div(255)
+    image = image.reshape(image.shape[0], image.shape[1], -1)
     return input, image, index
 
 
@@ -165,7 +167,6 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
         log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
         net.load_state_dict(torch.load(initial_checkpoint, map_location=lambda storage, loc: storage))
         # net = torch.load(initial_checkpoint, map_location=lambda storage, loc: storage)
-        print(net)
 
     log.write('%s\n\n' % (type(net)))
     log.write('\n')
@@ -230,6 +231,8 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
             image = images[b]
             mask = masks[b]
 
+            if image.shape[2] == 1:
+                image = image.repeat(3, axis=2)
             contour_overlay = multi_mask_to_contour_overlay(mask, image, color=[0, 255, 0])
             color_overlay = multi_mask_to_color_overlay(mask, color='summer')
             color1_overlay = multi_mask_to_contour_overlay(mask, color_overlay, color=[255, 255, 255])
