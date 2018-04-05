@@ -173,7 +173,7 @@ def main():
     # predict_and_generate_csv(data_dir, image_set, out_dir, initial_checkpoint)
 
     out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray'
-    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00021000_model.pth'
+    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00023000_model.pth'
     data_dir = '../data'
     image_set = 'gray'
     image_folder = 'stage1_test'
