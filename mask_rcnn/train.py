@@ -242,7 +242,8 @@ class Trainer:
 
                         image = (images[b].transpose((1, 2, 0)) * 255)
                         image = image.astype(np.uint8)
-                        image = image.repeat(3, axis=2)  # TODO for gray scale image
+                        if image.shape[2] == 1:
+                            image = image.repeat(3, axis=2)
                         # image = np.clip(image.astype(np.float32)*2,0,255).astype(np.uint8)  #improve contrast
 
                         truth_box = truth_boxes[b]

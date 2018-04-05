@@ -1,5 +1,7 @@
 from datetime import datetime
 import math
+
+import cv2
 import pandas as pd
 
 from color_classifier import *
@@ -90,8 +92,14 @@ def generate_combined_csv():
     df.to_csv('submission_combined.csv', index=False, columns=['ImageId', 'EncodedPixels'])
 
 
-def predict_and_generate_csv(data_folder, image_set, out_dir, initial_checkpoint):
-    run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_folder, image_set=image_set)
+def predict_and_generate_csv(out_dir, initial_checkpoint, data_dir, image_set, image_folder, color_scheme):
+    run_submit(
+        out_dir=out_dir,
+        initial_checkpoint=initial_checkpoint,
+        data_dir=data_dir,
+        image_set=image_set,
+        image_folder=image_folder,
+        color_scheme=color_scheme)
     get_id_and_rle(out_dir)
 
 
@@ -114,12 +122,12 @@ def combine_csvs(combined_file_name, *args):
 
 
 def main():
-    # data_folder = '../data'
+    # data_dir = '../data'
     # image_set = 'test1_ids_all_65'
     #
-    # prediction, locs = classify(data_folder=data_folder, image_set=image_set)
+    # prediction, locs = classify(data_dir=data_dir, image_set=image_set)
     #
-    # generate_class_file(prediction, locs, ['blackwhite', 'purple'])
+    # generate_class_file(prediction, locs, ['gray', 'purple'])
 
     # out_dir = './mask_rcnn_ensemble_gray_to_purple_ly'
     # out_dir = './mask_rcnn_ensemble_gray_to_gray_419'
@@ -130,44 +138,58 @@ def main():
     # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-3-30_maskrcnn_gray500_ly/00009000_model.pth'
 
     # image_set = '../ensemble/purple'
-    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_folder, image_set=image_set)
+    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_dir, image_set=image_set)
 
     # npy_dir = os.path.join(out_dir, 'submit', 'npys')
     # csv_file = os.path.join(out_dir, 'submit', 'submit.csv')
     # run_npy_to_sumbit_csv(image_dir=None, npy_dir=npy_dir, csv_file=csv_file)
 
-    # data_folder = '../data'
-    # image_set = '../ensemble/blackwhite'
+    # data_dir = '../data'
+    # image_set = '../ensemble/gray'
     # out_dir = './mask_rcnn_gray_model_on_gray_linear_normalized_enhance'
     # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-3-30_maskrcnn_gray500/mask-rcnn-50-gray500-02/checkpoint/00016500_model.pth'
-    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_folder, image_set=image_set)
+    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_dir, image_set=image_set)
     # cvs_ImageId_purple, cvs_EncodedPixels_purple = get_id_and_rle(out_dir)
 
-    # data_folder = '../data'
+    # data_dir = '../data'
     # image_set = '../ensemble/purple_yellow'
     # out_dir = './mask_rcnn_gray_model_on_purple_yellow_square_enhance'
     # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-3-30_maskrcnn_gray500/mask-rcnn-50-gray500-02/checkpoint/00016500_model.pth'
-    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_folder, image_set=image_set)
+    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_dir, image_set=image_set)
     #
     # cvs_ImageId_purple, cvs_EncodedPixels_purple = get_id_and_rle('./mask_rcnn_gray_model_on_purple_yellow_square_enhance')
 
-    # data_folder = '../data'
+    # data_dir = '../data'
     # image_set = '../ensemble/purple_purple'
     # out_dir = './mask_rcnn_purple_model_on_purple_purple'
     # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-3-30_maskrcnn_purple108/00036500_model.pth'
-    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_folder, image_set=image_set)
+    # run_submit(out_dir=out_dir, initial_checkpoint=initial_checkpoint, data_dir=data_dir, image_set=image_set)
     # cvs_ImageId_purple, cvs_EncodedPixels_purple = get_id_and_rle('./mask_rcnn_purple_model_on_purple_purple')
 
-    # data_folder = '../data'
+    # data_dir = '../data'
     # image_set = '../ensemble/purple'
     # out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_purple-purple'
     # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-3_purple/00011000_model.pth'
-    # predict_and_generate_csv(data_folder, image_set, out_dir, initial_checkpoint)
+    # predict_and_generate_csv(data_dir, image_set, out_dir, initial_checkpoint)
+
+    out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray'
+    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00021000_model.pth'
+    data_dir = '../data'
+    image_set = 'gray'
+    image_folder = '../ensemble/'
+    color_scheme = cv2.IMREAD_GRAYSCALE
+    predict_and_generate_csv(
+        out_dir=out_dir,
+        initial_checkpoint=initial_checkpoint,
+        data_dir=data_dir,
+        image_set=image_set,
+        image_folder=image_folder,
+        color_scheme=color_scheme)
 
     combine_csvs(
-        datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_purple-purple.csv',
+        datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray.csv',
         [
-            pd.read_csv('mask_rcnn_ensemble_gray_to_gray_419/submit/submit.csv'),
+            pd.read_csv(out_dir + '/submit/submit.csv'),
             pd.read_csv('2018-04-03_11-43-01_mask_rcnn_purple-purple/submit/submit.csv')
         ])
 

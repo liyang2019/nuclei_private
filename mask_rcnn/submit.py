@@ -137,7 +137,7 @@ def submit_collate(batch):
 
 
 # --------------------------------------------------------------
-def run_submit(out_dir, initial_checkpoint, data_dir, image_set):
+def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, color_scheme):
 
     # setup  ---------------------------
     os.makedirs(out_dir + '/submit/overlays', exist_ok=True)
@@ -157,8 +157,8 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set):
 
     # net ------------------------------
     cfg = Configuration()
-    # net = MaskNet(cfg, 3)
-    net = MaskRcnnNet(cfg)
+    net = MaskNet(cfg, 1 if color_scheme == cv2.IMREAD_GRAYSCALE else 3)
+    # net = MaskRcnnNet(cfg)
     net = net.cuda() if USE_CUDA else net
 
     if initial_checkpoint is not None:
@@ -172,8 +172,14 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set):
 
     # dataset ----------------------------------------
     log.write('** dataset setting **\n')
+    test_dataset = ScienceDataset(
+        data_dir=data_dir,
+        image_set=image_set,
+        image_folder=image_folder,
+        masks_folder=None,
+        color_scheme=color_scheme,
+        transform=submit_augment, mode='test')
 
-    test_dataset = ScienceDataset(data_dir, image_set, mode='test', transform=submit_augment)
     test_loader = DataLoader(
         test_dataset,
         sampler=SequentialSampler(test_dataset),

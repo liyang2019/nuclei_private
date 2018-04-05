@@ -31,7 +31,8 @@ class ScienceDataset(Dataset):
         print('############## creating dataset ##############')
         print('image set file location: ', image_set)
         print('image location: ', os.path.join(self.data_dir, 'stage1_images', self.image_folder))
-        print('masks location: ', os.path.join(self.data_dir, 'stage1_images', self.masks_folder))
+        if self.mode in ['train', 'valid']:
+            print('masks location: ', os.path.join(self.data_dir, 'stage1_images', self.masks_folder))
         print('color scheme: ', color_scheme)
 
         # print

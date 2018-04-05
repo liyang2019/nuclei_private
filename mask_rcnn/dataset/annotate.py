@@ -36,7 +36,7 @@ def run_make_test_annotation(data_root, image_set):
 def run_make_train_annotation(data_root, image_set):
     imageset_file_loc = os.path.join(data_root, 'image_sets', image_set)
     # split = 'train1_ids_all_670'
-    newimage_dir = os.path.join(data_root, 'stage1_images', 'stage1_train')
+    newimage_dir = os.path.join(data_root, 'stag`e1_images', 'stage1_train')
     os.makedirs(newimage_dir, exist_ok=True)
     multimask_dir = os.path.join(data_root, 'stage1_images', 'multi_masks')
     os.makedirs(multimask_dir, exist_ok=True)
