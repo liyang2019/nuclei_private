@@ -231,8 +231,8 @@ def box_transform_inv(windows, deltas):
     h = np.exp(dh) * bh
 
     predictions[:, 0::4] = x - 0.5 * w  # x0,y0,x1,y1
-    predictions[:, 1::4] = y - 0.5 * h - 1  # TODO I corrected here add -1
-    predictions[:, 2::4] = x + 0.5 * w
+    predictions[:, 1::4] = y - 0.5 * h
+    predictions[:, 2::4] = x + 0.5 * w - 1  # TODO I corrected here add -1
     predictions[:, 3::4] = y + 0.5 * h - 1  # TODO I corrected here add -1
 
     return predictions
