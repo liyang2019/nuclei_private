@@ -76,7 +76,7 @@ def main():
         args.print_every = 1
         args.learning_rate = 0.002
         args.iter_valid = 1
-        args.is_validation = False
+        args.is_validation = True
         args.train_split = 'purple_108'
         args.input_width = 128
         args.input_height = 128
@@ -100,7 +100,7 @@ def main():
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskNet(cfg, 1)
+    net = MaskNet(cfg, 3)
     net = net.cuda() if USE_CUDA else net
 
     log.write('** dataset setting **\n')
@@ -138,7 +138,8 @@ def main():
         image, multi_mask = fix_crop_transform2(image, multi_mask, -1, -1, WIDTH, HEIGHT)
 
         # ---------------------------------------
-        input = torch.from_numpy(image[..., np.newaxis].transpose((2, 0, 1))).float().div(255)
+        H, W = image.shape[0], image.shape[1]
+        input = torch.from_numpy(image.reshape(H, W, -1).transpose((2, 0, 1))).float().div(255)
         box, label, instance = multi_mask_to_annotation(multi_mask)
 
         return input, box, label, instance, meta, index
@@ -159,7 +160,8 @@ def main():
         image_set=args.train_split,
         image_folder=args.image_folder_train,
         masks_folder=args.masks_folder_train,
-        color_scheme=cv2.IMREAD_GRAYSCALE,
+        # color_scheme=cv2.IMREAD_GRAYSCALE,
+        color_scheme=cv2.IMREAD_COLOR,
         transform=train_augment, mode='train')
 
     train_loader = DataLoader(
@@ -176,7 +178,8 @@ def main():
         image_set=args.valid_split,
         image_folder=args.image_folder_valid,
         masks_folder=args.masks_folder_valid,
-        color_scheme=cv2.IMREAD_GRAYSCALE,
+        # color_scheme=cv2.IMREAD_GRAYSCALE,
+        color_scheme=cv2.IMREAD_COLOR,
         transform=valid_augment, mode='valid')
 
     valid_loader = DataLoader(

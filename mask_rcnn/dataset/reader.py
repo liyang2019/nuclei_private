@@ -4,7 +4,7 @@ from utility.file import *
 
 # data reader  ----------------------------------------------------------------
 MIN_SIZE = 5
-MAX_SIZE = 256  # np.inf
+MAX_SIZE = 128  # np.inf
 IGNORE_BOUNDARY = -1
 IGNORE_SMALL = -2
 IGNORE_BIG = -3

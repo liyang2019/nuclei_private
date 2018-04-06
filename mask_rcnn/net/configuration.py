@@ -69,7 +69,8 @@ class Configuration(object):
         self.mask_train_fg_thresh_low = self.rpn_train_fg_thresh_low
 
         self.mask_test_nms_pre_score_threshold = 0.4  # self.rpn_test_nms_pre_score_threshold
-        self.mask_test_nms_overlap_threshold = 0.1
+        self.mask_test_nms_overlap_threshold = 0.5  # TODO I changed here
+        self.mask_test_nms_refine_threshold = 0.1  # TODO I added here
         self.mask_test_mask_threshold = 0.5
 
     # -------------------------------------------------------------------------------------------------------

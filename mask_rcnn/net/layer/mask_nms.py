@@ -64,7 +64,8 @@ def make_empty_masks(cfg, mode, inputs):  # <todo>
 def mask_nms(cfg, mode, inputs, proposals, mask_logits):
     # images = (inputs.data.cpu().numpy().transpose((0,2,3,1))*255).astype(np.uint8)
 
-    overlap_threshold = cfg.mask_test_nms_overlap_threshold
+    mask_merge_threshold = cfg.mask_test_nms_overlap_threshold
+    mask_delete_threshold = cfg.mask_test_nms_refine_threshold
     pre_score_threshold = cfg.mask_test_nms_pre_score_threshold
     mask_threshold = cfg.mask_test_mask_threshold
 
@@ -126,8 +127,8 @@ def mask_nms(cfg, mode, inputs, proposals, mask_logits):
                     x1 = int(max(box[i, 2], box[j, 2]))
                     y1 = int(max(box[i, 3], box[j, 3]))
 
-                    intersection = (instance[i, y0:y1, x0:x1] & instance[j, y0:y1, x0:x1]).sum()
-                    area = (instance[i, y0:y1, x0:x1] | instance[j, y0:y1, x0:x1]).sum()
+                    intersection = (instance[i, y0:y1 + 1, x0:x1 + 1] & instance[j, y0:y1 + 1, x0:x1 + 1]).sum()
+                    area = (instance[i, y0:y1 + 1, x0:x1 + 1] | instance[j, y0:y1 + 1, x0:x1 + 1]).sum()
                     instance_overlap[i, j] = intersection / (area + 1e-12)
                     instance_overlap[j, i] = instance_overlap[i, j]
 
@@ -140,11 +141,33 @@ def mask_nms(cfg, mode, inputs, proposals, mask_logits):
             while len(index) > 0:
                 i = index[0]
                 keep.append(i)
-                delete_index = list(np.where(instance_overlap[i] > overlap_threshold)[0])
+                # if high overlap, do merge
+                # merge_index = list(np.where(instance_overlap[i] > mask_merge_threshold)[0])
+                # for k in merge_index:
+                #     instance[i] |= instance[k]
+                delete_index = list(np.where(instance_overlap[i] > mask_delete_threshold)[0])
                 index = [e for e in index if e not in delete_index]
 
-                # <todo> : merge?
+                # # if over lap but not high,
+                # merge_index = list(np.where((instance_overlap[i] > mask_refine_threshold) &
+                #                             (instance_overlap[i] <= mask_merge_threshold))[0])
+                # if len(merge_index) > 0:
+                #     merged_instance = instance[i]
+                #     for k in merge_index:
+                #         merged_instance |= instance[k]
+                #     opened_instance = ndimage.binary_opening(merged_instance, iterations=8)
+                #     labels, nlabels = ndimage.label(opened_instance)
+                #     new_instance1 = np.where(labels == 1, 1, 0)
+                #     new_instance2 = np.where(labels == 2, 1, 0)
+                #     if (merged_instance & new_instance1).sum() > (merged_instance & new_instance2).sum():
+                #         instance[i] = new_instance1
+                #         instance[merge_index[0]] = new_instance2
+                #     else:
+                #         instance[i] = new_instance2
+                #         instance[merge_index[0]] = new_instance1
+                #     index = [e for e in index if e not in merge_index[1:]]  # only keep the top two
 
+            keep.reverse()  # high probability on top
             for i, k in enumerate(keep):
                 mask[np.where(instance[k])] = i + 1
 
@@ -158,3 +181,11 @@ def mask_nms(cfg, mode, inputs, proposals, mask_logits):
 #
 #
 #
+
+
+def filter_mask_size(instance):
+    """
+    Filter off the very small or very large instance size.
+    :param instance:
+    :return:
+    """
