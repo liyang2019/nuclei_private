@@ -1,5 +1,5 @@
 python main.py \
-       --learning_rate 0.02 \
+       --learning_rate 0.01 \
        --input_width 128 --input_height 128 \
        --train_split train1_ids_gray2_500 \
        --valid_split valid1_ids_gray2_43 \

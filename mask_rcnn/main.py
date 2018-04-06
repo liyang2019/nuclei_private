@@ -1,7 +1,5 @@
 import argparse
 
-import torchvision
-
 from dataset.reader import *
 from dataset.transform import *
 from net.configuration import Configuration
@@ -67,6 +65,8 @@ def main():
                         default='fixed_multi_masks')
     parser.add_argument('--masks_folder_valid', help='the folder containing masks for validation', action='store',
                         default='fixed_multi_masks')
+    parser.add_argument('--color_scheme', help='the color scheme for imread, must be \'color\' or \'gray\'', action='store',
+                        default='gray')
 
     args = parser.parse_args()
 
@@ -97,10 +97,19 @@ def main():
     log = Logger()
     log.open(args.result_dir + '/log.train.txt', mode='a')
 
+    if args.color_scheme == 'color':
+        color_scheme = cv2.IMREAD_COLOR
+        image_channel = 3
+    elif args.color_scheme == 'gray':
+        color_scheme = cv2.IMREAD_GRAYSCALE
+        image_channel = 1
+    else:
+        raise NotImplementedError
+
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskNet(cfg, 3)
+    net = MaskNet(cfg, image_channel)
     net = net.cuda() if USE_CUDA else net
 
     log.write('** dataset setting **\n')
@@ -129,7 +138,6 @@ def main():
         H, W = image.shape[0], image.shape[1]
         input = torch.from_numpy(image.reshape(H, W, -1).transpose((2, 0, 1))).float().div(255)
 
-        # TODO add padding to image???
         box, label, instance = multi_mask_to_annotation(multi_mask)
 
         return input, box, label, instance, meta, index
@@ -160,8 +168,7 @@ def main():
         image_set=args.train_split,
         image_folder=args.image_folder_train,
         masks_folder=args.masks_folder_train,
-        # color_scheme=cv2.IMREAD_GRAYSCALE,
-        color_scheme=cv2.IMREAD_COLOR,
+        color_scheme=color_scheme,
         transform=train_augment, mode='train')
 
     train_loader = DataLoader(
@@ -178,8 +185,7 @@ def main():
         image_set=args.valid_split,
         image_folder=args.image_folder_valid,
         masks_folder=args.masks_folder_valid,
-        # color_scheme=cv2.IMREAD_GRAYSCALE,
-        color_scheme=cv2.IMREAD_COLOR,
+        color_scheme=color_scheme,
         transform=valid_augment, mode='valid')
 
     valid_loader = DataLoader(
