@@ -25,8 +25,8 @@ class ScienceDataset(Dataset):
         self.color_scheme = color_scheme
 
         # read split
-        image_set = os.path.join(data_dir, 'image_sets', image_set)
-        # image_set = os.path.join(data_dir, '../ensemble', image_set)
+        # image_set = os.path.join(data_dir, 'image_sets', image_set)
+        image_set = os.path.join(data_dir, '../ensemble', image_set)
         self.ids = read_list_from_file(image_set, comment='#')
 
         print('############## creating dataset ##############')
@@ -46,7 +46,7 @@ class ScienceDataset(Dataset):
         loc = os.path.join(self.data_dir, 'stage1_images', self.image_folder, key + '.png')
         image = cv2.imread(loc, self.color_scheme)
         # # TODO for using gray model to predict purple on yellow images.
-        # # image = -image
+        # image = -image
         # image = (image - np.min(image)) / (np.max(image) - np.min(image))
         # image = image ** 2
         # image = (image - np.min(image)) / (np.max(image) - np.min(image))

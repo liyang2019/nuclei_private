@@ -210,6 +210,7 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
             inputs = inputs.cuda() if USE_CUDA else inputs
             inputs = Variable(inputs)
             net(inputs)
+            print(images[0].shape)
             revert(net, images)  # unpad, undo test-time augment etc ....
 
         # save results ---------------------------------------

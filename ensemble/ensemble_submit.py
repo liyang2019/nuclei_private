@@ -172,8 +172,99 @@ def main():
     # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-3_purple/00011000_model.pth'
     # predict_and_generate_csv(data_dir, image_set, out_dir, initial_checkpoint)
 
-    out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray'
-    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00033500_model.pth'
+    # out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00047500_model.pth'
+    # data_dir = '../data'
+    # image_set = 'gray'
+    # image_folder = 'stage1_test'
+    # color_scheme = cv2.IMREAD_GRAYSCALE
+    # predict_and_generate_csv(
+    #     out_dir=out_dir,
+    #     initial_checkpoint=initial_checkpoint,
+    #     data_dir=data_dir,
+    #     image_set=image_set,
+    #     image_folder=image_folder,
+    #     color_scheme=color_scheme)
+
+    # out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_external_H&E'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-6_external_H&E/00010500_model.pth'
+    # data_dir = '../data'
+    # image_set = 'purple_purple'
+    # image_folder = 'stage1_test'
+    # color_scheme = cv2.IMREAD_COLOR
+    # predict_and_generate_csv(
+    #     out_dir=out_dir,
+    #     initial_checkpoint=initial_checkpoint,
+    #     data_dir=data_dir,
+    #     image_set=image_set,
+    #     image_folder=image_folder,
+    #     color_scheme=color_scheme)
+
+    # out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_purple_yellow'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00011000_model.pth'
+    # data_dir = '../data'
+    # image_set = 'purple_yellow'
+    # image_folder = 'stage1_test'
+    # color_scheme = cv2.IMREAD_COLOR
+    # predict_and_generate_csv(
+    #     out_dir=out_dir,
+    #     initial_checkpoint=initial_checkpoint,
+    #     data_dir=data_dir,
+    #     image_set=image_set,
+    #     image_folder=image_folder,
+    #     color_scheme=color_scheme)
+
+    # out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-yellow'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00033500_model.pth'
+    # data_dir = '../data'
+    # image_set = 'purple_yellow'
+    # image_folder = 'stage1_test'
+    # color_scheme = cv2.IMREAD_GRAYSCALE
+    # predict_and_generate_csv(
+    #     out_dir=out_dir,
+    #     initial_checkpoint=initial_checkpoint,
+    #     data_dir=data_dir,
+    #     image_set=image_set,
+    #     image_folder=image_folder,
+    #     color_scheme=color_scheme)
+
+    # combine_csvs(
+    #     datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray.csv',
+    #     [
+    #         pd.read_csv(out_dir + '/submit/submit.csv'),
+    #         pd.read_csv('2018-04-03_11-43-01_mask_rcnn_purple-purple/submit/submit.csv')
+    #     ])
+
+    # out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_external-yellow'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-6_external_H&E/00010500_model.pth'
+    # data_dir = '../data'
+    # image_set = 'purple_yellow'
+    # image_folder = 'stage1_test'
+    # color_scheme = cv2.IMREAD_COLOR
+    # predict_and_generate_csv(
+    #     out_dir=out_dir,
+    #     initial_checkpoint=initial_checkpoint,
+    #     data_dir=data_dir,
+    #     image_set=image_set,
+    #     image_folder=image_folder,
+    #     color_scheme=color_scheme)
+
+    # combine_csvs(
+    #     datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray+purple-yellow+external.csv',
+    #     [
+    #         pd.read_csv('2018-04-05_16-02-41_mask_rcnn_gray/submit/submit.csv'),
+    #         pd.read_csv('2018-04-06_15-26-32_mask_rcnn_gray-yellow/submit/submit.csv'),
+    #         pd.read_csv('2018-04-06_15-05-18_mask_rcnn_external_H&E/submit/submit.csv')
+    #     ])
+
+    # combine_csvs(
+    #     'predictions/' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_external_test.csv',
+    #     [
+    #         pd.read_csv('predictions/2018-04-06_15-05-18_mask_rcnn_external_H&E/submit/submit.csv'),
+    #     ])
+
+    out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray'
+    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00052500_model.pth'
     data_dir = '../data'
     image_set = 'gray'
     image_folder = 'stage1_test'
@@ -185,13 +276,6 @@ def main():
         image_set=image_set,
         image_folder=image_folder,
         color_scheme=color_scheme)
-
-    combine_csvs(
-        datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray.csv',
-        [
-            pd.read_csv(out_dir + '/submit/submit.csv'),
-            pd.read_csv('2018-04-03_11-43-01_mask_rcnn_purple-purple/submit/submit.csv')
-        ])
 
 
 if __name__ == '__main__':
