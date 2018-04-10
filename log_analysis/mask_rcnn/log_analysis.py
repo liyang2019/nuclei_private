@@ -6,7 +6,10 @@ if __name__ == '__main__':
     # log_file = 'log_purple108.txt'
     # log_file = '2018-4-1_log_gray500.txt'
     # log_file = '2018-4-6_external_image_log.txt'
-    log_file = '2018-4-6_external_image_log_0.001.txt'
+    # log_file = '2018-4-6_external_image_log_0.001.txt'
+    # log_file = '2018-4-7_purple108_lr0.01.txt'
+    # log_file = '2018-4-7_purple108_lr0.01_1.txt'
+    log_file = 'log.txt'
 
     valid_losses = np.zeros((0, 6), dtype=np.float)
     train_losses = np.zeros((0, 6), dtype=np.float)
@@ -31,9 +34,10 @@ if __name__ == '__main__':
     #
     # pad = average
     # losses = np.array(losses)[:, pad: len(losses[0]) - pad].T
+    # plt.figure()
     plt.plot(train_losses, 'r', linewidth=1)
-    plt.savefig(log_file.replace('.txt', '_train.png'))
+    # plt.savefig(log_file.replace('.txt', '_train.png'))
 
     plt.plot(valid_losses, 'b', linewidth=1)
-    plt.savefig(log_file.replace('.txt', '_valid.png'))
+    plt.savefig(log_file.replace('.txt', '.png'))
     print(valid_losses.shape)

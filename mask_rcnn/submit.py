@@ -3,6 +3,7 @@ from dataset.transform import pad_to_factor
 from net.metric import run_length_encode
 from net.configuration import Configuration
 from net.model import MaskNet
+from skimage import transform
 from net.model_resnet50 import MaskRcnnNet
 
 sys.path.append(os.path.dirname(__file__))
@@ -77,7 +78,7 @@ ALL_TEST_IMAGE_ID = [
 
 
 # overwrite functions ###
-def revert(net, images):
+def submit_augment_pad_revert(net, images, scale=1.0):
     # undo test-time-augmentation (e.g. unpad or scale back to input image size, etc)
 
     def torch_clip_proposals(proposals, index, width, height):
@@ -98,7 +99,9 @@ def revert(net, images):
     image = None
     for b in range(batch_size):
         image = images[b]
-        height, width = image.shape[:2]
+        height, width = image.shape[0], image.shape[1]
+        height = round(scale * height)
+        width = round(scale * width)
 
         # net.rpn_logits_flat  <todo>
         # net.rpn_deltas_flat  <todo>
@@ -113,19 +116,80 @@ def revert(net, images):
         # net.mask_logits
         index = (net.detections[:, 0] == b).nonzero().view(-1)
         net.detections = torch_clip_proposals(net.detections, index, width, height)
-
         net.masks[b] = net.masks[b][:height, :width]
 
     return net, image
 
 
 # -----------------------------------------------------------------------------------
-def submit_augment(image, index):
+def submit_augment_pad(image, index):
     pad_image = pad_to_factor(image, factor=16)
     H, W = pad_image.shape[0], pad_image.shape[1]
     input = torch.from_numpy(pad_image.reshape(H, W, -1).transpose((2, 0, 1))).float().div(255)
     image = image.reshape(image.shape[0], image.shape[1], -1)
     return input, image, index
+
+
+def submit_augment_horizontal_flip(image, index):
+    hflip_image = image.copy()[:, ::-1, ...]
+    input, hflip_image, index = submit_augment_pad(hflip_image, index)
+    image = image.reshape(image.shape[0], image.shape[1], -1)
+    return input, image, index
+
+
+def submit_augment_horizontal_flip_revert(net, images):
+    submit_augment_pad_revert(net, images)
+    batch_size = len(images)
+    image = None
+    for b in range(batch_size):
+        image = images[b]
+        height, width = image.shape[:2]
+        index = (net.detections[:, 0] == b).nonzero().view(-1)
+        net.detections[index, 1] = width - 1 - net.detections[index, 3]
+        net.detections[index, 3] = width - 1 - net.detections[index, 1]
+        net.masks[b] = net.masks[b][:, ::-1]
+    return net, image
+
+
+def submit_augment_vertical_flip(image, index):
+    vflip_image = image.copy()[::-1, :, ...]
+    input, vflip_image, index = submit_augment_pad(vflip_image, index)
+    image = image.reshape(image.shape[0], image.shape[1], -1)
+    return input, image, index
+
+
+def submit_augment_vertical_flip_revert(net, images):
+    submit_augment_pad_revert(net, images)
+    batch_size = len(images)
+    image = None
+    for b in range(batch_size):
+        image = images[b]
+        height, width = image.shape[:2]
+        index = (net.detections[:, 0] == b).nonzero().view(-1)
+        net.detections[index, 2] = width - 1 - net.detections[index, 4]
+        net.detections[index, 4] = width - 1 - net.detections[index, 2]
+        net.masks[b] = net.masks[b][::-1, :]
+    return net, image
+
+
+def submit_augment_scale(image, index, scale):
+    scaled_image = transform.rescale(image, scale, mode='reflect', order=1, preserve_range=True)  # order 1 is bilinear
+    input, scaled_image, index = submit_augment_pad(scaled_image, index)
+    image = image.reshape(image.shape[0], image.shape[1], -1)
+    return input, image, index
+
+
+def submit_augment_scale_revert(net, images, scale):
+    submit_augment_pad_revert(net, images, scale)
+    batch_size = len(images)
+    image = None
+    for b in range(batch_size):
+        image = images[b]
+        index = (net.detections[:, 0] == b).nonzero().view(-1)
+        net.detections[index, :] = net.detections[index, :] / scale
+        H, W = image.shape[:2]
+        net.masks[b] = transform.resize(net.masks[b], (H, W), mode='reflect', order=0, preserve_range=True)  # order 0 is nearest neighbor
+    return net, image
 
 
 def submit_collate(batch):
@@ -139,7 +203,17 @@ def submit_collate(batch):
 
 
 # --------------------------------------------------------------
-def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, color_scheme):
+def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, color_scheme, test_augment_mode):
+    """
+    :param out_dir:
+    :param initial_checkpoint:
+    :param data_dir:
+    :param image_set:
+    :param image_folder:
+    :param color_scheme:
+    :param test_augment_mode: Must be in ['hflip', 'vflip', 'scaleup', 'scaledown', 'none']
+    :return:
+    """
 
     # setup  ---------------------------
     os.makedirs(out_dir + '/submit/overlays', exist_ok=True)
@@ -155,7 +229,32 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
     log.write('\tSEED         = %u\n' % SEED)
     log.write('\tPROJECT_PATH = %s\n' % PROJECT_PATH)
     log.write('\tout_dir      = %s\n' % out_dir)
+    log.write('\ttest augment = %s\n' % test_augment_mode)
     log.write('\n')
+
+    if test_augment_mode == 'hflip':
+        test_augment = submit_augment_horizontal_flip
+        test_augment_revert = submit_augment_horizontal_flip_revert
+    elif test_augment_mode == 'vflip':
+        test_augment = submit_augment_vertical_flip
+        test_augment_revert = submit_augment_vertical_flip_revert
+    elif test_augment_mode == 'scaleup':
+        def test_augment(img, idx):
+            return submit_augment_scale(img, idx, 1.2)
+
+        def test_augment_revert(nt, imgs):
+            return submit_augment_scale_revert(nt, imgs, 1.2)
+    elif test_augment_mode == 'scaledown':
+        def test_augment(img, idx):
+            return submit_augment_scale(img, idx, 0.8)
+
+        def test_augment_revert(nt, imgs):
+            return submit_augment_scale_revert(nt, imgs, 0.8)
+    elif test_augment_mode == 'none':
+        test_augment = submit_augment_pad
+        test_augment_revert = submit_augment_pad_revert
+    else:
+        raise NotImplementedError
 
     # net ------------------------------
     cfg = Configuration()
@@ -179,7 +278,7 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
         image_folder=image_folder,
         masks_folder=None,
         color_scheme=color_scheme,
-        transform=submit_augment, mode='test')
+        transform=test_augment, mode='test')
 
     test_loader = DataLoader(
         test_dataset,
@@ -210,8 +309,7 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
             inputs = inputs.cuda() if USE_CUDA else inputs
             inputs = Variable(inputs)
             net(inputs)
-            print(images[0].shape)
-            revert(net, images)  # unpad, undo test-time augment etc ....
+            test_augment_revert(net, images)  # unpad, undo test-time augment etc ....
 
         # save results ---------------------------------------
         batch_size = len(indices)
@@ -219,12 +317,12 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
         # to use batch_size>1, need to fix code for net.windows, etc
 
         batch_size, C, H, W = inputs.size()
-        inputs = inputs.data.cpu().numpy()
+        # inputs = inputs.data.cpu().numpy()
 
-        window = net.rpn_window
-        rpn_logits_flat = net.rpn_logits_flat.data.cpu().numpy()
-        rpn_deltas_flat = net.rpn_deltas_flat.data.cpu().numpy()
-        detections = net.detections
+        # window = net.rpn_window
+        # rpn_logits_flat = net.rpn_logits_flat.data.cpu().numpy()
+        # rpn_deltas_flat = net.rpn_deltas_flat.data.cpu().numpy()
+        # detections = net.detections
         masks = net.masks
 
         for b in range(batch_size):
@@ -295,7 +393,7 @@ def shrink_by_one(multi_mask):
     return multi_mask1
 
 
-def run_npy_to_sumbit_csv(image_dir, npy_dir, csv_file):
+def run_npy_to_sumbit_csv(npy_dir, csv_file):
     # image_dir = DATA_DIR + '/image/stage1_test/images'
     # submit_dir = RESULTS_DIR + '/mask-rcnn-50-gray500-02/submit'
     # npy_dir = submit_dir + '/npys'
