@@ -391,9 +391,8 @@ class MaskHeadRes(nn.Module):
     def forward(self, crops):
         x = F.relu(self.bn1(self.conv1(crops)), inplace=True)
         x = F.relu(self.bn2(self.conv2(x)), inplace=True)
-        x = self.bn2(self.conv2(x))
-        x = x + crops
-        x = F.relu(x)
+        x = self.bn3(self.conv3(x))
+        x = F.relu(x + crops, inplace=True)
         x = self.up(x)
         logits = self.logit(x)
         return logits
@@ -406,8 +405,8 @@ class MaskHeadMiniUnet(nn.Module):
         self.num_classes = cfg.num_classes
 
         self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, stride=1)
-        self.down = nn.MaxPool2d(kernel_size=2, stride=2)
         self.bn1 = nn.BatchNorm2d(in_channels)
+        self.down = nn.MaxPool2d(kernel_size=2, stride=2)
         self.conv2 = nn.Conv2d(in_channels, in_channels * 2, kernel_size=3, padding=1, stride=1)
         self.bn2 = nn.BatchNorm2d(in_channels * 2)
         self.up = nn.ConvTranspose2d(in_channels * 2, in_channels, kernel_size=4, padding=1, stride=2, bias=False)
