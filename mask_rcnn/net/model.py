@@ -435,19 +435,20 @@ class MaskNet(nn.Module):
         self.cfg = cfg
         self.mode = 'train'
 
-        feature_channels = 256
+        feature_channels = 128
         crop_channels = feature_channels
         self.feature_net = FeatureNet(cfg, input_channel, feature_channels)
         self.rpn_head = RpnMultiHead(cfg, feature_channels)
         self.rcnn_crop = CropRoi(cfg, cfg.rcnn_crop_size)
         self.rcnn_head = RcnnHead(cfg, crop_channels)
-        self.mask_crop = CropRoi(cfg, cfg.mask_crop_size)
         if mask == '4conv':
             self.mask_head = MaskHead(cfg, crop_channels)
         elif mask == 'mini-unet':
             self.mask_head = MaskHeadMiniUnet(cfg, crop_channels)
+            cfg.mask_crop_size = 28
         elif mask == 'mini-res':
             self.mask_head = MaskHeadRes(cfg, crop_channels)
+        self.mask_crop = CropRoi(cfg, cfg.mask_crop_size)
 
         if USE_CUDA:
             print('in constructing mask rcnn net, using gpu, using data parallel')
