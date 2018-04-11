@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--input_height', help='input image height to a net', action='store', type=int, default=128)
     parser.add_argument('--pretrained', help='load pretrained models when doing transfer learning', action='store_true',
                         default=True)
-    parser.add_argument('--num_epochs', help='total number of epochs for training', action='store', type=int,
+    parser.add_argument('--num_iters', help='total number of iterations for training', action='store', type=int,
                         default=100000)
     parser.add_argument('--is_validation', help='whether or not calculate validation when training',
                         action='store_true', default=False)
@@ -67,11 +67,12 @@ def main():
                         default='fixed_multi_masks')
     parser.add_argument('--color_scheme', help='the color scheme for imread, must be \'color\' or \'gray\'', action='store',
                         default='gray')
+    parser.add_argument('--masknet', help='mask net', action='store', default='4conv')
 
     args = parser.parse_args()
 
     # debug
-    if 1:
+    if 0:
         args.batch_size = 1
         args.print_every = 1
         args.learning_rate = 0.002
@@ -109,7 +110,7 @@ def main():
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskNet(cfg, image_channel)
+    net = MaskNet(cfg, image_channel, args.masknet)
     net = net.cuda() if USE_CUDA else net
     print(net)
 
@@ -216,8 +217,8 @@ def main():
 
     trainer = Trainer(net=net, train_loader=train_loader, val_loader=valid_loader, optimizer=optimizer,
                       learning_rate=args.learning_rate, LR=LR, logger=log,
-                      iter_accum=args.iter_accum, num_iters=1000 * 1000,
-                      iter_smooth=20, iter_log=args.print_every, iter_valid=args.iter_valid,
+                      iter_accum=args.iter_accum, num_iters=args.num_iters,
+                      iter_smooth=10, iter_log=args.print_every, iter_valid=args.iter_valid,
                       images_per_epoch=len(train_dataset),
                       initial_checkpoint=args.initial_checkpoint, pretrain_file=None, debug=True,
                       is_validation=args.is_validation,
