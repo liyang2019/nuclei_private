@@ -378,15 +378,15 @@ class MaskHeadRes(nn.Module):
         super(MaskHeadRes, self).__init__()
         self.num_classes = cfg.num_classes
 
-        self.conv1 = nn.Conv2d(in_channels, 256, kernel_size=3, padding=1, stride=1)
-        self.bn1 = nn.BatchNorm2d(256)
-        self.conv2 = nn.Conv2d(256, 256, kernel_size=3, padding=1, stride=1)
-        self.bn2 = nn.BatchNorm2d(256)
-        self.conv3 = nn.Conv2d(256, 256, kernel_size=3, padding=1, stride=1)
-        self.bn3 = nn.BatchNorm2d(256)
+        self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, stride=1)
+        self.bn1 = nn.BatchNorm2d(in_channels)
+        self.conv2 = nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, stride=1)
+        self.bn2 = nn.BatchNorm2d(in_channels)
+        self.conv3 = nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1, stride=1)
+        self.bn3 = nn.BatchNorm2d(in_channels)
 
-        self.up = nn.ConvTranspose2d(256, 256, kernel_size=4, padding=1, stride=2, bias=False)
-        self.logit = nn.Conv2d(256, self.num_classes, kernel_size=1, padding=0, stride=1)
+        self.up = nn.ConvTranspose2d(in_channels, in_channels, kernel_size=4, padding=1, stride=2, bias=False)
+        self.logit = nn.Conv2d(in_channels, self.num_classes, kernel_size=1, padding=0, stride=1)
 
     def forward(self, crops):
         x = F.relu(self.bn1(self.conv1(crops)), inplace=True)
