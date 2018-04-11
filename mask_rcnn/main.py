@@ -112,7 +112,6 @@ def main():
     cfg = Configuration()
     net = MaskNet(cfg, image_channel, args.masknet)
     net = net.cuda() if USE_CUDA else net
-    print(net)
 
     log.write('** dataset setting **\n')
 
