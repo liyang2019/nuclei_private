@@ -62,14 +62,14 @@ class Configuration(object):
         self.rcnn_test_nms_min_size = 5
 
         # mask
-        self.mask_crop_size = 28  # TODO original 14
+        self.mask_crop_size = 14  # TODO original 14
         self.mask_train_batch_size = 64  # per image
         self.mask_size = 28  # per image
         self.mask_train_min_size = 5
         self.mask_train_fg_thresh_low = self.rpn_train_fg_thresh_low
 
         self.mask_test_nms_pre_score_threshold = 0.4  # self.rpn_test_nms_pre_score_threshold
-        self.mask_test_nms_overlap_threshold = 0.5  # TODO I changed here, original 0.5
+        self.mask_test_nms_overlap_threshold = 0.5  # TODO I changed here
         self.mask_test_nms_refine_threshold = 0.1  # TODO I added here
         self.mask_test_mask_threshold = 0.5
 

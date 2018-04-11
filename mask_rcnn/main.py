@@ -76,8 +76,8 @@ def main():
         args.print_every = 1
         args.learning_rate = 0.002
         args.iter_valid = 1
-        args.is_validation = True
-        args.train_split = 'purple_108'
+        args.is_validation = False
+        args.train_split = 'train1_ids_gray2_500'
         args.input_width = 128
         args.input_height = 128
         args.iter_accum = 1
@@ -111,6 +111,7 @@ def main():
     cfg = Configuration()
     net = MaskNet(cfg, image_channel)
     net = net.cuda() if USE_CUDA else net
+    print(net)
 
     log.write('** dataset setting **\n')
 

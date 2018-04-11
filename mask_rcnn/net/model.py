@@ -372,6 +372,33 @@ class MaskHead(nn.Module):
         return logits
 
 
+class MaskHeadRes(nn.Module):
+
+    def __init__(self, cfg, in_channels):
+        super(MaskHeadRes, self).__init__()
+        self.num_classes = cfg.num_classes
+
+        self.conv1 = nn.Conv2d(in_channels, 256, kernel_size=3, padding=1, stride=1)
+        self.bn1 = nn.BatchNorm2d(256)
+        self.conv2 = nn.Conv2d(256, 256, kernel_size=3, padding=1, stride=1)
+        self.bn2 = nn.BatchNorm2d(256)
+        self.conv3 = nn.Conv2d(256, 256, kernel_size=3, padding=1, stride=1)
+        self.bn3 = nn.BatchNorm2d(256)
+
+        self.up = nn.ConvTranspose2d(256, 256, kernel_size=4, padding=1, stride=2, bias=False)
+        self.logit = nn.Conv2d(256, self.num_classes, kernel_size=1, padding=0, stride=1)
+
+    def forward(self, crops):
+        x = F.relu(self.bn1(self.conv1(crops)), inplace=True)
+        x = F.relu(self.bn2(self.conv2(x)), inplace=True)
+        x = self.bn2(self.conv2(x))
+        x = x + crops
+        x = F.relu(x)
+        x = self.up(x)
+        logits = self.logit(x)
+        return logits
+
+
 class MaskHeadMiniUnet(nn.Module):
 
     def __init__(self, cfg, in_channels):
@@ -416,7 +443,8 @@ class MaskNet(nn.Module):
         self.rcnn_head = RcnnHead(cfg, crop_channels)
         self.mask_crop = CropRoi(cfg, cfg.mask_crop_size)
         # self.mask_head = MaskHead(cfg, crop_channels)
-        self.mask_head = MaskHeadMiniUnet(cfg, crop_channels)
+        # self.mask_head = MaskHeadMiniUnet(cfg, crop_channels)
+        self.mask_head = MaskHeadRes(cfg, crop_channels)
 
         if USE_CUDA:
             print('in constructing mask rcnn net, using gpu, using data parallel')
