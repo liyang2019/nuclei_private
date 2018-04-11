@@ -68,6 +68,7 @@ def main():
     parser.add_argument('--color_scheme', help='the color scheme for imread, must be \'color\' or \'gray\'', action='store',
                         default='gray')
     parser.add_argument('--masknet', help='mask net', action='store', default='4conv')
+    parser.add_argument('--feature_channels', help='feature channels', action='store', type=int, default=128)
 
     args = parser.parse_args()
 
@@ -110,7 +111,7 @@ def main():
     # net ----------------------
     log.write('** net setting **\n')
     cfg = Configuration()
-    net = MaskNet(cfg, image_channel, args.masknet)
+    net = MaskNet(cfg, image_channel, args.masknet, args.feature_channels)
     net = net.cuda() if USE_CUDA else net
 
     log.write('** dataset setting **\n')
