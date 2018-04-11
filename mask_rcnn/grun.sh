@@ -4,7 +4,7 @@ python main.py \
        --train_split train1_ids_gray2_500 \
        --valid_split valid1_ids_gray2_43 \
        --batch_size 8 \
-       --result_dir results/2018-4-10_mini-unet \
+       --result_dir results/2018-4-10_mini-unet_leaky \
        --print_every 10 \
        --iter_accum 1 \
        --iter_valid 100 \
@@ -23,7 +23,7 @@ python main.py \
        --train_split train1_ids_gray2_500 \
        --valid_split valid1_ids_gray2_43 \
        --batch_size 8 \
-       --result_dir results/2018-4-10_mini-res \
+       --result_dir results/2018-4-10_mini-res_leaky \
        --print_every 10 \
        --iter_accum 1 \
        --iter_valid 100 \
@@ -42,7 +42,7 @@ python main.py \
        --train_split train1_ids_gray2_500 \
        --valid_split valid1_ids_gray2_43 \
        --batch_size 8 \
-       --result_dir results/2018-4-10_4conv \
+       --result_dir results/2018-4-10_4conv_leaky \
        --print_every 10 \
        --iter_accum 1 \
        --iter_valid 100 \
