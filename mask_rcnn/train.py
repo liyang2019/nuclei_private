@@ -112,6 +112,7 @@ class Trainer:
                 if self.is_validation and i % self.iter_valid == 0:
                     self.net.set_mode('valid')
                     valid_loss, valid_acc = self.evaluate(self.net, self.valid_loader)
+                    self.net.set_mode('test')
                     self.visualize(self.net, self.visualize_loader, cfg, i, self.out_dir)
                     self.net.set_mode('train')
 
@@ -138,12 +139,12 @@ class Trainer:
                     with open(self.out_dir + '/checkpoint/configuration.pkl', 'wb') as pickle_file:
                         pickle.dump(cfg, pickle_file, pickle.HIGHEST_PROTOCOL)
 
-                    torch.save(self.net.state_dict(), self.out_dir + '/checkpoint/latest_model.pth')
+                    torch.save(self.net.state_dict(), self.out_dir + '/../latest_model.pth')
                     torch.save({
                         'optimizer': self.optimizer.state_dict(),
                         'iter': i,
                         'epoch': epoch,
-                    }, self.out_dir + '/checkpoint/latest_optimizer.pth')
+                    }, self.out_dir + '/../latest_optimizer.pth')
 
                 # learning rate schduler -------------
                 if self.LR is not None:
@@ -362,7 +363,6 @@ class Trainer:
                 inputs = inputs.cuda() if USE_CUDA else inputs
                 inputs = Variable(inputs)
                 if all(len(b) == 0 for b in truth_boxes):
-                    print('all None in evaluateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
                     continue
                 net.forward(inputs, truth_boxes, truth_labels, truth_instances)
                 net.loss(inputs, truth_boxes, truth_labels, truth_instances)
