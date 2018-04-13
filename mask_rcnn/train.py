@@ -363,7 +363,6 @@ class Trainer:
                 inputs = inputs.cuda() if USE_CUDA else inputs
                 inputs = Variable(inputs)
                 net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
             rpn_proposals = net.rpn_proposals.data.cpu().numpy()
             rcnn_proposals = net.rcnn_proposals.data.cpu().numpy()
