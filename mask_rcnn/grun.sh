@@ -15,7 +15,7 @@ python main.py \
        --batch_size 8 \
        --iter_accum 1 \
        --print_every 10 \
-       --iter_valid 100 \
+       --iter_valid 200 \
        --save_model_every 500 \
        --is_validation \
        --num_iters 12000 \
@@ -42,7 +42,7 @@ python main.py \
        --batch_size 6 \
        --iter_accum 2 \
        --print_every 10 \
-       --iter_valid 100 \
+       --iter_valid 200 \
        --save_model_every 500 \
        --is_validation \
        --num_iters 18000 \
@@ -69,7 +69,7 @@ python main.py \
        --batch_size 6 \
        --iter_accum 2 \
        --print_every 10 \
-       --iter_valid 100 \
+       --iter_valid 200 \
        --save_model_every 500 \
        --is_validation \
        --num_iters 180000 \
