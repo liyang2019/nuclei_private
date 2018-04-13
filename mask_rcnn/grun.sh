@@ -1,4 +1,4 @@
-python main.py \
+# python main.py \
        --data_dir ../data/2018-4-12_dataset \
        --train_split ids_train \
        --valid_split ids_valid \
