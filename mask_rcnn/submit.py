@@ -124,6 +124,7 @@ def submit_augment_pad_revert(net, images, scale=1.0):
 
 # -----------------------------------------------------------------------------------
 def submit_augment_pad(image, index):
+
     pad_image = pad_to_factor(image, factor=16)
     H, W = pad_image.shape[0], pad_image.shape[1]
     input = torch.from_numpy(pad_image.reshape(H, W, -1).transpose((2, 0, 1))).float().div(255)
@@ -131,10 +132,18 @@ def submit_augment_pad(image, index):
     return input, image, index
 
 
+def normalize(im):
+    im -= im.min()
+    im /= im.max()
+    im *= 255
+    return im
+
+
 def submit_augment_horizontal_flip(image, index):
     hflip_image = image.copy()[:, ::-1, ...]
     input, hflip_image, index = submit_augment_pad(hflip_image, index)
     image = image.reshape(image.shape[0], image.shape[1], -1)
+    image = normalize(image)
     return input, image, index
 
 
@@ -156,6 +165,7 @@ def submit_augment_vertical_flip(image, index):
     vflip_image = image.copy()[::-1, :, ...]
     input, vflip_image, index = submit_augment_pad(vflip_image, index)
     image = image.reshape(image.shape[0], image.shape[1], -1)
+    image = normalize(image)
     return input, image, index
 
 
@@ -177,6 +187,7 @@ def submit_augment_scale(image, index, scale):
     scaled_image = transform.rescale(image, scale, mode='reflect', order=1, preserve_range=True)  # order 1 is bilinear
     input, scaled_image, index = submit_augment_pad(scaled_image, index)
     image = image.reshape(image.shape[0], image.shape[1], -1)
+    image = normalize(image)
     return input, image, index
 
 

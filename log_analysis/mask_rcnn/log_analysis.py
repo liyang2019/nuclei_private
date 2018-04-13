@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def analyze_log(f):
+def analyze_log(f, smooth_length):
     log_file = f
 
     valid_losses = np.zeros((0, 6), dtype=np.float)
@@ -11,15 +11,14 @@ def analyze_log(f):
         for line in f.readlines():
             line_split = line.split('|')
             if len(line_split) == 5 and line_split[0][:5] != ' rate':
-                valid_losses_split = line_split[1].split()
+                valid_losses_split = line_split[2].split()
                 valid_losses_split = np.array([float(loss.strip()) for loss in valid_losses_split])
                 valid_losses = np.vstack([valid_losses, valid_losses_split])
 
-                train_losses_split = line_split[2].split()
+                train_losses_split = line_split[1].split()
                 train_losses_split = np.array([float(loss.strip()) for loss in train_losses_split])
                 train_losses = np.vstack([train_losses, train_losses_split])
 
-    smooth_length = 10
     valid_losses = smooth(valid_losses, smooth_length)
     train_losses = smooth(train_losses, smooth_length)
 
