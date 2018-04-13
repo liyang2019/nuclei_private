@@ -140,6 +140,10 @@ def main():
     ])
 
     def train_augment(image, multi_mask, meta, index):
+        H, W = image.shape[0], image.shape[1]
+        if HEIGHT > H or WIDTH > W:
+            scale = max((HEIGHT + 1) / H, (WIDTH + 1) / W)
+            image, multi_mask = fix_resize_transform2(image, multi_mask, int(scale * H), int(scale * W))
 
         image = linear_normalize(image)
 
