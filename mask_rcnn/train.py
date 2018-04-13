@@ -138,6 +138,13 @@ class Trainer:
                     with open(self.out_dir + '/checkpoint/configuration.pkl', 'wb') as pickle_file:
                         pickle.dump(cfg, pickle_file, pickle.HIGHEST_PROTOCOL)
 
+                    torch.save(self.net.state_dict(), self.out_dir + '/checkpoint/latest_model.pth')
+                    torch.save({
+                        'optimizer': self.optimizer.state_dict(),
+                        'iter': i,
+                        'epoch': epoch,
+                    }, self.out_dir + '/checkpoint/latest_optimizer.pth')
+
                 # learning rate schduler -------------
                 if self.LR is not None:
                     lr = self.LR.get_rate(i)
