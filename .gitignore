@@ -12,4 +12,6 @@ results
 **/mask_rcnn_ensemble_*
 backup
 data
+gcp_data_sync
+
 

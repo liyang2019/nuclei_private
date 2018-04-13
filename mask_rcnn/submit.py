@@ -259,7 +259,7 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
 
     # net ------------------------------
     cfg = Configuration()
-    net = MaskNet(cfg, 1 if color_scheme == cv2.IMREAD_GRAYSCALE else 3, mask='4conv', feature_channels=256)
+    net = MaskNet(cfg, 1 if color_scheme == cv2.IMREAD_GRAYSCALE else 3, mask='4conv', feature_channels=256, train_box_only=False)
     # net = MaskRcnnNet(cfg)
     net = net.cuda() if USE_CUDA else net
 

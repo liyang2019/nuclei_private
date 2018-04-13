@@ -169,6 +169,11 @@ def main():
         return input, box, label, instance, meta, index
 
     def valid_augment(image, multi_mask, meta, index):
+        H, W = image.shape[0], image.shape[1]
+        if HEIGHT > H or WIDTH > W:
+            scale = max((HEIGHT + 1) / H, (WIDTH + 1) / W)
+            image, multi_mask = fix_resize_transform2(image, multi_mask, np.ceil(scale * H), np.ceil(scale * W))
+
         image, multi_mask = fix_crop_transform2(image, multi_mask, -1, -1, WIDTH, HEIGHT)
 
         # ---------------------------------------
