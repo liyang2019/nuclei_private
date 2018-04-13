@@ -15,13 +15,13 @@ python main.py \
        --batch_size 8 \
        --iter_accum 1 \
        --print_every 10 \
-       --iter_valid 10 \
-       --save_model_every 10 \
+       --iter_valid 100 \
+       --save_model_every 500 \
        --is_validation \
-       --num_iters 20 \
+       --num_iters 12000 \
        --masknet 4conv \
        --color_scheme gray \
-       --feature_channels 128 \
+       --feature_channels 256 \
        --train_box_only \
        --run \
 
@@ -37,18 +37,45 @@ python main.py \
        --image_folder_visualize visualize \
        --masks_folder_visualize visualize_masks \
        --result_dir ../results/2018-4-13_gray690_full \
-       --input_width 128 --input_height 128 \
+       --input_width 256 --input_height 256 \
        --learning_rate 0.01 \
-       --batch_size 8 \
-       --iter_accum 1 \
+       --batch_size 6 \
+       --iter_accum 2 \
        --print_every 10 \
-       --iter_valid 10 \
-       --save_model_every 10 \
+       --iter_valid 100 \
+       --save_model_every 500 \
        --is_validation \
-       --num_iters 20 \
+       --num_iters 18000 \
        --masknet 4conv \
        --color_scheme gray \
-       --feature_channels 128 \
+       --feature_channels 256 \
+       --run \
+       --initial_checkpoint /home/li/nuclei_private/results/2018-4-13_gray690_box/latest_model.pth \
+
+python main.py \
+       --data_dir ../data/2018-4-12_dataset \
+       --train_split ids_train \
+       --valid_split ids_valid \
+       --visualize_split ids_visualize \
+       --image_folder_train stage1 \
+       --masks_folder_train stage1_masks \
+       --image_folder_valid stage1 \
+       --masks_folder_valid stage1_masks \
+       --image_folder_visualize visualize \
+       --masks_folder_visualize visualize_masks \
+       --result_dir ../results/2018-4-13_gray690_full \
+       --input_width 256 --input_height 256 \
+       --learning_rate 0.001 \
+       --batch_size 6 \
+       --iter_accum 2 \
+       --print_every 10 \
+       --iter_valid 100 \
+       --save_model_every 500 \
+       --is_validation \
+       --num_iters 180000 \
+       --masknet 4conv \
+       --color_scheme gray \
+       --feature_channels 256 \
        --run \
        --initial_checkpoint /home/li/nuclei_private/results/2018-4-13_gray690_box/latest_model.pth \
 
