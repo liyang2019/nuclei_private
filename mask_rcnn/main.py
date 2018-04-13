@@ -45,17 +45,10 @@ def main():
         'disk0_ids_dummy_10',
         'purple_108',
         'train1_ids_purple_only1_101',
-        'merge1_1'], action='store', default='train1_ids_gray2_500')
-    parser.add_argument('--valid_split', help='the valid dataset split', choices=[
-        'valid1_ids_gray2_43',
-        'debug1_ids_gray2_10',
-        'debug2_ids_gray2_3',
-        'disk0_ids_dummy_3',
-        'train1_ids_purple_only1_101',
-        'merge1_1'], action='store', default='debug2_ids_gray2_3')
-    parser.add_argument('--visualize_split', help='the visualize dataset split', choices=[
-        'debug2_ids_gray2_3',
-        'disk0_ids_dummy_3'], action='store', default='debug2_ids_gray2_3')
+        'merge1_1',
+        'ids_train'], action='store', default='train1_ids_gray2_500')
+    parser.add_argument('--valid_split', help='the valid dataset split', action='store', default='debug2_ids_gray2_3')
+    parser.add_argument('--visualize_split', help='the visualize dataset split', action='store', default='debug2_ids_gray2_3')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
     parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default='../results')
     parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data')
