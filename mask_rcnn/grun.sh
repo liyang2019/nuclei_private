@@ -22,7 +22,8 @@ python main.py \
        --masknet 4conv \
        --color_scheme gray \
        --feature_channels 128 \
-       --train_box_only
+       --train_box_only \
+       --run \
 
 python main.py \
        --data_dir ../data/2018-4-12_dataset \
@@ -48,6 +49,7 @@ python main.py \
        --masknet 4conv \
        --color_scheme gray \
        --feature_channels 128 \
+       --run \
        --initial_checkpoint /home/li/nuclei_private/results/2018-4-13_gray690_box/checkpoint/latest_model.pth \
 
 #       --initial_checkpoint /home/li/nuclei_private/mask_rcnn/results/2018-3-31_gray500_size128/checkpoint/model_saved_mask/00042500_model.pth \

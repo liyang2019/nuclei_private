@@ -73,12 +73,13 @@ def main():
     parser.add_argument('--masknet', help='mask net', action='store', default='4conv')
     parser.add_argument('--feature_channels', help='feature channels', action='store', type=int, default=128)
     parser.add_argument('--train_box_only', help='train_box_only', action='store_true', default=False)
+    parser.add_argument('--run', help='exit debug mode', action='store_true', default=False)
 
     args = parser.parse_args()
     debug = True
 
     # debug
-    if 1:
+    if not args.run:
         args.batch_size = 1
         args.print_every = 1
         args.learning_rate = 0.002
