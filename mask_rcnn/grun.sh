@@ -3,10 +3,10 @@ python main.py \
        --train_split ids_train \
        --valid_split ids_valid \
        --visualize_split ids_visualize \
-       --image_folder_train stage1_train \
-       --masks_folder_train stage1_train_masks \
-       --image_folder_valid stage1_valid \
-       --masks_folder_valid stage1_valid_masks \
+       --image_folder_train stage1 \
+       --masks_folder_train stage1_masks \
+       --image_folder_valid stage1 \
+       --masks_folder_valid stage1_masks \
        --image_folder_visualize visualize \
        --masks_folder_visualize visualize_masks \
        --result_dir ../results/2018-4-13_gray690_box \
@@ -30,10 +30,10 @@ python main.py \
        --train_split ids_train \
        --valid_split ids_valid \
        --visualize_split ids_visualize \
-       --image_folder_train stage1_train \
-       --masks_folder_train stage1_train_masks \
-       --image_folder_valid stage1_valid \
-       --masks_folder_valid stage1_valid_masks \
+       --image_folder_train stage1 \
+       --masks_folder_train stage1_masks \
+       --image_folder_valid stage1 \
+       --masks_folder_valid stage1_masks \
        --image_folder_visualize visualize \
        --masks_folder_visualize visualize_masks \
        --result_dir ../results/2018-4-13_gray690_full \
