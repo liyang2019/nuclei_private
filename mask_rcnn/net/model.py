@@ -455,11 +455,12 @@ class MaskHeadMiniUnet(nn.Module):
 
 class MaskNet(nn.Module):
 
-    def __init__(self, cfg, input_channel, mask, feature_channels):
+    def __init__(self, cfg, input_channel, mask, feature_channels, train_box_only):
         super(MaskNet, self).__init__()
         self.version = 'net version \'mask-rcnn-se-resnext50-fpn\''
         self.cfg = cfg
         self.mode = 'train'
+        self.train_box_only = train_box_only
 
         crop_channels = feature_channels
         self.feature_net = FeatureNet(cfg, input_channel, feature_channels)
@@ -623,7 +624,20 @@ class MaskNet(nn.Module):
         self.mask_cls_loss = \
             mask_loss(self.mask_logits, self.mask_labels, self.mask_instances)
 
-        self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss
+        if self.train_box_only:
+            self.total_loss = \
+                self.rpn_cls_loss + \
+                self.rpn_reg_loss + \
+                self.rcnn_cls_loss + \
+                self.rcnn_reg_loss
+        else:
+            self.total_loss = \
+                self.rpn_cls_loss + \
+                self.rpn_reg_loss + \
+                self.rcnn_cls_loss + \
+                self.rcnn_reg_loss + \
+                self.mask_cls_loss
+
         # self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.rcnn_cls_loss + self.rcnn_reg_loss
         # self.total_loss = self.rpn_cls_loss + self.rpn_reg_loss + self.mask_cls_loss
         # self.total_loss = self.rcnn_cls_loss + self.rcnn_reg_loss + self.mask_cls_loss

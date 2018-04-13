@@ -340,13 +340,37 @@ def main():
     #         color_scheme=color_scheme,
     #         test_augment_mode=test_augment_mode)
 
-    combine_csvs(
-        datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray-augment+purple-yellow+external.csv',
-        [
-            pd.read_csv('2018-04-07_15-30-34_maskrcnn_gray-gray_test_augment/submit/submit.csv'),
-            pd.read_csv('2018-04-07_20-34-25_mask_rcnn_external-purple/submit/submit.csv'),
-            pd.read_csv('2018-04-08_00-45-40_mask_rcnn_purple-yellow/submit/submit.csv')
-        ])
+    # combine_csvs(
+    #     datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_mask_rcnn_gray-gray-augment+purple-yellow+external.csv',
+    #     [
+    #         pd.read_csv('2018-04-07_15-30-34_maskrcnn_gray-gray_test_augment/submit/submit.csv'),
+    #         pd.read_csv('2018-04-07_20-34-25_mask_rcnn_external-purple/submit/submit.csv'),
+    #         pd.read_csv('2018-04-08_00-45-40_mask_rcnn_purple-yellow/submit/submit.csv')
+    #     ])
+
+    out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_gray_model/'
+    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-4_gray500/00033500_model.pth'
+    data_dir = '../data'
+    image_set = 'test2_gray_key.txt'
+    image_folder = '2018-4-12_dataset/stage2_test'
+    color_scheme = cv2.IMREAD_GRAYSCALE
+    # for test_augment_mode in ['scaleup', 'scaledown', 'hflip', 'vflip', 'none']:
+    #     predict_and_generate_csv(
+    #         out_dir=out_dir + test_augment_mode,
+    #         initial_checkpoint=initial_checkpoint,
+    #         data_dir=data_dir,
+    #         image_set=image_set,
+    #         image_folder=image_folder,
+    #         color_scheme=color_scheme,
+    #         test_augment_mode=test_augment_mode)
+    predict_and_generate_csv(
+        out_dir=out_dir + 'none',
+        initial_checkpoint=initial_checkpoint,
+        data_dir=data_dir,
+        image_set=image_set,
+        image_folder=image_folder,
+        color_scheme=color_scheme,
+        test_augment_mode='none')
 
 
 if __name__ == '__main__':

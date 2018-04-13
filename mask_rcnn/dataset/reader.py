@@ -44,22 +44,6 @@ class ScienceDataset(Dataset):
         key = self.ids[index].split('/')[-1]
         loc = os.path.join(self.data_dir, 'stage1_images', self.image_folder, key + '.png')
         image = cv2.imread(loc, self.color_scheme)
-        # image noise and intensity augmentation.
-        if self.mode in ['train']:
-            image = image.astype(np.float)
-            image -= image.min()
-            image /= image.max()
-            image += np.random.normal(0, 8 / 255, image.shape)
-            image -= image.min()
-            image /= image.max()
-            image *= (np.random.rand() * 128 + 127)
-        # # TODO for using gray model to predict purple on yellow images.
-        # image = -image
-        # image = (image - np.min(image)) / (np.max(image) - np.min(image))
-        # image = image ** 2
-        # image = (image - np.min(image)) / (np.max(image) - np.min(image))
-        # image *= 255
-        # image = image[..., np.newaxis].repeat(3, axis=2)
 
         if self.mode in ['train', 'valid']:
             multi_mask = np.load(

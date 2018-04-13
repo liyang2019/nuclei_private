@@ -159,9 +159,6 @@ def random_shift_scale_rotate_transform2(image, mask,
                                    borderMode=borderMode, borderValue=(
             0, 0, 0,))  # cv2.BORDER_CONSTANT, borderValue = (0, 0, 0))  #cv2.BORDER_REFLECT_101
         mask = mask.astype(np.int32)
-        # print('before relabel_multi_mask, ', np.unique(mask))
-        mask = relabel_multi_mask(mask)
-        # print('after relabel_multi_mask', np.unique(mask))
 
     return image, mask
 
@@ -169,7 +166,7 @@ def random_shift_scale_rotate_transform2(image, mask,
 # single image ########################################################
 
 # agumentation (photometric) ----------------------
-def random_brightness_shift_transform(image, limit=[16, 64], u=0.5):
+def random_brightness_shift_transform(image, limit=(16, 64), u=0.5):
     if np.random.random() < u:
         alpha = np.random.uniform(limit[0], limit[1])
         image = image + alpha * 255
@@ -177,7 +174,7 @@ def random_brightness_shift_transform(image, limit=[16, 64], u=0.5):
     return image
 
 
-def random_brightness_transform(image, limit=[0.5, 1.5], u=0.5):
+def random_brightness_transform(image, limit=(0.5, 1.5), u=0.5):
     if np.random.random() < u:
         alpha = np.random.uniform(limit[0], limit[1])
         image = alpha * image
@@ -185,7 +182,7 @@ def random_brightness_transform(image, limit=[0.5, 1.5], u=0.5):
     return image
 
 
-def random_contrast_transform(image, limit=[0.5, 1.5], u=0.5):
+def random_contrast_transform(image, limit=(0.5, 1.5), u=0.5):
     if np.random.random() < u:
         alpha = np.random.uniform(limit[0], limit[1])
         coef = np.array([[[0.114, 0.587, 0.299]]])  # rgb to gray (YCbCr)
@@ -196,7 +193,7 @@ def random_contrast_transform(image, limit=[0.5, 1.5], u=0.5):
     return image
 
 
-def random_saturation_transform(image, limit=[0.5, 1.5], u=0.5):
+def random_saturation_transform(image, limit=(0.5, 1.5), u=0.5):
     if np.random.random() < u:
         alpha = np.random.uniform(limit[0], limit[1])
         coef = np.array([[[0.114, 0.587, 0.299]]])
@@ -211,7 +208,7 @@ def random_saturation_transform(image, limit=[0.5, 1.5], u=0.5):
 # https://github.com/fchollet/keras/pull/4806/files
 # https://zhuanlan.zhihu.com/p/24425116
 # http://lamda.nju.edu.cn/weixs/project/CNNTricks/CNNTricks.html
-def random_hue_transform(image, limit=[-0.1, 0.1], u=0.5):
+def random_hue_transform(image, limit=(-0.1, 0.1), u=0.5):
     if random.random() < u:
         h = int(np.random.uniform(limit[0], limit[1]) * 180)
         # print(h)
@@ -222,7 +219,7 @@ def random_hue_transform(image, limit=[-0.1, 0.1], u=0.5):
     return image
 
 
-def random_noise_transform(image, limit=[0, 0.5], u=0.5):
+def random_noise_transform(image, limit=(0, 0.5), u=0.5):
     if random.random() < u:
         H, W = image.shape[:2]
         noise = np.random.uniform(limit[0], limit[1], size=(H, W)) * 255
@@ -230,6 +227,23 @@ def random_noise_transform(image, limit=[0, 0.5], u=0.5):
         image = image + noise[:, :, np.newaxis] * np.array([1, 1, 1])
         image = np.clip(image, 0, 255).astype(np.uint8)
 
+    return image
+
+
+def gaussian_noise_intensity_normalize(image):
+    image = image.astype(np.float)
+    image = linear_normalize(image)
+    image += np.random.normal(0, 8 / 255, image.shape)
+    image = linear_normalize(image)
+    image *= (np.random.rand() * 128 + 127)
+    return image
+
+
+def linear_normalize(image):
+    image = image.astype(np.float)
+    image -= image.min()
+    image /= image.max()
+    image *= 255
     return image
 
 

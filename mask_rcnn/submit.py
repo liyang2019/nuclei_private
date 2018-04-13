@@ -114,8 +114,9 @@ def submit_augment_pad_revert(net, images, scale=1.0):
 
         # mask --
         # net.mask_logits
-        index = (net.detections[:, 0] == b).nonzero().view(-1)
-        net.detections = torch_clip_proposals(net.detections, index, width, height)
+        if len(net.detections) > 0:
+            index = (net.detections[:, 0] == b).nonzero().view(-1)
+            net.detections = torch_clip_proposals(net.detections, index, width, height)
         net.masks[b] = net.masks[b][:height, :width]
 
     return net, image
@@ -258,7 +259,7 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
 
     # net ------------------------------
     cfg = Configuration()
-    net = MaskNet(cfg, 1 if color_scheme == cv2.IMREAD_GRAYSCALE else 3)
+    net = MaskNet(cfg, 1 if color_scheme == cv2.IMREAD_GRAYSCALE else 3, mask='4conv', feature_channels=256)
     # net = MaskRcnnNet(cfg)
     net = net.cuda() if USE_CUDA else net
 

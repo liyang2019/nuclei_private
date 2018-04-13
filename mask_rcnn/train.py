@@ -8,12 +8,13 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # '3,2' #'3,2,1,0'
 # -------------------------------------------------------------------------------------
 class Trainer:
 
-    def __init__(self, net, train_loader, val_loader, optimizer, learning_rate, LR, logger,
+    def __init__(self, net, train_loader, valid_loader, visualize_loader, optimizer, learning_rate, LR, logger,
                  iter_accum, num_iters, iter_smooth, iter_log, iter_valid, images_per_epoch,
                  initial_checkpoint, pretrain_file, debug, is_validation, out_dir):
         self.net = net
         self.train_loader = train_loader
-        self.val_loader = val_loader
+        self.valid_loader = valid_loader
+        self.visualize_loader = visualize_loader
         self.optimizer = optimizer
         self.learning_rate = learning_rate
         self.iter_accum = iter_accum
@@ -28,7 +29,7 @@ class Trainer:
         self.LR = LR
         self.images_per_epoch = images_per_epoch
         self.is_validation = is_validation
-        self.out_dir = out_dir
+        self.out_dir = os.path.join(out_dir, IDENTIFIER)
 
     def run_train(self):
 
@@ -39,7 +40,7 @@ class Trainer:
         os.makedirs(os.path.join(self.out_dir, 'checkpoint'), exist_ok=True)
         os.makedirs(os.path.join(self.out_dir, 'train'), exist_ok=True)
         os.makedirs(os.path.join('../backup'), exist_ok=True)
-        # backup_project_as_zip(PROJECT_PATH, os.path.join('../backup/maskrcnn.code.train.%s.zip' % IDENTIFIER))
+        backup_project_as_zip(PROJECT_PATH, os.path.join('../backup/maskrcnn.code.train.%s.zip' % IDENTIFIER))
 
         self.log.write('\n--- [START %s] %s\n\n' % (IDENTIFIER, '-' * 64))
         self.log.write('** some experiment setting **\n')
@@ -49,9 +50,7 @@ class Trainer:
 
         cfg = self.net.cfg
 
-        print('initial_checkpoint', self.initial_checkpoint)
         if self.initial_checkpoint is not None:
-            print('\tinitial_checkpoint = %s\n' % self.initial_checkpoint)
             self.log.write('\tinitial_checkpoint = %s\n' % self.initial_checkpoint)
             self.net.load_state_dict(torch.load(self.initial_checkpoint, map_location=lambda storage, loc: storage))
 
@@ -80,19 +79,15 @@ class Trainer:
         self.log.write(' optimizer=%s\n' % str(self.optimizer))
         self.log.write(' momentum=%f\n' % self.optimizer.param_groups[0]['momentum'])
         self.log.write(' LR=%s\n\n' % str(self.LR))
-
         self.log.write(' images_per_epoch = %d\n\n' % self.images_per_epoch)
         self.log.write(
-            ' rate    iter   epoch  num   | valid_loss               | train_loss               | batch_loss               |  time          \n')
+            ' rate    iter   epoch  num   | train_loss               | valid_loss               | valid metric             |  time          \n')
         self.log.write(
             '-------------------------------------------------------------------------------------------------------------------------------\n')
 
         train_loss = np.zeros(6, np.float32)
-        # train_acc = 0.0
         valid_loss = np.zeros(6, np.float32)
-        # valid_acc = 0.0
-        batch_loss = np.zeros(6, np.float32)
-        # batch_acc = 0.0
+        valid_acc = 0
         rate = 0
 
         start = timer()
@@ -102,7 +97,6 @@ class Trainer:
         while i < self.num_iters:  # loop over the dataset multiple times
 
             sum_train_loss = np.zeros(6, np.float32)
-            sum_train_acc = 0.0
             sum = 0
 
             self.net.set_mode('train')
@@ -117,20 +111,18 @@ class Trainer:
 
                 if self.is_validation and i % self.iter_valid == 0:
                     self.net.set_mode('valid')
-                    valid_loss, valid_acc = self.evaluate(self.net, self.val_loader)
+                    valid_loss, valid_acc = self.evaluate(self.net, self.valid_loader)
+                    self.visualize(self.net, self.visualize_loader, cfg, i, self.out_dir)
                     self.net.set_mode('train')
 
                     print('\r', end='', flush=True)
                     self.log.write(
-                        '%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %s\n' %
+                        '%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   | %s\n' %
                         (
                             rate, i / 1000, epoch, num_products / 1000000,
-                            valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
-                            # valid_acc,
                             train_loss[0], train_loss[1], train_loss[2], train_loss[3], train_loss[4], train_loss[5],
-                            # train_acc,
-                            batch_loss[0], batch_loss[1], batch_loss[2], batch_loss[3], batch_loss[4], batch_loss[5],
-                            # batch_acc,
+                            valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
+                            valid_acc,
                             time_to_str((timer() - start) / 60)),
                         is_terminal=0)
                     time.sleep(0.01)
@@ -158,13 +150,7 @@ class Trainer:
                 inputs = inputs.cuda() if USE_CUDA else inputs
                 inputs = Variable(inputs)
 
-                # self.net(inputs, truth_boxes, truth_labels, truth_instances)
-                # loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
-
-                # TODO training rcnn only!
                 self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                # self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
-                # loss = self.net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
                 loss = self.net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
                 # accumulated update
@@ -175,40 +161,32 @@ class Trainer:
                     self.optimizer.zero_grad()
 
                 # print statistics  ------------
-                batch_acc = 0  # acc[0][0]
                 batch_loss = np.array((
                     loss.cpu().data.numpy(),
                     self.net.rpn_cls_loss.cpu().data.numpy(),
                     self.net.rpn_reg_loss.cpu().data.numpy(),
                     self.net.rcnn_cls_loss.cpu().data.numpy(),
                     self.net.rcnn_reg_loss.cpu().data.numpy(),
-                    self.net.mask_cls_loss.cpu().data.numpy(),
-                    # 0,  # TODO train rcnn only
+                    0 if self.net.mask_cls_loss is None else self.net.mask_cls_loss.cpu().data.numpy(),
                 ))
                 sum_train_loss += batch_loss
-                sum_train_acc += batch_acc
                 sum += 1
 
                 if i % self.iter_smooth == 0:
                     train_loss = sum_train_loss / sum
-                    # train_acc = sum_train_acc / sum
                     sum_train_loss = np.zeros(6, np.float32)
-                    sum_train_acc = 0.
                     sum = 0
 
                 if i % self.iter_log == 0:
                     print(
-                        '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %s  %d,%d,%s \n' %
+                        '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   | %s  %d,%d,%s \n' %
                         (
                             rate, i / 1000, epoch, num_products / 1000000,
-                            valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
-                            # valid_acc,
                             train_loss[0], train_loss[1], train_loss[2], train_loss[3], train_loss[4], train_loss[5],
-                            # train_acc,
-                            batch_loss[0], batch_loss[1], batch_loss[2], batch_loss[3], batch_loss[4], batch_loss[5],
-                            # batch_acc,
+                            valid_loss[0], valid_loss[1], valid_loss[2], valid_loss[3], valid_loss[4], valid_loss[5],
+                            valid_acc,
                             time_to_str((timer() - start) / 60), i, j, ''
-                        ), end='', flush=True)  # str(inputs.size()))
+                        ), end='', flush=True)
                 j = j + 1
 
                 # <debug> ===================================================================
@@ -217,9 +195,7 @@ class Trainer:
 
                     self.net.set_mode('test')
                     with torch.no_grad():
-                        # self.net(inputs, truth_boxes, truth_labels, truth_instances)
                         self.net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                        # self.net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
 
                     images = inputs.data.cpu().numpy()
                     # window = self.net.rpn_window
@@ -230,13 +206,10 @@ class Trainer:
                     # rcnn_logits = self.net.rcnn_logits.data.cpu().numpy()
                     # rcnn_deltas = self.net.rcnn_deltas.data.cpu().numpy()
                     rcnn_proposals = self.net.rcnn_proposals.data.cpu().numpy()
-                    # rcnn_proposals = self.net.get_detections(inputs).data.cpu().numpy()
 
                     # detections = self.net.detections.data.cpu().numpy()
                     masks = self.net.masks
-                    # masks = self.net.get_masks(inputs)
 
-                    # print('train',batch_size)
                     # for b in range(batch_size):
                     for b in range(1):
 
@@ -339,11 +312,11 @@ class Trainer:
 
     # training ##############################################################
     @staticmethod
-    def evaluate(net, test_loader):
+    def evaluate(net, valid_loader):
         test_num = 0
         test_loss = np.zeros(6, np.float32)
         test_acc = 0
-        for i, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(test_loader, 0):
+        for _, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(valid_loader, 0):
             batch_size = len(indices)
             test_num += batch_size
             with torch.no_grad():
@@ -352,34 +325,76 @@ class Trainer:
                 if all(len(b) == 0 for b in truth_boxes):
                     print('all None in evaluateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
                     continue
-                # net(inputs, truth_boxes, truth_labels, truth_instances)
-                # loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
-
-                # TODO train rcnn only
                 net.forward(inputs, truth_boxes, truth_labels, truth_instances)
-                # net.forward_train(inputs, truth_boxes, truth_labels, truth_instances)
-                # loss = net.loss_train_rcnn(inputs, truth_boxes, truth_labels, truth_instances)
                 loss = net.loss(inputs, truth_boxes, truth_labels, truth_instances)
+            for b in range(batch_size):
+                mask_average_precision, mask_precision = \
+                    compute_average_precision_for_mask(net.masks[b], instance_to_multi_mask(truth_instances[b]), t_range=np.arange(0.5, 1.0, 0.05))
+                test_acc += mask_average_precision
 
-            # acc    = dice_loss(masks, labels) #todo
-            test_acc += 0  # batch_size*acc[0][0]
             test_loss += batch_size * np.array((
                 loss.cpu().data.numpy(),
                 net.rpn_cls_loss.cpu().data.numpy(),
                 net.rpn_reg_loss.cpu().data.numpy(),
                 net.rcnn_cls_loss.cpu().data.numpy(),
                 net.rcnn_reg_loss.cpu().data.numpy(),
-                net.mask_cls_loss.cpu().data.numpy(),  # TODO train rcnn only
-                # 0,
+                0 if net.mask_cls_loss is None else net.mask_cls_loss.cpu().data.numpy()
             ))
-
-        assert (test_num == len(test_loader.sampler))
+        assert (test_num == len(valid_loader.sampler))
         test_acc = test_acc / test_num
         test_loss = test_loss / test_num
         return test_loss, test_acc
 
+    @staticmethod
+    def visualize(net, visualize_loader, cfg, i, out_dir):
+        test_num = 0
+        for _, (inputs, truth_boxes, truth_labels, truth_instances, metas, indices) in enumerate(visualize_loader, 0):
+            batch_size = len(indices)
+            test_num += batch_size
+            with torch.no_grad():
+                inputs = inputs.cuda() if USE_CUDA else inputs
+                inputs = Variable(inputs)
+                if all(len(b) == 0 for b in truth_boxes):
+                    print('all None in evaluateeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+                    continue
+                net.forward(inputs, truth_boxes, truth_labels, truth_instances)
+                net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 
-# --------------------------------------------------------------
+            rpn_proposals = net.rpn_proposals.data.cpu().numpy()
+            rcnn_proposals = net.rcnn_proposals.data.cpu().numpy()
+            masks = net.masks
+
+            images = inputs.data.cpu().numpy()
+            for b in range(batch_size):
+                image = (images[b].transpose((1, 2, 0)) * 255)
+                image = image.astype(np.uint8)
+                if image.shape[2] == 1:
+                    image = image.repeat(3, axis=2)
+
+                truth_box = truth_boxes[b]
+                truth_label = truth_labels[b]
+                truth_instance = truth_instances[b]
+
+                rpn_proposal = np.zeros((0, 7), np.float32)
+                if len(rpn_proposals) > 0:
+                    index = np.where(rpn_proposals[:, 0] == b)[0]
+                    rpn_proposal = rpn_proposals[index]
+
+                rcnn_proposal = np.zeros((0, 7), np.float32)
+                if len(rcnn_proposals) > 0:
+                    index = np.where(rcnn_proposals[:, 0] == b)[0]
+                    rcnn_proposal = rcnn_proposals[index]
+
+                all5 = draw_multi_proposal_metric(cfg, image, rpn_proposal, truth_box, truth_label,
+                                                  [0, 255, 255],
+                                                  [255, 0, 255], [255, 255, 0])
+                all6 = draw_multi_proposal_metric(cfg, image, rcnn_proposal, truth_box, truth_label,
+                                                  [0, 255, 255],
+                                                  [255, 0, 255], [255, 255, 0])
+                all7 = draw_mask_metric(cfg, image, masks[b], truth_box, truth_label, truth_instance)
+                cv2.imwrite(out_dir + '/train/%05d.%02d.%s.rpn_precision.png' % (i, b, metas[b]), all5)
+                cv2.imwrite(out_dir + '/train/%05d.%02d.%s.rcnn_precision.png' % (i, b, metas[b]), all6)
+                cv2.imwrite(out_dir + '/train/%05d.%02d.%s.mask_precision.png' % (i, b, metas[b]), all7)
 
 
 # main #################################################################

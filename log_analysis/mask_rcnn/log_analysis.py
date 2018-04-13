@@ -19,12 +19,6 @@ def analyze_log(f):
                 train_losses_split = np.array([float(loss.strip()) for loss in train_losses_split])
                 train_losses = np.vstack([train_losses, train_losses_split])
 
-    average = 1
-    filter = np.ones((average,)) / average
-    for i in range(valid_losses.shape[1]):
-        valid_losses[:, i] = np.convolve(valid_losses[:, i], filter, mode='same')
-        train_losses[:, i] = np.convolve(train_losses[:, i], filter, mode='same')
-
     smooth_length = 10
     valid_losses = smooth(valid_losses, smooth_length)
     train_losses = smooth(train_losses, smooth_length)
@@ -50,18 +44,21 @@ def smooth(arr, smooth_length):
 
 
 if __name__ == '__main__':
-    valid_losses1, train_losses1 = analyze_log('2018-4-10_mini-unet.txt')
-    valid_losses2, train_losses2 = analyze_log('2018-4-10_mini-res.txt')
-    valid_losses3, train_losses3 = analyze_log('2018-4-10_4conv.txt')
+    # valid_losses1, train_losses1 = analyze_log('2018-4-10_mini-unet.txt')
+    # valid_losses2, train_losses2 = analyze_log('2018-4-10_mini-res.txt')
+    # valid_losses3, train_losses3 = analyze_log('2018-4-10_4conv.txt')
+    valid_losses1, train_losses1 = analyze_log('2018-4-10_mini-unet_leaky.txt')
+    valid_losses2, train_losses2 = analyze_log('2018-4-10_mini-res_leaky.txt')
+    valid_losses3, train_losses3 = analyze_log('2018-4-10_4conv_leaky.txt')
 
     plt.figure()
-    plt.plot(valid_losses1[:, 5], 'r')
-    plt.plot(valid_losses2[:, 5], 'g')
-    plt.plot(valid_losses3[:, 5], 'b')
-    plt.savefig('2018-4-10_mask_compare_valid.png')
+    plt.plot(valid_losses1[:, 5], '.r-', linewidth=0.5, markersize=1)
+    plt.plot(valid_losses2[:, 5], '.g-', linewidth=0.5, markersize=1)
+    plt.plot(valid_losses3[:, 5], '.b-', linewidth=0.5, markersize=1)
+    plt.savefig('2018-4-10_mask_compare_valid_leaky.png', dpi=300)
 
     plt.figure()
-    plt.plot(train_losses1[:, 5], 'r')
-    plt.plot(train_losses2[:, 5], 'g')
-    plt.plot(train_losses3[:, 5], 'b')
-    plt.savefig('2018-4-10_mask_compare_train.png')
+    plt.plot(train_losses1[:, 5], '.r-', linewidth=0.5, markersize=1)
+    plt.plot(train_losses2[:, 5], '.g-', linewidth=0.5, markersize=1)
+    plt.plot(train_losses3[:, 5], '.b-', linewidth=0.5, markersize=1)
+    plt.savefig('2018-4-10_mask_compare_train_leaky.png', dpi=300)
