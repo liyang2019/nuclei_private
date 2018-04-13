@@ -362,8 +362,6 @@ class Trainer:
             with torch.no_grad():
                 inputs = inputs.cuda() if USE_CUDA else inputs
                 inputs = Variable(inputs)
-                if all(len(b) == 0 for b in truth_boxes):
-                    continue
                 net.forward(inputs, truth_boxes, truth_labels, truth_instances)
                 net.loss(inputs, truth_boxes, truth_labels, truth_instances)
 

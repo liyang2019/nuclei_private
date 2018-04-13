@@ -76,7 +76,7 @@ def main():
     parser.add_argument('--run', help='exit debug mode', action='store_true', default=False)
 
     args = parser.parse_args()
-    debug = True
+    debug = False
 
     # debug
     if not args.run:
