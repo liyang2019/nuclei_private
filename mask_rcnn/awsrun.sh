@@ -18,7 +18,7 @@ python main.py \
        --iter_valid 200 \
        --save_model_every 500 \
        --is_validation \
-       --num_iters 18 \
+       --num_iters 18000 \
        --masknet 4conv \
        --color_scheme gray \
        --feature_channels 256 \
@@ -47,7 +47,7 @@ python main.py \
        --iter_valid 200 \
        --save_model_every 500 \
        --is_validation \
-       --num_iters 18 \
+       --num_iters 18000 \
        --masknet 4conv \
        --color_scheme gray \
        --feature_channels 256 \
