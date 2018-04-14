@@ -118,7 +118,7 @@ class Trainer:
 
                     print('\r', end='', flush=True)
                     self.log.write(
-                        '%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   | %s\n' %
+                        '%0.4f %5.1f k %6.1f %4.1f m | %0.4f   %0.4f %0.4f   %0.4f %0.4f   %0.4f | %0.4f   %0.4f %0.4f   %0.4f %0.4f   %0.4f | %0.4f   | %s\n' %
                         (
                             rate, i / 1000, epoch, num_products / 1000000,
                             train_loss[0], train_loss[1], train_loss[2], train_loss[3], train_loss[4], train_loss[5],
@@ -187,7 +187,7 @@ class Trainer:
 
                 if i % self.iter_log == 0:
                     print(
-                        '\r%0.4f %5.1f k %6.1f %4.1f m | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   %0.2f %0.2f   %0.2f %0.2f   %0.2f | %0.3f   | %s  %d,%d,%s \n' %
+                        '\r%0.4f %5.1f k %6.1f %4.1f m | %0.4f   %0.4f %0.4f   %0.4f %0.4f   %0.4f | %0.4f   %0.4f %0.4f   %0.4f %0.4f   %0.4f | %0.4f   | %s  %d,%d,%s \n' %
                         (
                             rate, i / 1000, epoch, num_products / 1000000,
                             train_loss[0], train_loss[1], train_loss[2], train_loss[3], train_loss[4], train_loss[5],
