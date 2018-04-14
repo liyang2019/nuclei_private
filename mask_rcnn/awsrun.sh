@@ -12,8 +12,8 @@ python main.py \
        --result_dir ../results/2018-4-14_gray800_box \
        --input_width 128 --input_height 128 \
        --learning_rate 0.01 \
-       --batch_size 1 \
-       --iter_accum 1 \
+       --batch_size 8 \
+       --iter_accum 2 \
        --print_every 10 \
        --iter_valid 200 \
        --save_model_every 500 \
@@ -41,8 +41,8 @@ python main.py \
        --result_dir ../results/2018-4-14_gray800_box \
        --input_width 256 --input_height 256 \
        --learning_rate 0.01 \
-       --batch_size 1 \
-       --iter_accum 1 \
+       --batch_size 7 \
+       --iter_accum 2 \
        --print_every 10 \
        --iter_valid 200 \
        --save_model_every 500 \
