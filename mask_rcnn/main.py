@@ -37,36 +37,27 @@ def main():
                         action='store', type=int, default=100)
     parser.add_argument('--num_workers', help='number of workers for loading dataset', action='store', type=int,
                         default=4)
-    parser.add_argument('--train_split', help='the train dataset split', choices=[
-        'train1_ids_all_670',
-        'train1_ids_gray2_500',
-        'debug1_ids_gray2_10',
-        'disk0_ids_dummy_9',
-        'disk0_ids_dummy_10',
-        'purple_108',
-        'train1_ids_purple_only1_101',
-        'merge1_1',
-        'ids_train'], action='store', default='train1_ids_gray2_500')
-    parser.add_argument('--valid_split', help='the valid dataset split', action='store', default='debug2_ids_gray2_3')
-    parser.add_argument('--visualize_split', help='the visualize dataset split', action='store', default='debug2_ids_gray2_3')
+    parser.add_argument('--train_split', help='the train dataset split', action='store', default='ids_train')
+    parser.add_argument('--valid_split', help='the valid dataset split', action='store', default='ids_valid')
+    parser.add_argument('--visualize_split', help='the visualize dataset split', action='store', default='ids_visualize')
     parser.add_argument('--iter_accum', help='iter_accum', action='store', type=int, default=1)
     parser.add_argument('--result_dir', help='result dir for saving logs and data', action='store', default='../results')
-    parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data')
+    parser.add_argument('--data_dir', help='the root dir to store data', action='store', default='../data/2018-4-12_dataset')
     parser.add_argument('--initial_checkpoint', help='check point to load model', action='store', default=None)
     parser.add_argument('--image_folder_train', help='the folder containing images for training', action='store',
-                        default='stage1_train')
+                        default='stage1')
     parser.add_argument('--image_folder_valid', help='the folder containing images for validation', action='store',
-                        default='stage1_train')
+                        default='stage1')
     parser.add_argument('--image_folder_visualize', help='the folder containing images for visualization', action='store',
-                        default='stage1_visualize')
+                        default='visualize')
     parser.add_argument('--image_folder_test', help='the folder containing images for testing', action='store',
                         default='stage1_test')
     parser.add_argument('--masks_folder_train', help='the folder containing masks for training', action='store',
-                        default='fixed_multi_masks')
+                        default='stage1_masks')
     parser.add_argument('--masks_folder_valid', help='the folder containing masks for validation', action='store',
-                        default='fixed_multi_masks')
+                        default='stage1_masks')
     parser.add_argument('--masks_folder_visualize', help='the folder containing masks for visualization', action='store',
-                        default='fixed_multi_masks')
+                        default='visualize_masks')
     parser.add_argument('--color_scheme', help='the color scheme for imread, must be \'color\' or \'gray\'',
                         action='store',
                         default='gray')
@@ -84,15 +75,15 @@ def main():
         args.print_every = 1
         args.learning_rate = 0.002
         args.iter_valid = 1
-        args.is_validation = True
-        args.train_split = 'train1_ids_gray2_500'
+        args.is_validation = False
+        args.train_split = 'ids_train'
         args.input_width = 256
         args.input_height = 256
         args.iter_accum = 1
         args.seed = 0
         args.num_workers = 1
         args.save_model_every = 1000
-        debug = False
+        debug = True
 
     os.makedirs(args.result_dir, exist_ok=True)
     print('data_dir', args.data_dir)
@@ -145,7 +136,7 @@ def main():
             scale = max((HEIGHT + 1) / H, (WIDTH + 1) / W)
             image, multi_mask = fix_resize_transform2(image, multi_mask, int(scale * H), int(scale * W))
 
-        image = linear_normalize(image)
+        image = linear_normalize_intensity_augment(image)
 
         image, multi_mask = random_shift_scale_rotate_transform2(image, multi_mask,
                                                                  shift_limit=[0, 0], scale_limit=[1 / 1.5, 1.5],

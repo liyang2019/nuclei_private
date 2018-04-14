@@ -112,8 +112,8 @@ class Trainer:
                 if self.is_validation and i % self.iter_valid == 0:
                     self.net.set_mode('valid')
                     valid_loss, valid_acc = self.evaluate(self.net, self.valid_loader)
-                    self.net.set_mode('test')
-                    self.visualize(self.net, self.visualize_loader, cfg, i, self.out_dir)
+                    # self.net.set_mode('test')
+                    # self.visualize(self.net, self.visualize_loader, cfg, i, self.out_dir)
                     self.net.set_mode('train')
 
                     print('\r', end='', flush=True)

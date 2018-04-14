@@ -349,11 +349,13 @@ def main():
     #     ])
 
     out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_gray_model/'
-    initial_checkpoint = '../gcp_data_sync/latest_model.pth'
+    # initial_checkpoint = '../gcp_data_sync/latest_model.pth'
+    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-13_abn_gray2rgb/abn_gray2rgb_model.pth'
     data_dir = '../data/2018-4-12_dataset'
     image_set = 'test2_gray_key.txt'
     image_folder = '../stage2_test'
-    color_scheme = cv2.IMREAD_GRAYSCALE
+    # color_scheme = cv2.IMREAD_GRAYSCALE
+    color_scheme = cv2.IMREAD_COLOR
     # for test_augment_mode in ['scaleup', 'scaledown', 'hflip', 'vflip', 'none']:
     #     predict_and_generate_csv(
     #         out_dir=out_dir + test_augment_mode,

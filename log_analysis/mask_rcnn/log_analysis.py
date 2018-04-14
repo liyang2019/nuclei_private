@@ -46,9 +46,9 @@ if __name__ == '__main__':
     # valid_losses1, train_losses1 = analyze_log('2018-4-10_mini-unet.txt')
     # valid_losses2, train_losses2 = analyze_log('2018-4-10_mini-res.txt')
     # valid_losses3, train_losses3 = analyze_log('2018-4-10_4conv.txt')
-    valid_losses1, train_losses1 = analyze_log('2018-4-10_mini-unet_leaky.txt')
-    valid_losses2, train_losses2 = analyze_log('2018-4-10_mini-res_leaky.txt')
-    valid_losses3, train_losses3 = analyze_log('2018-4-10_4conv_leaky.txt')
+    valid_losses1, train_losses1 = analyze_log('2018-4-10_mini-unet_leaky.txt', 10)
+    valid_losses2, train_losses2 = analyze_log('2018-4-10_mini-res_leaky.txt', 10)
+    valid_losses3, train_losses3 = analyze_log('2018-4-10_4conv_leaky.txt', 10)
 
     plt.figure()
     plt.plot(valid_losses1[:, 5], '.r-', linewidth=0.5, markersize=1)

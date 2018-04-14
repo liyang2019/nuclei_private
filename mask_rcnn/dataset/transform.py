@@ -232,17 +232,21 @@ def random_noise_transform(image, limit=(0, 0.5), u=0.5):
 
 def gaussian_noise_intensity_normalize(image):
     image = image.astype(np.float)
-    image = linear_normalize(image)
+    image -= image.min()
+    image /= image.max()
     image += np.random.normal(0, 8 / 255, image.shape)
-    image = linear_normalize(image)
+    image -= image.min()
+    image /= image.max()
     image *= (np.random.rand() * 128 + 127)
     return image
 
 
-def linear_normalize(image):
+def linear_normalize_intensity_augment(image):
     image = image.astype(np.float)
     image -= image.min()
     image /= image.max()
+    image = image ** (0.8 + np.random.rand() * 0.4)
+    image *= np.random.rand() * 0.2 + 0.8
     image *= 255
     return image
 

@@ -232,7 +232,7 @@ def make_annotation_final():
             im /= im.max()
             im = im**1.5 * 255
         if name in WHITE_BACKGROUND:
-            continue
+            im = -im
         im = normalize(im.astype(np.float))
         masks_paths = pathlib.Path(train_image_root_origin).glob('%s/masks/*.png' % name)
         multi_mask = np.zeros((im.shape[0], im.shape[1]), np.int32)
@@ -289,6 +289,37 @@ def make_annotation_final():
         cv2.imwrite(os.path.join(valid_image_root, name + '.png'), im[:, :, 0])
         np.save(os.path.join(valid_masks_root, name + '.npy'), multi_mask)
         cv2.imwrite(os.path.join(valid_overlays_root, name + '.png'), all)
+
+    # print('generating external annotations')
+    # external_image_root_origin = '../../data/2018-4-12_dataset/stage1_images/external'
+    # external_image_root = '../../data/2018-4-12_dataset/stage1_images/external_gray'
+    # external_masks_root = '../../data/2018-4-12_dataset/stage1_images/external_masks'
+    # external_overlays_root = '../../data/2018-4-12_dataset/stage1_images/external_gray_overlays'
+    # os.makedirs(external_image_root, exist_ok=True)
+    # os.makedirs(external_overlays_root, exist_ok=True)
+    #
+    # paths = pathlib.Path(external_image_root_origin).glob('*.png')
+    # for path in tqdm(paths):
+    #     path_split = str(path).split('/')
+    #     name = path_split[-1].strip('.png')
+    #     im = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    #     im = im.astype(np.float)
+    #     im = -im[:, :, np.newaxis].repeat(3, axis=2)
+    #     im -= im.min()
+    #     im /= im.max()
+    #     # im = im ** 1.5 * 255
+    #     im = im * 255
+    #     im = normalize(im.astype(np.float))
+    #     multi_mask = np.load(external_masks_root + '/%s.npy' % name)
+    #
+    #     # check
+    #     color_overlay = multi_mask_to_color_overlay(multi_mask, color='summer')
+    #     color1_overlay = multi_mask_to_contour_overlay(multi_mask, color_overlay, [255, 255, 255])
+    #     contour_overlay = multi_mask_to_contour_overlay(multi_mask, im, [0, 255, 0])
+    #     all = np.hstack((im, contour_overlay, color1_overlay,)).astype(np.uint8)
+    #
+    #     cv2.imwrite(os.path.join(external_image_root, name + '.png'), im[:, :, 0])
+    #     cv2.imwrite(os.path.join(external_overlays_root, name + '.png'), all)
 
 
 def normalize(im):
