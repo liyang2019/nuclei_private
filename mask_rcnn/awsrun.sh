@@ -22,6 +22,7 @@ python main.py \
        --masknet 4conv \
        --color_scheme gray \
        --feature_channels 256 \
+       --train_box_only \
        --run \
 #       --initial_checkpoint /home/li/nuclei_private/results/2018-4-13_gray690_box/latest_model.pth \
 
