@@ -24,7 +24,7 @@ python main.py \
        --feature_channels 256 \
        --train_box_only \
        --run \
-#       --initial_checkpoint /home/ubuntu/nuclei_private/results/2018-4-14_gray690_box/latest_model.pth \
+#       --initial_checkpoint /home/ubuntu/nuclei_private/results/2018-4-14_gray800_box/latest_model.pth \
 
 
 python main.py \
@@ -52,4 +52,4 @@ python main.py \
        --color_scheme gray \
        --feature_channels 256 \
        --run \
-       --initial_checkpoint /home/ubuntu/nuclei_private/results/2018-4-14_gray690_box/latest_model.pth \
+       --initial_checkpoint /home/ubuntu/nuclei_private/results/2018-4-14_gray800_box/latest_model.pth \
