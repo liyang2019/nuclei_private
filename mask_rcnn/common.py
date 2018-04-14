@@ -36,7 +36,7 @@ import glob
 import sys
 from distutils.dir_util import copy_tree
 import time
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import skimage
 import skimage.color
