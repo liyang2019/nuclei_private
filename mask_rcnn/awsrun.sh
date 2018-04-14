@@ -1,7 +1,7 @@
 python main.py \
        --data_dir ../data/2018-4-12_dataset \
-       --train_split ids_train_tot \
-       --valid_split ids_valid_tot \
+       --train_split ids_train800 \
+       --valid_split ids_valid49 \
        --visualize_split ids_visualize \
        --image_folder_train stage1_tot \
        --masks_folder_train stage1_tot_masks \
@@ -29,8 +29,8 @@ python main.py \
 
 python main.py \
        --data_dir ../data/2018-4-12_dataset \
-       --train_split ids_train_tot \
-       --valid_split ids_valid_tot \
+       --train_split ids_train800 \
+       --valid_split ids_valid49 \
        --visualize_split ids_visualize \
        --image_folder_train stage1_tot \
        --masks_folder_train stage1_tot_masks \
