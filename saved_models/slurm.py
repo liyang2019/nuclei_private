@@ -43,6 +43,8 @@ def submit(job_dir, config):
         print("#SBATCH --mail-user=li.yang.pbs@gmail.com", file=f)
         print("#SBATCH --mail-type=ALL", file=f)
         print("#SBATCH --export=ALL", file=f)
+        print("")
+        print("export PYTHONPATH=../:../mask_rcnn:../ensemble", file=f)
         print("", file=f)
         print("echo 'My job ran on:'", file=f)
         print("echo $SLURM_NODELIST", file=f)

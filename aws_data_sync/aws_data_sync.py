@@ -11,7 +11,7 @@ if 1:
     os.makedirs(result_dir + '/train', exist_ok=True)
     os.system('scp -i ~/.ssh/mykey.pem -r ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/results/' + result_dir + '/train/* ' + result_dir + '/train')
     os.system('scp -i ~/.ssh/mykey.pem ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/mask_rcnn/log.txt ' + result_dir)
-    os.system('scp -i ~/.ssh/mykey.pem -r ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/results/' + result_folder + '/latest_model.pth ' + result_dir + '/')
+    # os.system('scp -i ~/.ssh/mykey.pem -r ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/results/' + result_folder + '/latest_model.pth ' + result_dir + '/')
 
     print('success')
 

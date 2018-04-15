@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 result_folder = '2018-4-13_gray690_full'
 IDENTIFIER = '2018-04-14_03-14-43'
-if 1:
+if 0:
     # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/2018-04-13_14-39-13/train' + ' ./')
     os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/latest_model.pth' + ' ./')
     # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/2018-4-13_gray690_full/2018-04-13_14-39-13/checkpoint/00016500_model.pth ./')
@@ -14,7 +14,7 @@ if 1:
     print('success')
 
 
-valid_losses, train_losses, valid_acc = analyze_log('log.txt', 10)
+valid_losses, train_losses, valid_acc = analyze_log('log.txt', 1)
 
 start = 1200
 plt.figure()

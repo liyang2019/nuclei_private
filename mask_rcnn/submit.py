@@ -168,9 +168,10 @@ def submit_augment_horizontal_flip_revert(net, images):
     for b in range(batch_size):
         image = images[b]
         height, width = image.shape[:2]
-        index = (net.detections[:, 0] == b).nonzero().view(-1)
-        net.detections[index, 1] = width - 1 - net.detections[index, 3]
-        net.detections[index, 3] = width - 1 - net.detections[index, 1]
+        if len(net.detections) > 0:
+            index = (net.detections[:, 0] == b).nonzero().view(-1)
+            net.detections[index, 1] = width - 1 - net.detections[index, 3]
+            net.detections[index, 3] = width - 1 - net.detections[index, 1]
         net.masks[b] = net.masks[b][:, ::-1]
     return net, image
 
@@ -190,9 +191,10 @@ def submit_augment_vertical_flip_revert(net, images):
     for b in range(batch_size):
         image = images[b]
         height, width = image.shape[:2]
-        index = (net.detections[:, 0] == b).nonzero().view(-1)
-        net.detections[index, 2] = width - 1 - net.detections[index, 4]
-        net.detections[index, 4] = width - 1 - net.detections[index, 2]
+        if len(net.detections) > 0:
+            index = (net.detections[:, 0] == b).nonzero().view(-1)
+            net.detections[index, 2] = width - 1 - net.detections[index, 4]
+            net.detections[index, 4] = width - 1 - net.detections[index, 2]
         net.masks[b] = net.masks[b][::-1, :]
     return net, image
 
@@ -211,8 +213,9 @@ def submit_augment_scale_revert(net, images, scale):
     image = None
     for b in range(batch_size):
         image = images[b]
-        index = (net.detections[:, 0] == b).nonzero().view(-1)
-        net.detections[index, :] = net.detections[index, :] / scale
+        if len(net.detections) > 0:
+            index = (net.detections[:, 0] == b).nonzero().view(-1)
+            net.detections[index, :] = net.detections[index, :] / scale
         H, W = image.shape[:2]
         net.masks[b] = transform.resize(net.masks[b], (H, W), mode='reflect', order=0, preserve_range=True)  # order 0 is nearest neighbor
     return net, image
