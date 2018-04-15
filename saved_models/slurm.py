@@ -57,7 +57,8 @@ def submit(job_dir, config):
 
         print("srun python predict.py " +
               "--initial_checkpoint " + os.path.join(config.model_folder, config.model) + " " +
-              "--test_augment_mode " + config.test_augment_mode,
+              "--test_augment_mode " + config.test_augment_mode + " " +
+              "--result_dir " + job_dir,
               file=f)
 
     os.chmod(slurm_file_name, mode=777)

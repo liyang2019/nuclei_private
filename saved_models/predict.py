@@ -3,9 +3,9 @@ import argparse
 from ensemble_submit import *
 
 
-def ensemble_predict(initial_checkpoint, identifier, test_augment_mode):
+def ensemble_predict(initial_checkpoint, identifier, test_augment_mode, result_dir):
     model = initial_checkpoint.split('/')[-1].strip('.pth')
-    out_dir = identifier + '_ensemble_' + model
+    out_dir = os.path.join(result_dir, identifier + '_ensemble_' + model)
     print('augment in mode: ' + test_augment_mode)
     predict_and_generate_csv(
         out_dir=os.path.join(out_dir, test_augment_mode),
@@ -22,6 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description='Script to run segmentation models prediction')
     parser.add_argument('--initial_checkpoint', action='store', default=' ')
     parser.add_argument('--test_augment_mode', action='store', default='none')
+    parser.add_argument('--result_dir', action='store', default='./')
 
     args = parser.parse_args()
 
