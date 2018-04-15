@@ -331,6 +331,7 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
 
         print('\rpredicting: %10d/%d (%0.0f %%)  %0.2f min' % (i, test_num - 1, 100 * i / (test_num - 1),
                                                                (timer() - start) / 60), end='', flush=True)
+        log.write('\rpredicting: %10d/%d (%0.0f %%)  %0.2f min' % (i, test_num - 1, 100 * i / (test_num - 1), (timer() - start) / 60))
         time.sleep(0.01)
 
         net.set_mode('test')
