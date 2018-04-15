@@ -7,6 +7,7 @@ def analyze_log(f, smooth_length):
 
     valid_losses = np.zeros((0, 6), dtype=np.float)
     train_losses = np.zeros((0, 6), dtype=np.float)
+    valid_acc = np.zeros((0, 1), dtype=np.float)
     with open(log_file, 'r') as f:
         for line in f.readlines():
             line_split = line.split('|')
@@ -19,6 +20,8 @@ def analyze_log(f, smooth_length):
                 train_losses_split = np.array([float(loss.strip()) for loss in train_losses_split])
                 train_losses = np.vstack([train_losses, train_losses_split])
 
+                valid_acc = np.vstack([valid_acc, float(line_split[3])])
+
     valid_losses = smooth(valid_losses, smooth_length)
     train_losses = smooth(train_losses, smooth_length)
 
@@ -26,7 +29,7 @@ def analyze_log(f, smooth_length):
     # plt.plot(valid_losses, 'b', linewidth=1)
     # plt.savefig(log_file.replace('.txt', '.png'))
     print(valid_losses.shape)
-    return valid_losses, train_losses
+    return valid_losses, train_losses, valid_acc
 
 
 def smooth(arr, smooth_length):

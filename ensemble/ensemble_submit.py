@@ -349,13 +349,20 @@ def main():
     #     ])
 
     out_dir = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_gray_model/'
-    # initial_checkpoint = '../gcp_data_sync/latest_model.pth'
-    initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-13_abn_gray2rgb/abn_gray2rgb_model.pth'
+    initial_checkpoint = '../gcp_data_sync/latest_model.pth'
+    # initial_checkpoint = '../aws_data_sync/2018-4-14_gray800_box/2018-04-14_18-16-22/latest_model.pth'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-13_abn_gray2rgb/abn_gray2rgb_model.pth'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-3-30_maskrcnn_gray500/mask-rcnn-50-gray500-02/checkpoint/00016500_model.pth'
+    # initial_checkpoint = '/Users/li/saved_model_macbook_local/2018-4-7_purple108/00017000_model.pth'
     data_dir = '../data/2018-4-12_dataset'
-    image_set = 'test2_gray_key.txt'
+    # data_dir = '../data'
+    # image_set = 'test2_color_key.txt'
+    # image_set = 'test1_ids_all_65'
+    image_set = 'test2_color_key.txt'
     image_folder = '../stage2_test'
-    # color_scheme = cv2.IMREAD_GRAYSCALE
-    color_scheme = cv2.IMREAD_COLOR
+    # image_folder = 'stage1_test'
+    color_scheme = cv2.IMREAD_GRAYSCALE
+    # color_scheme = cv2.IMREAD_COLOR
     # for test_augment_mode in ['scaleup', 'scaledown', 'hflip', 'vflip', 'none']:
     #     predict_and_generate_csv(
     #         out_dir=out_dir + test_augment_mode,

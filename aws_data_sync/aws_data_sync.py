@@ -3,20 +3,22 @@ from log_analysis.mask_rcnn.log_analysis import analyze_log
 import matplotlib.pyplot as plt
 
 
-result_folder = '2018-4-13_gray690_full'
-IDENTIFIER = '2018-04-14_03-14-43'
+result_folder = '2018-4-14_gray800_box'
+# IDENTIFIER = '2018-04-14_18-16-22'
+IDENTIFIER = '2018-04-15_03-47-56'
+result_dir = os.path.join(result_folder, IDENTIFIER)
 if 1:
-    # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/2018-04-13_14-39-13/train' + ' ./')
-    os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/latest_model.pth' + ' ./')
-    # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/2018-4-13_gray690_full/2018-04-13_14-39-13/checkpoint/00016500_model.pth ./')
-    os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/mask_rcnn/log.txt ./')
+    os.makedirs(result_dir + '/train', exist_ok=True)
+    os.system('scp -i ~/.ssh/mykey.pem -r ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/results/' + result_dir + '/train/* ' + result_dir + '/train')
+    os.system('scp -i ~/.ssh/mykey.pem ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/mask_rcnn/log.txt ' + result_dir)
+    os.system('scp -i ~/.ssh/mykey.pem -r ubuntu@ec2-34-217-126-197.us-west-2.compute.amazonaws.com:/home/ubuntu/nuclei_private/results/' + result_folder + '/latest_model.pth ' + result_dir + '/')
 
     print('success')
 
 
-valid_losses, train_losses, valid_acc = analyze_log('log.txt', 10)
+valid_losses, train_losses, valid_acc = analyze_log(result_dir + '/log.txt', 1)
 
-start = 1200
+start = 1488
 plt.figure()
 plt.plot(valid_losses[start:, 0], '.b-', linewidth=0.5, markersize=1)
 plt.plot(train_losses[start:, 0], '.r-', linewidth=0.5, markersize=1)

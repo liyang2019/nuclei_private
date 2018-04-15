@@ -124,6 +124,12 @@ def submit_augment_pad_revert(net, images, scale=1.0):
 
 # -----------------------------------------------------------------------------------
 def submit_augment_pad(image, index):
+    # # <todo>
+    # image = -image
+    # image = image.astype(np.float)
+    # image -= image.min()
+    # image /= image.max()
+    # image = image ** 1.5 * 255
 
     pad_image = pad_to_factor(image, factor=16)
     H, W = pad_image.shape[0], pad_image.shape[1]
@@ -132,18 +138,26 @@ def submit_augment_pad(image, index):
     return input, image, index
 
 
+def submit_augment_blur(image, index):
+    image = normalize(image)
+    image_blur = cv2.blur(image, (5, 5))
+    input, image_blur, index = submit_augment_pad(image_blur, index)
+    image = image.reshape(image.shape[0], image.shape[1], -1)
+    return input, image, index
+
+
 def normalize(im):
     im -= im.min()
-    im /= im.max()
+    im = im / im.max()
     im *= 255
     return im
 
 
 def submit_augment_horizontal_flip(image, index):
+    image = normalize(image)
     hflip_image = image.copy()[:, ::-1, ...]
     input, hflip_image, index = submit_augment_pad(hflip_image, index)
     image = image.reshape(image.shape[0], image.shape[1], -1)
-    image = normalize(image)
     return input, image, index
 
 
@@ -162,10 +176,10 @@ def submit_augment_horizontal_flip_revert(net, images):
 
 
 def submit_augment_vertical_flip(image, index):
+    image = normalize(image)
     vflip_image = image.copy()[::-1, :, ...]
     input, vflip_image, index = submit_augment_pad(vflip_image, index)
     image = image.reshape(image.shape[0], image.shape[1], -1)
-    image = normalize(image)
     return input, image, index
 
 
@@ -184,10 +198,10 @@ def submit_augment_vertical_flip_revert(net, images):
 
 
 def submit_augment_scale(image, index, scale):
+    image = normalize(image)
     scaled_image = transform.rescale(image, scale, mode='reflect', order=1, preserve_range=True)  # order 1 is bilinear
     input, scaled_image, index = submit_augment_pad(scaled_image, index)
     image = image.reshape(image.shape[0], image.shape[1], -1)
-    image = normalize(image)
     return input, image, index
 
 
@@ -262,6 +276,9 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
 
         def test_augment_revert(nt, imgs):
             return submit_augment_scale_revert(nt, imgs, 0.8)
+    elif test_augment_mode == 'blur':
+        test_augment = submit_augment_blur
+        test_augment_revert = submit_augment_pad_revert
     elif test_augment_mode == 'none':
         test_augment = submit_augment_pad
         test_augment_revert = submit_augment_pad_revert
