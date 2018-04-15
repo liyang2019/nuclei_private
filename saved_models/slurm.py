@@ -6,6 +6,7 @@ class Config:
         self.job_id = 0
         self.model = None
         self.model_folder = None
+        self.test_augment_mode = 'none'
         self.identifier = None
 
     def __str__(self):
@@ -37,7 +38,7 @@ def submit(job_dir, config):
         print("#SBATCH --partition=commons", file=f)
         print("#SBATCH --nodes=1", file=f)
         print("#SBATCH --ntasks-per-node=1", file=f)
-        # print("#SBATCH --gres=gpu:1", file=f)
+        # print("#SBATCH --gres=gpu:1", file=f)  # use gpu
         print("#SBATCH --mem-per-cpu=4000m", file=f)
         print("#SBATCH --time=1-00:00:00", file=f)
         print("#SBATCH --mail-user=li.yang.pbs@gmail.com", file=f)
@@ -51,20 +52,32 @@ def submit(job_dir, config):
         print("module list", file=f)
         print("cd $SLURM_SUBMIT_DIR", file=f)
         print("", file=f)
-        print("module purge", file=f)
-        print("module load GCC/6.4.0  CUDA/7.5.18  OpenMPI/2.1.1 PyTorch/0.1.12", file=f)
+        print("cd ../mask_rcnn", file=f)
+        print("./build_lib.sh", file=f)
+        print("cd - ", file=f)
         print("", file=f)
+
         print("srun python main.py " +
-              "--not_debug " +
-              "--use_gpu " +
-              "--print_every " + str(config.print_every) + " " +
-              "--save_model_every " + str(config.save_model_every) + " " +
-              "--unet_batch_norm " +
-              "--crop_size " + str(config.crop_size) + " ",
-              "--train_set " + config.train_set + " ",
-              "--batch_size " + str(config.batch_size) + " ",
-              "--unet_channels " + str(config.unet_channels) + " ",
+              "--initial_checkpoint " + os.path.join(config.model_folder, config.model) + " " +
+              "--test_augment_mode " + config.test_augment_mode,
               file=f)
 
     os.chmod(slurm_file_name, mode=777)
     os.system("sbatch -D " + job_dir + " " + slurm_file_name)
+    config.job_id += 1  # every time submit, job id plus 1
+
+
+def main():
+    cfg = Config()
+    cfg.job_id = 0
+    cfg.model_folder = 'models_gray690'
+    for cfg.model in ['00027500_model.pth', '00029000_model.pth', '00031500_model.pth', '00032500_model.pth', '00035000_model.pth']:
+        for cfg.test_augment_mode in ['scaleup', 'scaledown', 'hflip', 'vflip', 'none', 'blur']:
+            submit(str(cfg), cfg)
+            cfg.job_id += 1
+
+    print("number of jobs: ", cfg.job_id)
+
+
+if __name__ == '__main__':
+    main()
