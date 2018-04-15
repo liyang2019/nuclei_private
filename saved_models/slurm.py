@@ -55,7 +55,7 @@ def submit(job_dir, config):
         print("cd - ", file=f)
         print("", file=f)
 
-        print("srun python main.py " +
+        print("srun python predict.py " +
               "--initial_checkpoint " + os.path.join(config.model_folder, config.model) + " " +
               "--test_augment_mode " + config.test_augment_mode,
               file=f)
