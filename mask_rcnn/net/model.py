@@ -362,19 +362,19 @@ class MaskHead(nn.Module):
         self.logit = nn.Conv2d(in_channels, self.num_classes, kernel_size=1, padding=0, stride=1)
 
     def forward(self, crops):
-        # x = F.relu(self.bn1(self.conv1(crops)), inplace=True)
-        # x = F.relu(self.bn2(self.conv2(x)), inplace=True)
-        # x = F.relu(self.bn3(self.conv3(x)), inplace=True)
-        # x = F.relu(self.bn4(self.conv4(x)), inplace=True)
-        # x = self.up(x)
-        # logits = self.logit(x)
-
-        x = F.leaky_relu(self.bn1(self.conv1(crops)), inplace=True)
-        x = F.leaky_relu(self.bn2(self.conv2(x)), inplace=True)
-        x = F.leaky_relu(self.bn3(self.conv3(x)), inplace=True)
-        x = F.leaky_relu(self.bn4(self.conv4(x)), inplace=True)
+        x = F.relu(self.bn1(self.conv1(crops)), inplace=True)
+        x = F.relu(self.bn2(self.conv2(x)), inplace=True)
+        x = F.relu(self.bn3(self.conv3(x)), inplace=True)
+        x = F.relu(self.bn4(self.conv4(x)), inplace=True)
         x = self.up(x)
         logits = self.logit(x)
+
+        # x = F.leaky_relu(self.bn1(self.conv1(crops)), inplace=True)
+        # x = F.leaky_relu(self.bn2(self.conv2(x)), inplace=True)
+        # x = F.leaky_relu(self.bn3(self.conv3(x)), inplace=True)
+        # x = F.leaky_relu(self.bn4(self.conv4(x)), inplace=True)
+        # x = self.up(x)
+        # logits = self.logit(x)
 
         return logits
 
