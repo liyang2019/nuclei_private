@@ -13,6 +13,6 @@ results
 backup
 data
 gcp_data_sync
-saved_models
+saved_models/models_*
 
 
