@@ -29,7 +29,7 @@ def main():
     initial_checkpoint = args.initial_checkpoint
     identifier = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     test_augment_mode = args.test_augment_mode
-    ensemble_predict(initial_checkpoint, identifier, test_augment_mode)
+    ensemble_predict(initial_checkpoint, identifier, test_augment_mode, args.result_dir)
 
 
 if __name__ == '__main__':
