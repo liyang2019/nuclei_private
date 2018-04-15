@@ -12,7 +12,8 @@ class Config:
         rep = "a" + jobid_to_string(self.job_id) + \
               "_2018-4-15" + \
               "_" + self.model_folder + \
-              "_" + self.model
+              "_" + self.model + \
+              "_" + self.test_augment_mode
         return rep
 
 
@@ -69,8 +70,14 @@ def submit(job_dir, config):
 def main():
     cfg = Config()
     cfg.job_id = 0
-    cfg.model_folder = 'models_gray690'
-    for cfg.model in ['00027500_model.pth', '00029000_model.pth', '00031500_model.pth', '00032500_model.pth', '00035000_model.pth']:
+    cfg.model_folder = 'models_gray800'
+    for cfg.model in ['00018000_model.pth', '00018500_model.pth', '00019000_model.pth']:
+        for cfg.test_augment_mode in ['scaleup', 'scaledown', 'hflip', 'vflip', 'none', 'blur']:
+            submit(str(cfg), cfg)
+            cfg.job_id += 1
+
+    cfg.model_folder = 'models_gray500'
+    for cfg.model in ['00033500_model.pth']:
         for cfg.test_augment_mode in ['scaleup', 'scaledown', 'hflip', 'vflip', 'none', 'blur']:
             submit(str(cfg), cfg)
             cfg.job_id += 1
