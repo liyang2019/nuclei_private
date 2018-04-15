@@ -1,3 +1,5 @@
+export PYTHONPATH=../:../mask_rcnn:../ensemble
+
 python predict.py \
     --initial_checkpoint ../results/2018-4-13_gray690_full/2018-04-14_03-14-43/checkpoint/00037500_model.pth \
     --test_augment_mode none \
