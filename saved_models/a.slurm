@@ -16,6 +16,8 @@ echo modules:
 module list
 cd $SLURM_SUBMIT_DIR
 
+export PYTHONPATH=../:../mask_rcnn:../ensemble
+
 cd ../mask_rcnn
 ./build_lib.sh
 cd -
