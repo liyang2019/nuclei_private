@@ -7,14 +7,12 @@ class Config:
         self.model = None
         self.model_folder = None
         self.test_augment_mode = 'none'
-        self.identifier = None
 
     def __str__(self):
         rep = "a" + jobid_to_string(self.job_id) + \
               "_2018-4-15" + \
               "_" + self.model_folder + \
-              "_" + self.model + \
-              "_" + self.identifier
+              "_" + self.model
         return rep
 
 
