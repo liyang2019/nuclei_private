@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 
 result_folder = '2018-4-13_gray690_full'
 IDENTIFIER = '2018-04-14_03-14-43'
-if 0:
+if 1:
     # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/2018-04-13_14-39-13/train' + ' ./')
-    os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/latest_model.pth' + ' ./')
+    # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/' + result_folder + '/latest_model.pth' + ' ./')
     # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/results/2018-4-13_gray690_full/2018-04-13_14-39-13/checkpoint/00016500_model.pth ./')
-    os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/mask_rcnn/log.txt ./')
+    # os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/mask_rcnn/log.txt ./')
 
+    os.system('gcloud compute scp --recurse --zone us-central1-c instance-1:/home/li/nuclei_private/saved_models/a020_2018-4-15_models_gray690_00037500_model/2018-04-15_18-44-04_ensemble_00037500_model/none/submit/overlays ./')
     print('success')
 
 

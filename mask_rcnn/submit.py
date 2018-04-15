@@ -149,7 +149,7 @@ def submit_augment_blur(image, index):
 def normalize(im):
     im -= im.min()
     im = im / im.max()
-    im *= 255
+    im *= 255 * 0.9
     return im
 
 
@@ -283,7 +283,10 @@ def run_submit(out_dir, initial_checkpoint, data_dir, image_set, image_folder, c
         test_augment = submit_augment_blur
         test_augment_revert = submit_augment_pad_revert
     elif test_augment_mode == 'none':
-        test_augment = submit_augment_pad
+        def test_augment(img, idx):
+            img = normalize(img)
+            return submit_augment_pad(img, idx)
+
         test_augment_revert = submit_augment_pad_revert
     else:
         raise NotImplementedError
