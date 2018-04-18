@@ -1,5 +1,6 @@
 from dataset.reader import *
-from mask_rcnn.submit import run_npy_to_sumbit_csv
+from mask_rcnn.submit import run_npy_to_sumbit_csv, filter_small
+from net.metric import run_length_decode, run_length_encode
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -228,8 +229,8 @@ def run_ensemble(data_dir, out_dir, ensemble_dirs):
         # image_show('ensemble_mask',color_overlay2)
 
         if 1:
-            folder = 'stage1_test'
-            image = cv2.imread(data_dir + '/stage1_images/%s/%s.png' % (folder, name), cv2.IMREAD_COLOR)
+            folder = 'stage2_test'
+            image = cv2.imread(data_dir + '/%s/%s.png' % (folder, name), cv2.IMREAD_COLOR)
 
             mask = ensemble_mask
             # norm_image = adjust_gamma(image, 2.5)
@@ -250,22 +251,134 @@ def run_ensemble(data_dir, out_dir, ensemble_dirs):
         # pass
 
 
-def main():
-    # data_dir = '../data'
-    # out_root = '2018-04-07_15-30-34_maskrcnn_gray-gray_test_augment'
-    # out_dir = os.path.join(out_root, 'output')
-    # ensemble_dirs = [
-    #     # different predictors, test augments, etc ...
-    #     os.path.join(out_root, 'none', 'submit', 'npys'),
-    #     os.path.join(out_root, 'vflip', 'submit', 'npys'),
-    #     os.path.join(out_root, 'hflip', 'submit', 'npys'),
-    #     os.path.join(out_root, 'scaleup', 'submit', 'npys'),
-    #     os.path.join(out_root, 'scaledown', 'submit', 'npys'),
-    # ]
-    # run_ensemble(data_dir, out_dir, ensemble_dirs)
+def rles_to_multimask(rles, H, W):
+    multi_mask = np.zeros((H, W), dtype=np.int)
+    for k, rle in enumerate(rles):
+        mask = run_length_decode(rle, H, W) > 128
+        multi_mask[mask] = k + 1
+    return multi_mask
 
-    data_dir = '../data'
-    out_root = '2018-04-08_00-45-40_mask_rcnn_purple-yellow'
+
+def run_ensemble_from_csvs(data_dir, out_dir, csv_file, names, name_to_rles_list):
+
+    ## setup  --------------------------
+    # os.makedirs(out_dir + '/average_semantic_mask', exist_ok=True)
+    # os.makedirs(out_dir + '/cluster_union_mask', exist_ok=True)
+    # os.makedirs(out_dir + '/cluster_inter_mask', exist_ok=True)
+    # os.makedirs(out_dir + '/ensemble_mask', exist_ok=True)
+    os.makedirs(out_dir + '/ensemble_mask_overlays', exist_ok=True)
+    # os.makedirs(out_dir + '/npys', exist_ok=True)
+
+    sorted(names)
+
+    cvs_ImageId = []
+    cvs_EncodedPixels = []
+
+    # num_ensemble = len(name_to_rles_list)
+    for index, name in enumerate(names):
+        print(index, name)
+        im = cv2.imread('../data/2018-4-12_dataset/stage2_test/' + name + '.png')
+        H, W = im.shape[0], im.shape[1]
+
+        boxes = []
+        scores = []
+        instances = []
+
+        average_semantic_mask = None
+        for name_to_rles in name_to_rles_list:
+            rles = name_to_rles[name]
+            mask = rles_to_multimask(rles, H, W)
+
+            if average_semantic_mask is None:
+                average_semantic_mask = (mask > 0).astype(np.float32)
+            else:
+                average_semantic_mask = average_semantic_mask + (mask > 0).astype(np.float32)
+
+            box, score, instance = mask_to_more(mask)
+            boxes.append(box)
+            scores.append(score)
+            instances.append(instance)
+
+        clusters = do_clustering(boxes, scores, instances, threshold=0.3)
+
+        # <todo> do your ensemble  here! =======================================
+        ensemble_mask = np.zeros((H, W), np.int32)
+        for i, c in enumerate(clusters):
+            num_members = len(c.members)
+            average = np.zeros((H, W), np.float32)  # e.g. use average
+            for n in range(num_members):
+                average = average + c.members[n]['instance']
+            average = average / num_members
+            ensemble_mask[average > 0.5] = i + 1
+
+        multi_mask = filter_small(ensemble_mask, 8)
+        num = int(multi_mask.max())
+        for m in range(num):
+            rle = run_length_encode(multi_mask == m + 1)
+            cvs_ImageId.append(name)
+            cvs_EncodedPixels.append(rle)
+        # np.save(out_dir + '/npys/%s.npy' % name, ensemble_mask)
+
+        # do some post processing here ---
+        # e.g. fill holes
+        #      remove small fragment
+        #      remove boundary
+        # <todo> do your ensemble  here! =======================================
+
+        # show clustering/ensemble results
+        # cluster_inter_mask = np.zeros((H, W), np.int32)
+        # cluster_union_mask = np.zeros((H, W), np.int32)
+        # for i, c in enumerate(clusters):
+        #     cluster_inter_mask[c.center['inter']] = i + 1
+        #     cluster_union_mask[c.center['union']] = i + 1
+
+        # color_overlay0 = multi_mask_to_color_overlay(cluster_inter_mask)
+        # color_overlay1 = multi_mask_to_color_overlay(cluster_union_mask)
+        # color_overlay2 = multi_mask_to_color_overlay(ensemble_mask)
+        ##-------------------------
+        # average_semantic_mask = (average_semantic_mask / num_ensemble * 255).astype(np.uint8)
+        # average_semantic_mask = cv2.cvtColor(average_semantic_mask, cv2.COLOR_GRAY2BGR)
+
+        # cv2.imwrite(out_dir + '/average_semantic_mask/%s.png' % (name,), average_semantic_mask)
+        # cv2.imwrite(out_dir + '/cluster_inter_mask/%s.mask.png' % (name,), color_overlay0)
+        # cv2.imwrite(out_dir + '/cluster_union_mask/%s.mask.png' % (name,), color_overlay1)
+        # cv2.imwrite(out_dir + '/ensemble_mask/%s.mask.png' % (name,), color_overlay2)
+
+        # image_show('average_semantic_mask', average_semantic_mask)
+        # image_show('cluster_inter_mask', color_overlay0)
+        # image_show('cluster_union_mask', color_overlay1)
+        # image_show('ensemble_mask',color_overlay2)
+
+        if 1:
+            folder = 'stage2_test'
+            image = cv2.imread(data_dir + '/%s/%s.png' % (folder, name), cv2.IMREAD_COLOR)
+
+            mask = ensemble_mask
+            # norm_image = adjust_gamma(image, 2.5)
+            norm_image = image
+            color_overlay = multi_mask_to_color_overlay(mask)
+            color1_overlay = multi_mask_to_contour_overlay(mask, color_overlay)
+            contour_overlay = multi_mask_to_contour_overlay(mask, norm_image, [0, 255, 0])
+            all = np.hstack((image, contour_overlay, color1_overlay)).astype(np.uint8)
+            # image_show('ensemble_mask', all)
+
+            # psd
+            cv2.imwrite(out_dir + '/ensemble_mask_overlays/%s.png' % (name,), all)
+            # os.makedirs(out_dir + '/ensemble_mask_overlays/%s' % (name,), exist_ok=True)
+            # cv2.imwrite(out_dir + '/ensemble_mask_overlays/%s/%s.png' % (name, name), image)
+            # cv2.imwrite(out_dir + '/ensemble_mask_overlays/%s/%s.mask.png' % (name, name), color_overlay)
+            # cv2.imwrite(out_dir + '/ensemble_mask_overlays/%s/%s.contour.png' % (name, name), contour_overlay)
+
+    df = pd.DataFrame({'ImageId': cvs_ImageId, 'EncodedPixels': cvs_EncodedPixels})
+    df.to_csv(csv_file, index=False, columns=['ImageId', 'EncodedPixels'])
+    return cvs_ImageId, cvs_EncodedPixels
+
+
+def main():
+
+    # gcp
+    data_dir = '../data/2018-4-12_dataset'
+    out_root = 'ensemble'
     out_dir = os.path.join(out_root, 'output')
     ensemble_dirs = [
         # different predictors, test augments, etc ...

@@ -49,11 +49,14 @@ def run_length_encode(x):
 
 def run_length_decode(rle, H, W, fill_value=255):
     mask = np.zeros((H * W), np.uint8)
-    rle = np.array([int(s) for s in rle.split(' ')]).reshape(-1, 2)
-    for r in rle:
-        start = r[0] - 1
-        end = start + r[1]
-        mask[start: end] = fill_value
+    if type(rle) == str:
+        rle = np.array([int(s) for s in rle.split(' ')]).reshape(-1, 2)
+        for r in rle:
+            start = r[0] - 1
+            end = start + r[1]
+            mask[start: end] = fill_value
+    else:
+        print('rle not str: ', rle)
     mask = mask.reshape(W, H).T  # H, W need to swap as transposing.
     return mask
 
